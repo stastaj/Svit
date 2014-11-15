@@ -112,8 +112,8 @@ namespace Svit
 	Vector<Scalar>
 	operator~(const Vector<Scalar>& a)
 	{
-		float length = sqrt(a % a);
-		return Vector<Scalar>(a.x/length, a.y/length, a.z/length, a.w/length);
+    float lengthInv = 1.f / sqrt(a % a);
+    return Vector<Scalar>(a.x*lengthInv, a.y*lengthInv, a.z*lengthInv, a.w*lengthInv);
 	}
 
 	template <typename Scalar>
@@ -132,10 +132,11 @@ namespace Svit
 	Vector<Scalar>& 
 	operator/=(Vector<Scalar>& v, Scalar s) 
 	{
-		v.x /= s;
-		v.y /= s; 
-		v.z /= s;
-		v.w /= s;
+    Scalar inv_s=1.0/s;
+    v.x *= inv_s;
+    v.y *= inv_s;
+    v.z *= inv_s;
+    v.w *= inv_s;
 		
 		return v;
 	}

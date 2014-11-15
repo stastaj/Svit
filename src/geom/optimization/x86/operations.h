@@ -6,6 +6,7 @@
 
 namespace Svit
 {
+
 	inline Vector<float> 
 	operator+(const Vector<float>& a, const Vector<float>& b)
 	{
@@ -17,6 +18,12 @@ namespace Svit
 	{
 		return Vector<float>(_mm_mul_ps(v.v, _mm_set1_ps(s)));
 	}
+
+  inline Vector<float>
+  operator/(const Vector<float>& v, float s)
+  {
+    return Vector<float>(_mm_div_ps(v.v, _mm_set1_ps(s)));
+  }
 
 	inline Vector<float> 
 	operator*(float s, const Vector<float>& v)
@@ -70,7 +77,7 @@ namespace Svit
 	operator!(const Vector<float>& v)
 	{
 		// TODO optimization: the _mm -1.0f can be prepared before for all calls
-		return Vector<float>(_mm_mul_ps(v.v, _mm_set1_ps(1.0f)));
+    return Vector<float>(_mm_mul_ps(v.v, _mm_set1_ps(-1.f)));
 	}
 
 	inline Vector<float>

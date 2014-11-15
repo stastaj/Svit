@@ -1,0 +1,7 @@
+phong.h, node.h -> include <memory> added
+main.cpp -> include bspline.h removed
+triangle.h -> Vector3 e1,e2 instead of Vector
+CMmakeLists.txt -> headers included in ${sources} variable, only this way QtCreator shows headers in a project.  
+math/Frame.h added. Coordinate frames support - changes of coordiantes between two basis. 
+pi constants added to numeric.h for portability.
+

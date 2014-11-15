@@ -1,6 +1,7 @@
-#include "engine/ray_tracing.h"
+#include "engine/path_tracing.h"
 #include "light/light.h"
 #include "math/numeric.h"
+#include "math/frame.h"
 
 #include <numeric>
 
@@ -14,6 +15,7 @@ namespace Svit
 
 		if (best)
 		{
+      Vector3 color(0,0,0);
 			Intersection i = *best;
 			best->node->complete_intersection(&i);
 
@@ -21,12 +23,6 @@ namespace Svit
 			for (auto &light : _world.lights)
 			{
 				LightHit light_hit = light->get_light_hit(i.point);
-
-				/* float sgn1 = ~light_hit.direction % ~i.normal; */
-				/* float sgn2 = ~!_ray.direction % ~i.normal; */
-				/* if ((sgn1 < 0.0f && sgn2 > 0.0f) || */ 
-				/*     (sgn1 > 0.0f && sgn2 < 0.0f)) */ 
-				/* 	continue; */
 
 				Point3 shadow_point = i.point + (light_hit.direction * 0.0001f);
 				Ray shadow_ray(shadow_point, light_hit.direction);
@@ -38,12 +34,18 @@ namespace Svit
 					continue;
 
 				light_component += light->get_intensity(light_hit);
+
+        Frame frame;
+        frame.set_from_z(i.normal);
+
+        Vector3 material_component = i.node->material->eval_brdf(i.point,
+        frame.to_local(light_hit.direction),! _ray.direction);
+
+        color=color+material_component*light_component;
 			}
 
-			Vector3 material_component = i.node->material->get_reflectance(i.point, 
-			    i.normal, _ray.direction, !_ray.direction);
 
-			return material_component * light_component;
+      return color;
 		}
 		else
 			return Vector3();

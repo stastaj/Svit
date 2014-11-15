@@ -32,6 +32,12 @@ namespace Svit
 				: x(other.x), y(other.y), z(other.z), w(other.w)
 			{ }
 
+      Scalar
+      max()
+      {
+        return std::max(std::max(x,y),std::max(z,w));
+      }
+
 			Scalar& 
 			operator[](int nth)
 			{

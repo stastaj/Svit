@@ -3,6 +3,7 @@
 
 #include "geom/optimization/x86/general.h"
 
+#include <math.h>
 #include <assert.h>
 #include <stdexcept>
 #include <iostream>
@@ -41,7 +42,13 @@ namespace Svit
 				v = other;
 			}
 
-			inline float& 
+      float
+      max() const
+      {
+        return std::max(std::max(x,y),std::max(z,w));
+      }
+
+      inline float&
 			operator[](int nth)
 			{
 				assert(nth >= 0 && nth <= 3);

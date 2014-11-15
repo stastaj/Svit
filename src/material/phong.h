@@ -1,25 +1,47 @@
 #ifndef SVIT_PHONG_MATERIAL
 #define SVIT_PHONG_MATERIAL
 
+#include <memory>
 #include "material/material.h"
 #include "texture/texture.h"
+#include "math/numeric.h"
+#include "geom/vector.h"
+#include "geom/operations.h"
+
 
 namespace Svit
 {
-	class PhongMaterial : public Material
+  class Phong : public Material
 	{
 		private:
-			std::unique_ptr<Texture> texture;
-			float exp;
-				
-		public:
-			PhongMaterial (std::unique_ptr<Texture> _texture, 
-			    float _exp);
+      std::unique_ptr<Texture> texture; // color - diffuse reflectance
+      float exponent;
+      Vector3 gloss_reflectance;
+      /* For energy conservation must be satisfied
+         that gloss_reflectance + texture < 1 for all three channels!!! */
 
-			Vector3
-			get_reflectance (Point3 _point, Vector3 _normal, Vector3 _in, 
-			    Vector3 _out);
-	};
+		public:
+      Phong (std::unique_ptr<Texture> _texture, float _exp, Vector3 _reflectance):
+        texture(std::move(_texture)), exponent(_exp),
+        gloss_reflectance(_reflectance)
+      {}
+
+
+      Vector3
+      eval_brdf(const Point3& _point, const Vector3& _wil, const Vector3& _wol)
+      const override;
+
+      void
+      sample_brdf(const Point3& _point, const Frame& _frame, float* _pdf,
+                  Vector3& _sampled_dir_global, Vector3& _brdf,
+                  const Vector3& _wol,Vector2& _samples,reflection_type type)
+      const override;
+
+      float
+      get_pdf(const Point3& _point,const Frame& _frame,const Vector3& _wog,
+              const Vector3& _wig)
+      const override;
+  };
 }
 
 #endif

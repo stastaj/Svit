@@ -1,10 +1,9 @@
 #include "camera/perspective.h"
-#include "engine/cosine_debugger.h"
-#include "engine/ray_casting.h"
-#include "engine/ray_tracing.h"
 #include "geom/rect.h"
 #include "geom/vector.h"
 #include "geom/point.h"
+#include "engine/engine.h"
+#include "engine/path_tracing.h"
 #include "image/image.h"
 #include "node/group/simple.h"
 #include "node/solid/sphere.h"
@@ -14,11 +13,9 @@
 #include "renderer/serial/serial.h"
 #include "renderer/parallel/parallel.h"
 #include "supersampling/random.h"
-#include "trajectory/bspline.h"
 #include "world/world.h"
-#include "material/lambertian.h"
+#include "material/material.h"
 #include "material/phong.h"
-#include "material/mirror.h"
 #include "texture/constant.h"
 #include "texture/checkerboard.h"
 #include "texture/perlin_noise.h"
@@ -45,8 +42,8 @@ get_wood_world ()
 	    Vector3(0.0, 1.0, 0.0));
 	std::unique_ptr<Texture> checker_texture(new CheckerboardTexture(Vector3(0.5f, 
 	    0.5f, 0.5f), Vector3(1.0, 1.0, 1.0), 0.25));
-	std::unique_ptr<Material> plane_material(new LambertianMaterial(
-	    std::move(checker_texture)));
+  std::unique_ptr<Material> plane_material(new Phong(
+      std::move(checker_texture),50.0f,Vector3(0.f,0.f,0.f)));
 	plane->set_material(std::move(plane_material));
 
 	Sphere *sphere = new Sphere(Point3(-0.9, 0.35, 0.0), 0.35);
@@ -55,8 +52,8 @@ get_wood_world ()
 			201.0f/255.0f, 175.0f/255.0f));
 	wood_texture->add_octave(1.0, 3.0);
 	std::unique_ptr<Texture> wood_sphere_tex(wood_texture);
-	std::unique_ptr<Material> sphere_material(new LambertianMaterial(
-	    std::move(wood_sphere_tex)));
+  std::unique_ptr<Material> sphere_material(new Phong(
+      std::move(wood_sphere_tex),20.0f,0.0f));
 	sphere->set_material(std::move(sphere_material));
 
 	scene->add(plane);
@@ -93,8 +90,8 @@ get_marble_world ()
 	    Vector3(0.0, 1.0, 0.0));
 	std::unique_ptr<Texture> checker_texture(new CheckerboardTexture(Vector3(0.5f, 
 	    0.5f, 0.5f), Vector3(1.0, 1.0, 1.0), 4.25));
-	std::unique_ptr<Material> plane_material(new LambertianMaterial(
-	    std::move(checker_texture)));
+  std::unique_ptr<Material> plane_material(new Phong(
+      std::move(checker_texture),50.0f,0.0f));
 	plane->set_material(std::move(plane_material));
 
 	MarblePerlinNoiseTexture *marble_texture = new MarblePerlinNoiseTexture(
@@ -103,8 +100,8 @@ get_marble_world ()
 		marble_texture->add_octave(1.0f/(float)i, (float)i);
 
 	std::unique_ptr<Texture> marble_sphere_tex(marble_texture);
-	std::unique_ptr<Material> marble_sphere_mat(new LambertianMaterial(
-	    std::move(marble_sphere_tex)));
+  std::unique_ptr<Material> marble_sphere_mat(new Phong(
+      std::move(marble_sphere_tex),50.0f,0.0f));
 	Sphere *sphere = new Sphere(Point3(12.8, 15.35, 2.0), 15.35);
 	sphere->set_material(std::move(marble_sphere_mat));
 
@@ -125,36 +122,49 @@ get_marble_world ()
 	std::unique_ptr<Light> ambient_light(new AmbientLight(
 	    Vector3(1.0f, 1.0f, 1.0f) * 3.0f));
 	world.add_light(std::move(ambient_light));
-
+  std::unique_ptr<Light> point_light(new PointLight(Point3(0.0, 1.5, 0.0),
+     Vector3(1.0f, 1.0f, 1.0f) * 1.0f));
 	return world;
 }
 
 int 
 main (void)
 {
+  clock_t begin = clock();
+
 	Settings settings;
 	settings.whole_area = Rectangle(Point2i(0, 0), Vector2i(1280, 720));
 	settings.area = Rectangle(Point2i(0, 0), Vector2i(1280, 720));
 	settings.max_thread_count = std::thread::hardware_concurrency();
 	settings.tile_size = Vector2i(100, 100);
-	settings.max_sample_count = 4;
+  settings.max_sample_count = 4;
 	settings.adaptive_sample_step = 1000;
 
-	RayTracingEngine engine;
-	ParallelRenderer renderer;
-	RandomSuperSampling super_sampling(true);
+  RayTracingEngine engine;
+  ParallelRenderer renderer;
+  RandomSuperSampling super_sampling(true);
 
-	World marble_world = get_marble_world();
-	World wood_world = get_wood_world();
+  World marble_world = get_marble_world();
+  Image marble_image = renderer.render(marble_world, settings, engine,
+        super_sampling);
 
-	Image marble_image = renderer.render(marble_world, settings, engine, 
-	    super_sampling);
-	marble_image.write(std::string("marble_output.png"));
+  clock_t end = clock();
+  double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 
-	Image wood_image = renderer.render(wood_world, settings, engine, 
-	    super_sampling);
-	wood_image.write(std::string("wood_output.png"));
+  std::string filename="marble_output_"+std::to_string(elapsed_secs)+"s.png";
+  marble_image.write(filename.data());
 
-	return 0;
+  begin= clock();
+
+  World wood_world = get_wood_world();
+  Image wood_image = renderer.render(wood_world, settings, engine,
+                                     super_sampling);
+  end=clock();
+  elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+
+  filename="wood_output_"+std::to_string(elapsed_secs)+"s.png";
+  wood_image.write(filename.data());
+
+  return 0;
 }
 

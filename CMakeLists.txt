@@ -3,8 +3,7 @@ project(Svit)
 
 option (USE_SSE "Use SSE instructions" ON)
 
-file(GLOB_RECURSE Svit_SOURCES "src/*.cpp")
-file(GLOB_RECURSE Svit_HEADERS "src/*.h")
+file(GLOB_RECURSE Svit_SOURCES "src/*.cpp" "src/*.h")
 
 include_directories("src/")
 
@@ -13,8 +12,8 @@ find_package(PNG REQUIRED)
 include_directories(${PNG_INCLUDE_DIR})
 
 if (USE_SSE)
-	message(STATUS "Enabling SSE support")
-	add_definitions ("-DUSE_SSE")
+  message(STATUS "Enabling SSE support")
+  add_definitions ("-DUSE_SSE")
 endif ()
 
 add_executable (Svit ${Svit_SOURCES})

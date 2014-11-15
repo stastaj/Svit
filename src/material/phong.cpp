@@ -1,31 +1,88 @@
 #include "material/phong.h"
 
-#include <cmath>
+using namespace Svit;
 
-namespace Svit
+Vector3
+Phong::eval_brdf(const Point3& _point, const Vector3& _wil,
+                 const Vector3& _wol) const
 {
-	PhongMaterial::PhongMaterial (std::unique_ptr<Texture> _texture, float _exp)
-	{
-		texture = std::move(_texture);
-		exp = _exp;
-	}
+  if( _wil.z <= 0 && _wol.z <= 0)
+    return Vector3(0,0,0);
 
-	Vector3
-	PhongMaterial::get_reflectance (Point3 _point, Vector3 _normal, Vector3 _in, 
-	    Vector3 _out)
-	{
-		Vector3 ideal_reflection = (_normal * 2.0f * (_normal % _in)) - _in;
-		float cos_angle = ~ideal_reflection % _out;
+  Vector3 diffuseComponent = texture->get_color(_point) * INV_PI_F;
+  Vector3 r;
+  r.x=-_wil.x;
+  r.y=-_wil.y;
+  r.z=_wil.z;
+  Vector3 glossyComponent  =
+    ((exponent+2)*0.5f*INV_PI_F)*gloss_reflectance*pow((r % _wol),exponent);
 
-		if (cos_angle < 0.0f)
-			return Vector3();
-		else
-		{
-			float power = powf(cos_angle, exp);
-			float intensity = power * (exp + 2.0f) / M_PI_2;
-
-			return texture->get_color(_point) * intensity;
-		}
-	}
+  return diffuseComponent + glossyComponent;
 }
 
+float
+Phong::get_pdf(const Point3& _point,const Frame& _frame,const Vector3& _wog,
+        const Vector3& _wig) const
+{
+  float pd=(texture->get_color(_point)).max();
+  float ps=gloss_reflectance.max();
+  float sum=pd+ps;
+  pd/=sum;
+  ps/=sum;
+  Vector3 refl=2*(_wog % _frame.mZ)*_frame.mZ;
+  refl=refl-_wog;
+
+  float spec=power_cos_hemisphere_pdf_w(refl,_wig,exponent);
+  float diff=cos_hemisphere_pdf_w(_frame.mZ,_wig);
+
+  return pd*diff+ps*spec;
+}
+
+void
+Phong::sample_brdf(const Point3& _point, const Frame& _frame, float* _pdf,
+                  Vector3& _sampled_dir_global, Vector3& _brdf,
+                  const Vector3& _wol,Vector2& _samples,reflection_type type)
+const
+{
+  Vector3 diffuseColor=texture->get_color(_point);
+  float pd=diffuseColor.max();
+  float ps=gloss_reflectance.max();
+  float sum=pd+ps;
+  pd/=sum;
+  ps/=sum;
+
+  if(_samples.x<=pd){
+    //sample diffuse
+    _samples.x=_samples.x*(1.f/pd); //sample reuse
+
+    //_samples.x=rand();
+
+    Vector3 local=sample_cos_hemisphere_w(_samples,_pdf);
+    _sampled_dir_global=~(_frame.to_world(local));
+    _brdf=diffuseColor * INV_PI_F;
+    *_pdf=(*_pdf)*pd;
+    type=diffuse;
+  }else{
+    //sample specular
+    _samples.x=(_samples.x-pd)*(1.f/(ps)); // sample reuse
+
+    Vector3 wog=_frame.to_world(_wol);
+    Vector3 refl=2.0f*(wog % _frame.mZ)*_frame.mZ;
+    refl=refl-wog;
+    Frame local;
+    local.set_from_z(refl);
+
+    Vector3 local_dir=sample_power_cos_hemisphere_w(_samples,exponent,_pdf);
+    _sampled_dir_global=~(local.to_world(local_dir));
+    float cosThetaIn = _frame.mZ % _sampled_dir_global;
+    if(cosThetaIn <= 0){
+      _brdf=Vector3(0,0,0,0);
+    }
+    else{
+      _brdf=gloss_reflectance * ((exponent+2.0f) * 0.5f * INV_PI_F *
+                                   pow(local_dir.z,exponent));
+    }
+    *_pdf=(*_pdf)*ps;
+    type=specular;
+  }
+}

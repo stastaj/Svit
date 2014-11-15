@@ -4,6 +4,7 @@
 #include "geom/ray.h"
 #include "material/material.h"
 
+#include <memory>
 #include <list>
 #include <iostream>
 #include <boost/optional.hpp>
