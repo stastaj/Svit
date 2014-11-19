@@ -30,6 +30,12 @@ namespace Svit
 			void
 			paste (Point2i start, Image& source);
 
+      void
+      add_image(Image& _img);
+
+      void
+      scale(float _scale);
+
 			int 
 			write (std::string filename);
 	};

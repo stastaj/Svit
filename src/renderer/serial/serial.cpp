@@ -6,47 +6,24 @@ namespace Svit
 {
 	Image
 	SerialRenderer::render (World& _world, Settings& _settings, Engine& _engine,
-	    SuperSampling& _super_sampling)
+      SuperSampling* _super_sampling)
 	{
-		int whole_x = _settings.whole_area.size.x;
-		int whole_y = _settings.whole_area.size.y;
+    int res_x = _settings.resolution.size.x;
+    int res_y = _settings.resolution.size.y;
 
-		Image result(_settings.area.size);
-		SuperSampling *super_sampling = _super_sampling.copy();
+    Image result(_settings.resolution.size);
 
-		for (int x = _settings.area.start.x; 
-		         x < _settings.area.start.x + _settings.area.size.x; 
-		         x++)
-		for (int y = _settings.area.start.y; 
-		         y < _settings.area.start.y + _settings.area.size.y; 
-		         y++)
-		{
-			for (unsigned int i = 0; i < _settings.max_sample_count; i++)
-			{
-				Vector2 sample = super_sampling->next_sample(x, y);
 
-				float nx = compute_normalized_coordinate((float)x + sample.x, whole_x);
-				float ny = compute_normalized_coordinate((float)y + sample.y, whole_y);
+    for (int x = 0; x < res_x; x++)
+      for (int y = 0; y < res_y; y++)
+      {
+        const Vector2 samples = _super_sampling->next_sample(x, y);
+        const Vector2i pixel(x,y);
+        Ray ray = _world.camera->get_ray(pixel, samples);
+        result(x, y) = _engine.get_color(ray, _world);
+      }
 
-				Ray ray = _world.camera->get_ray(nx, ny);
-				Vector3 rgb = _engine.get_color(ray, _world);
 
-				super_sampling->add_result(rgb);
-
-				if (i % _settings.adaptive_sample_step == 0)
-					if (super_sampling->adaptive)
-						if (super_sampling->enough())
-							break;
-			}
-
-			Vector3 final_rgb = super_sampling->final_result();
-
-			int ix = x - _settings.area.start.x; 
-			int iy = y - _settings.area.start.y; 
-			result(ix, iy) = final_rgb;
-		}
-
-		delete super_sampling;		
 
 		return result;
 	}

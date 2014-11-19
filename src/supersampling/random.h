@@ -10,35 +10,30 @@ namespace Svit
 	class RandomSuperSampling : public SuperSampling
 	{
 		private:
-			std::vector<Vector3> results;
-			std::mt19937 generator;
+      std::mt19937_64 generator;
 			std::uniform_real_distribution<float> distribution;
 
 		public:
-			RandomSuperSampling (bool _adaptive);
-
-			RandomSuperSampling (const RandomSuperSampling& other)
-			{
-				this->adaptive = other.adaptive;	
-			}
+      RandomSuperSampling (unsigned int _seed=1234):generator(_seed)
+      {}
 
 			Vector2
 			next_sample (int _x, int _y);
 
-			void
-			add_result (Vector3 _result);
+      void
+      add_result (Vector3 _result){}
 
-			bool
-			enough ();
+      bool
+      enough (){}
 
-			Vector3
-			final_result ();
+      Vector3
+      final_result (){}
 
 			SuperSampling*
-			copy ()
+      copy (unsigned int _seed)
 			{
-				RandomSuperSampling *c = new RandomSuperSampling(*this);
-				return c;
+        RandomSuperSampling *c = new RandomSuperSampling(_seed);
+        return c;
 			}
 	};
 }

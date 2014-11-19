@@ -34,7 +34,7 @@ namespace Svit
 
 		for (int x = 0; x < size.x; x++)
 		for (int y = 0; y < size.y; y++)
-			(*this)(x, y) = Vector3(1.0, 0.7, 0.0);
+      (*this)(x, y) = Vector3(0.0f, 0.0f, 0.0f);
 	}
 
 	void
@@ -49,6 +49,20 @@ namespace Svit
 			(*this)(x, y) = source(x - start.x, y - start.y);
 		}
 	}
+
+  void
+  Image::add_image(Image &_img){
+    for (int x = 0; x < size.x; x++)
+      for (int y = 0; y < size.y; y++)
+        (*this)(x, y) = (*this)(x, y)+_img(x,y);
+  }
+
+  void
+  Image::scale(float _scale){
+    for (int x = 0; x < size.x; x++)
+      for (int y = 0; y < size.y; y++)
+        (*this)(x, y) = (*this)(x, y) * _scale;
+  }
 
 	int 
 	Image::write (std::string filename)
@@ -66,7 +80,7 @@ namespace Svit
 
 		png_text text;
 		char key[] = "Created with";
-		char value[] = "Path Tracer Svit";
+    char value[] = "PathTracer Svit";
 		text.compression = PNG_TEXT_COMPRESSION_NONE;
 		text.key = key;
 		text.text = value;

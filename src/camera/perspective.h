@@ -6,17 +6,17 @@
 #include "geom/point.h"
 #include "geom/rect.h"
 
-#include <cmath>
 
 namespace Svit
 {
 	class PerspectiveCamera : public Camera
 	{
 		private:
-			Vector3 grid_width;
-			Vector3 grid_height;
-			float horizontal_angle;
+      float horizontal_angle; // in radians
 			float aspect_ratio;
+      Vector3 top_left_corner;
+      Vector3 grid_diff_x;
+      Vector3 grid_diff_y;
 
 			void 
 			recompute ();
@@ -25,15 +25,16 @@ namespace Svit
 			Point3 position;
 			Vector3 up;
 			Vector3 forward;
+      Vector2i resolution;
 
-			PerspectiveCamera (Point3 _position, Vector3 _forward, Vector3 _up, 
-			    float _aspect_ratio, float _horizontal_angle);
+      PerspectiveCamera (Point3 _position, Vector3 _forward, Vector3 _up,
+          float _horizontal_angle, Vector2i _resolution);
 
 			Ray
-			get_ray (float _x, float _y);
+      get_ray (const Vector2i& _pos, const Vector2& _samples) const override;
 
 			void
-			look_at (Point3 _dest);
+      look_at (Point3 _dest) override;
 	};
 }
 

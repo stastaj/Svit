@@ -7,29 +7,10 @@ namespace Svit
 {
 	TaskDispatcher::TaskDispatcher (Settings& _settings)
 	{
-		int tile_w = _settings.tile_size.x;
-		int tile_h = _settings.tile_size.y;
-		int w = _settings.area.size.x;
-		int h = _settings.area.size.y;
-		int end_x = 0;
-		int end_y = 0;
+    for (int i = 0; i < _settings.iterations; ++i)
 
-		for (int x = 0; x < w; x += tile_w)
-		for (int y = 0; y < h; y += tile_h)
 		{
-			if (x + tile_w >= w)
-				end_x = w;
-			else
-				end_x = x + tile_w;
-
-			if (y + tile_h >= h)
-				end_y = h;
-			else
-				end_y = y + tile_h;
-
-			Task task;
-			task.start = Point2i(x, y);
-			task.size = Vector2i(end_x - x, end_y - y);
+      Task task=i;
 			tasks.push_back(task);
 		}
 

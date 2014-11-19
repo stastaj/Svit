@@ -26,7 +26,7 @@ namespace Svit
 			final_result () = 0;
 
 			virtual SuperSampling*
-			copy () = 0;
+      copy ( unsigned int ) = 0;
 	};
 }
 

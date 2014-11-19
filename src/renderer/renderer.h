@@ -14,13 +14,7 @@ namespace Svit
 		public:
 			virtual Image
 			render (World& _world, Settings& _settings, Engine& _engine,
-			SuperSampling& _super_sampling) = 0;
-
-			float 
-			compute_normalized_coordinate (float value, float max_value)
-			{
-				return (((value + 0.5f)/max_value)*2.0f)-1.0f;
-			}
+      SuperSampling* _super_sampling) = 0;
 	};
 }
 

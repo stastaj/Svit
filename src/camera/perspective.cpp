@@ -2,13 +2,13 @@
 
 namespace Svit
 {
-	PerspectiveCamera::PerspectiveCamera (Point3 _position, Vector3 _forward, 
-	    Vector3 _up, float _aspect_ratio, float _horizontal_angle)
+  PerspectiveCamera::PerspectiveCamera (Point3 _position, Vector3 _forward,
+      Vector3 _up, float _horizontal_angle, Vector2i _resolution)
 		: position(_position), 
 			forward(~_forward), 
 			up(~_up), 
-			aspect_ratio(_aspect_ratio),
-			horizontal_angle(_horizontal_angle)
+      horizontal_angle(_horizontal_angle),
+      resolution(_resolution)
 	{
 		recompute();
 	}
@@ -17,19 +17,23 @@ namespace Svit
 	PerspectiveCamera::recompute ()
 	{
 		Vector3 left = ~(forward & up);
-		float half_width = 1.0f / tan(horizontal_angle / 2.0);
-		float half_height = half_width / aspect_ratio;
+    float half_width = std::tan(horizontal_angle * 0.5f);
+    aspect_ratio=(float)resolution.y / (float)resolution.x;
+    float half_height = half_width * aspect_ratio;
 
-		grid_width = left * -half_width;
-		grid_height = up * -half_height;
+    top_left_corner=forward+left*half_width+half_height*up;
+    grid_diff_x=((half_width*2.0f)/(float)resolution.x)*(!left);
+    grid_diff_y=((half_width*2.0f)/(float)resolution.x)*(!up);
 	}
 
 	Ray
-	PerspectiveCamera::get_ray (float _x, float _y)
+  PerspectiveCamera::get_ray (const Vector2i& _pos, const Vector2& _samples)
+  const
 	{
 		Ray ray;
-		ray.origin = position;
-		ray.direction = ~(forward + (grid_width * _x) + (grid_height * _y));
+    ray.origin = position;
+    ray.direction = ~(top_left_corner+(_pos.x+_samples.x)*grid_diff_x+
+                      (_pos.y+_samples.y)*grid_diff_y);
 
 		return ray;
 	}
@@ -37,8 +41,10 @@ namespace Svit
 	void
 	PerspectiveCamera::look_at (Point3 _dest)
 	{
+    /* Must also change up vector!
 		forward = ~(_dest - position);
-		recompute();
+    recompute();
+    */
 	}
 }
 

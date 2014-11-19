@@ -10,7 +10,7 @@
 
 namespace Svit
 {
-	typedef Rectangle Task;
+  typedef int Task;
 
 	class TaskDispatcher
 	{

@@ -38,8 +38,10 @@ namespace Svit
         Frame frame;
         frame.set_from_z(i.normal);
 
+        Vector3 to_light=frame.to_local(light_hit.direction);
+        Vector3 to_camera=frame.to_local(! _ray.direction);
         Vector3 material_component = i.node->material->eval_brdf(i.point,
-        frame.to_local(light_hit.direction),! _ray.direction);
+        to_light,to_camera);
 
         color=color+material_component*light_component;
 			}

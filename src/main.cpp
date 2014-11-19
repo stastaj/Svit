@@ -27,7 +27,6 @@
 
 #include <iostream>
 #include <sstream>
-#include <cmath>
 #include <thread>
 #include <memory>
 
@@ -62,9 +61,9 @@ get_wood_world ()
 	PerspectiveCamera *camera = new PerspectiveCamera(
 		Point3(0.0, 0.75, -2.0),
 		Vector3(0.0, -0.1, 1.0),
-		Vector3(0.0, 1.0, 0.0),
-		Rectangle(Point2i(0, 0), Vector2i(1280, 720)).get_aspect_ratio(),
-		M_PI/2.0);
+    Vector3(0.0, 1.0, 0.1),
+    PI_F*0.5f,
+    Vector2i(1280, 720));
 
 	World world;
 	world.scene = scene;
@@ -111,9 +110,9 @@ get_marble_world ()
 	PerspectiveCamera *camera = new PerspectiveCamera(
 		Point3(0.0, 24.75, -47.0),
 		Vector3(0.0, -0.1, 1.0),
-		Vector3(0.0, 1.0, 0.0),
-		Rectangle(Point2i(0, 0), Vector2i(1280, 720)).get_aspect_ratio(),
-		M_PI/2.0);
+    Vector3(0.0, 1.0, 0.1),
+    PI_F*0.5f,
+    Vector2i(1280, 720));
 
 	World world;
 	world.scene = scene;
@@ -131,29 +130,28 @@ int
 main (void)
 {
   clock_t begin = clock();
+  clock_t end;
+  double elapsed_secs;
 
 	Settings settings;
-	settings.whole_area = Rectangle(Point2i(0, 0), Vector2i(1280, 720));
-	settings.area = Rectangle(Point2i(0, 0), Vector2i(1280, 720));
+  settings.resolution = Rectangle(Point2i(0, 0), Vector2i(1280, 720));
 	settings.max_thread_count = std::thread::hardware_concurrency();
-	settings.tile_size = Vector2i(100, 100);
-  settings.max_sample_count = 4;
-	settings.adaptive_sample_step = 1000;
+  settings.iterations= 8;
 
   RayTracingEngine engine;
   ParallelRenderer renderer;
-  RandomSuperSampling super_sampling(true);
-
+  SuperSampling* super_sampling=new RandomSuperSampling();
+/*
   World marble_world = get_marble_world();
   Image marble_image = renderer.render(marble_world, settings, engine,
         super_sampling);
 
-  clock_t end = clock();
+  end = clock();
   double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 
-  std::string filename="marble_output_"+std::to_string(elapsed_secs)+"s.png";
+  std::string filename="marble_"+std::to_string(elapsed_secs)+"s.png";
   marble_image.write(filename.data());
-
+*/
   begin= clock();
 
   World wood_world = get_wood_world();
@@ -162,7 +160,7 @@ main (void)
   end=clock();
   elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 
-  filename="wood_output_"+std::to_string(elapsed_secs)+"s.png";
+  std::string filename="wood_"+std::to_string(elapsed_secs)+"s.png";
   wood_image.write(filename.data());
 
   return 0;
