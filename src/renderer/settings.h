@@ -8,7 +8,7 @@ namespace Svit
 {
 	struct Settings
 	{
-    Rectangle resolution;
+    Vector2i resolution;
 		unsigned int max_thread_count;
     unsigned int iterations;
 

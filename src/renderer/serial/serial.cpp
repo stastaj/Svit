@@ -8,10 +8,10 @@ namespace Svit
 	SerialRenderer::render (World& _world, Settings& _settings, Engine& _engine,
       SuperSampling* _super_sampling)
 	{
-    int res_x = _settings.resolution.size.x;
-    int res_y = _settings.resolution.size.y;
+    int res_x = _settings.resolution.x;
+    int res_y = _settings.resolution.y;
 
-    Image result(_settings.resolution.size);
+    Image result(_settings.resolution);
 
 
     for (int x = 0; x < res_x; x++)

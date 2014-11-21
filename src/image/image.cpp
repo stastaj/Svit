@@ -7,7 +7,7 @@
 namespace Svit
 {
 	Vector3& 
-	Image::operator() (int x, int y)
+  Image::operator() (int x, int y)
 	{
 		assert(x >= 0 && y >= 0);
 		return data[x * size.y + y];
@@ -25,6 +25,7 @@ namespace Svit
 		// TODO use this::resize
 		data.resize(0);
 		size = Vector2i(0, 0);
+    iterations=0;
 	}
 
 	Image::Image (Vector2i& _size)
@@ -35,19 +36,6 @@ namespace Svit
 		for (int x = 0; x < size.x; x++)
 		for (int y = 0; y < size.y; y++)
       (*this)(x, y) = Vector3(0.0f, 0.0f, 0.0f);
-	}
-
-	void
-	Image::paste (Point2i start, Image& source)
-	{
-		assert(start.x + source.size.x <= size.x);
-		assert(start.y + source.size.y <= size.y);
-
-		for (int x = start.x; x < start.x + source.size.x; x++) 	
-		for (int y = start.y; y < start.y + source.size.y; y++) 	
-		{
-			(*this)(x, y) = source(x - start.x, y - start.y);
-		}
 	}
 
   void
@@ -65,7 +53,7 @@ namespace Svit
   }
 
 	int 
-	Image::write (std::string filename)
+  Image::write (std::string filename)
 	{
 		FILE *file = fopen(filename.c_str(), "wb");
 		png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, 
@@ -95,7 +83,7 @@ namespace Svit
 		{
 			for (unsigned x = 0; x < size.x; x++)
 			{
-				Vector3& rgb = (*this)(x, y);
+        Vector3& rgb = (*this)(x, y);
 				row[x*3 + 0] = (png_byte)((rgb.x > 1.0 ? 1.0 : rgb.x) * 255.0); 
 				row[x*3 + 1] = (png_byte)((rgb.y > 1.0 ? 1.0 : rgb.y) * 255.0); 
 				row[x*3 + 2] = (png_byte)((rgb.z > 1.0 ? 1.0 : rgb.z) * 255.0); 

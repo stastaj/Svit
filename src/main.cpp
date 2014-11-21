@@ -7,6 +7,7 @@
 #include "image/image.h"
 #include "node/group/simple.h"
 #include "node/solid/sphere.h"
+#include "node/solid/sphere2.h"
 #include "node/solid/infinite_plane.h"
 #include "node/solid/disc.h"
 #include "renderer/settings.h"
@@ -33,7 +34,7 @@
 using namespace Svit;
 
 World
-get_wood_world ()
+get_wood_world (Vector2i& resolution)
 {
 	SimpleGroup *scene = new SimpleGroup();
 
@@ -45,7 +46,7 @@ get_wood_world ()
       std::move(checker_texture),50.0f,Vector3(0.f,0.f,0.f)));
 	plane->set_material(std::move(plane_material));
 
-	Sphere *sphere = new Sphere(Point3(-0.9, 0.35, 0.0), 0.35);
+  Sphere2 *sphere = new Sphere2(Point3(-0.9, 0.35, 0.0), 0.35);
 	WoodPerlinNoiseTexture *wood_texture = new WoodPerlinNoiseTexture(
 			Vector3(149.0f/255.0f, 69.0f/255.0f, 53.0f/255.0f), Vector3(237.0f/255.0f,
 			201.0f/255.0f, 175.0f/255.0f));
@@ -63,7 +64,7 @@ get_wood_world ()
 		Vector3(0.0, -0.1, 1.0),
     Vector3(0.0, 1.0, 0.1),
     PI_F*0.5f,
-    Vector2i(1280, 720));
+    resolution);
 
 	World world;
 	world.scene = scene;
@@ -81,7 +82,7 @@ get_wood_world ()
 }
 
 World
-get_marble_world ()
+get_marble_world (Vector2i& resolution)
 {
 	SimpleGroup *scene = new SimpleGroup();
 
@@ -112,7 +113,7 @@ get_marble_world ()
 		Vector3(0.0, -0.1, 1.0),
     Vector3(0.0, 1.0, 0.1),
     PI_F*0.5f,
-    Vector2i(1280, 720));
+    resolution);
 
 	World world;
 	world.scene = scene;
@@ -134,15 +135,15 @@ main (void)
   double elapsed_secs;
 
 	Settings settings;
-  settings.resolution = Rectangle(Point2i(0, 0), Vector2i(1280, 720));
+  settings.resolution = Vector2i(1280, 720);
 	settings.max_thread_count = std::thread::hardware_concurrency();
-  settings.iterations= 8;
+  settings.iterations= 20;
 
   RayTracingEngine engine;
   ParallelRenderer renderer;
   SuperSampling* super_sampling=new RandomSuperSampling();
 /*
-  World marble_world = get_marble_world();
+  World marble_world = get_marble_world(settings.resolution);
   Image marble_image = renderer.render(marble_world, settings, engine,
         super_sampling);
 
@@ -154,13 +155,14 @@ main (void)
 */
   begin= clock();
 
-  World wood_world = get_wood_world();
+  World wood_world = get_wood_world(settings.resolution);
   Image wood_image = renderer.render(wood_world, settings, engine,
                                      super_sampling);
   end=clock();
   elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-
-  std::string filename="wood_"+std::to_string(elapsed_secs)+"s.png";
+  int dot=std::to_string(elapsed_secs).find(".");
+  std::string filename="wood_"+std::to_string(wood_image.iterations)+"i_"+
+                       std::to_string(elapsed_secs).substr(0,dot+2)+"s.png";
   wood_image.write(filename.data());
 
   return 0;

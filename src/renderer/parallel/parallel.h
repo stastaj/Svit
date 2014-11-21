@@ -9,8 +9,14 @@
 #include "engine/engine.h"
 #include "renderer/renderer.h"
 
+#include <signal.h>
 #include <vector>
 #include <utility>
+#include <string.h>
+#include <boost/asio.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/system/error_code.hpp>
+
 
 namespace Svit
 {
@@ -27,12 +33,19 @@ namespace Svit
 		private:
 			Tiles
       worker (TaskDispatcher& _task_dispatcher, World& _world, Settings&
-          _settings, Engine& _engine, SuperSampling* _super_sampling);
+          _settings, Engine& _engine, SuperSampling* _super_sampling,
+              volatile sig_atomic_t& interrupted);
+
+      Image
+      render_iteration(World& _world, Settings& _settings,
+                       Engine& _engine, SuperSampling* _super_sampling,
+                       volatile sig_atomic_t interrupted);
 
 		public:
 			Image
       render (World& _world, Settings& _settings, Engine& _engine,
           SuperSampling* _super_sampling);
+
 	};
 }
 

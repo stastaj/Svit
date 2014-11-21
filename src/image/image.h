@@ -12,13 +12,15 @@ namespace Svit
 	class Image
 	{
 		private:
+
 			std::vector<Vector3> data;
 
 		public:
+      int iterations;
 			Vector2i size;
 
 			Vector3& 
-			operator() (int x, int y);
+      operator() (int x, int y);
 
 			void
 			resize (Vector2i _size);
@@ -27,9 +29,6 @@ namespace Svit
 
 			Image (Vector2i& _size);
 
-			void
-			paste (Point2i start, Image& source);
-
       void
       add_image(Image& _img);
 
@@ -37,7 +36,7 @@ namespace Svit
       scale(float _scale);
 
 			int 
-			write (std::string filename);
+      write (std::string filename);
 	};
 }
 
