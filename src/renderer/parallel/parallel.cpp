@@ -7,24 +7,18 @@
 #include <iostream>
 
 
-static volatile sig_atomic_t interrupted=false;
-
-void
-sighandler(int sig, siginfo_t *siginfo, void *context)
-{
-  if(interrupted)
-    std::exit(1);
-  interrupted=true;
-}
-
-void
-timer_expired(const boost::system::error_code& error)
-{
-  raise(SIGINT);
-}
 
 namespace Svit
 {  
+  volatile sig_atomic_t ParallelRenderer::interrupted=false;
+
+  void
+  ParallelRenderer::sig_handler(int sig, siginfo_t *siginfo, void *context)
+  {
+    if(interrupted)
+      std::exit(1);
+    interrupted=true;
+  }
 
 	Tiles
   ParallelRenderer::worker (TaskDispatcher& _task_dispatcher, World& _world,
@@ -64,13 +58,9 @@ namespace Svit
 
     struct sigaction action;
     memset(&action, 0, sizeof(struct sigaction));
-    action.sa_sigaction = sighandler;
+    action.sa_sigaction = sig_handler;
     action.sa_flags     = SA_SIGINFO;
     sigaction(SIGINT, &action, NULL);
-
-    boost::asio::io_service io;
-    boost::asio::deadline_timer t(io, boost::posix_time::seconds(20));
-    t.async_wait(timer_expired);
 
     for (unsigned i = 0; i < _settings.max_thread_count; i++)
 		{
@@ -86,6 +76,13 @@ namespace Svit
                          interrupted);
           }));
 		}
+/*
+    std::thread([](){
+      std::chrono::milliseconds dura( 2000 );
+      std::this_thread::sleep_for( dura );
+      interrupted=true;
+    });
+*/
 		for (unsigned i = 0; i < futures.size(); i++)
 		{
 			futures[i].wait();

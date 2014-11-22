@@ -8,7 +8,7 @@
 namespace Svit
 {
 	Vector3
-	RayTracingEngine::get_color (Ray& _ray, World& _world)
+  RayTracingEngine::get_color (const Ray& _ray, const World& _world) const
 	{
 		boost::optional<Intersection> best = _world.scene->intersect(_ray,
 		    std::numeric_limits<float>::max());
@@ -25,10 +25,11 @@ namespace Svit
 				LightHit light_hit = light->get_light_hit(i.point);
 
 				Point3 shadow_point = i.point + (light_hit.direction * 0.0001f);
-				Ray shadow_ray(shadow_point, light_hit.direction);
+        const Ray shadow_ray(shadow_point, light_hit.direction);
 
+        const float dist=light_hit.distance - 0.0001f;
 				boost::optional<Intersection> shadow =
-				    _world.scene->intersect(shadow_ray, light_hit.distance - 0.0001f);
+            _world.scene->intersect(shadow_ray, dist);
 
 				if (shadow)
 					continue;

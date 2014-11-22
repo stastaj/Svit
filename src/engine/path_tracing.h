@@ -9,7 +9,7 @@ namespace Svit
 	{
 		public:
 			Vector3
-			get_color (Ray& ray, World& _world);
+      get_color (const Ray& ray, const World& _world) const override;
 	};
 }
 

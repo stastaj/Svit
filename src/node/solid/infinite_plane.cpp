@@ -6,7 +6,7 @@
 namespace Svit
 {
 	boost::optional<Intersection>
-	InfinitePlane::intersect (Ray& _ray, float _best)
+  InfinitePlane::intersect ( const Ray& _ray, const float _best)
 	{
 		std::list<Intersection> result;
 

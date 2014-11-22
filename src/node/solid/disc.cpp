@@ -11,7 +11,7 @@ namespace Svit
 	}
 
 	boost::optional<Intersection>
-	Disc::intersect (Ray& _ray, float _best)
+  Disc::intersect (const Ray& _ray, const float _best)
 	{
 		float angle = normal % _ray.direction;
 

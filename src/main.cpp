@@ -30,6 +30,7 @@
 #include <sstream>
 #include <thread>
 #include <memory>
+#include <chrono>
 
 using namespace Svit;
 
@@ -46,7 +47,7 @@ get_wood_world (Vector2i& resolution)
       std::move(checker_texture),50.0f,Vector3(0.f,0.f,0.f)));
 	plane->set_material(std::move(plane_material));
 
-  Sphere2 *sphere = new Sphere2(Point3(-0.9, 0.35, 0.0), 0.35);
+  Solid *sphere = new Sphere(Point3(-0.9, 0.35, 0.0), 0.35);
 	WoodPerlinNoiseTexture *wood_texture = new WoodPerlinNoiseTexture(
 			Vector3(149.0f/255.0f, 69.0f/255.0f, 53.0f/255.0f), Vector3(237.0f/255.0f,
 			201.0f/255.0f, 175.0f/255.0f));
@@ -130,9 +131,8 @@ get_marble_world (Vector2i& resolution)
 int 
 main (void)
 {
-  clock_t begin = clock();
-  clock_t end;
-  double elapsed_secs;
+  auto t1 = std::chrono::high_resolution_clock::now();
+
 
 	Settings settings;
   settings.resolution = Vector2i(1280, 720);
@@ -153,16 +153,16 @@ main (void)
   std::string filename="marble_"+std::to_string(elapsed_secs)+"s.png";
   marble_image.write(filename.data());
 */
-  begin= clock();
 
   World wood_world = get_wood_world(settings.resolution);
   Image wood_image = renderer.render(wood_world, settings, engine,
                                      super_sampling);
-  end=clock();
-  elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-  int dot=std::to_string(elapsed_secs).find(".");
+  auto t2 = std::chrono::high_resolution_clock::now();
+  int elapsed_millisecs = std::chrono::duration_cast
+                     <std::chrono::milliseconds>(t2 - t1).count();
+  //int dot=std::to_string(elapsed_secs).find(".");
   std::string filename="wood_"+std::to_string(wood_image.iterations)+"i_"+
-                       std::to_string(elapsed_secs).substr(0,dot+2)+"s.png";
+                       std::to_string(elapsed_millisecs).substr(0,10)+"ms.png";
   wood_image.write(filename.data());
 
   return 0;

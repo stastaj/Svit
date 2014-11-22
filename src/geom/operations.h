@@ -173,7 +173,7 @@ namespace Svit
 
 	template <typename Scalar>
 	Vector<Scalar>
-	operator* (Matrix<Scalar>& _matrix, Vector<Scalar>& _vector)
+  operator* (const Matrix<Scalar>& _matrix,const Vector<Scalar>& _vector)
 	{
 		return Vector<Scalar>(
 			_matrix.a % _vector,
@@ -181,6 +181,17 @@ namespace Svit
 			_matrix.c % _vector,
 			_matrix.d % _vector);
 	}
+
+  template <typename Scalar>
+  Vector<Scalar>
+  operator* ( Matrix<Scalar>& _matrix, Vector<Scalar>& _vector)
+  {
+    return Vector<Scalar>(
+      _matrix.a % _vector,
+      _matrix.b % _vector,
+      _matrix.c % _vector,
+      _matrix.d % _vector);
+  }
 
 	template <typename Scalar>
 	Matrix<Scalar>

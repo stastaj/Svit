@@ -20,12 +20,12 @@ namespace Svit
 			set_material (std::unique_ptr<Material> _material) = 0;
 
 			virtual boost::optional<Intersection>
-			intersect (Ray& _ray, float _best) = 0;
+      intersect (const Ray& _ray,const float _best) = 0;
 	};
 
 	class Solid;
 
-	struct Intersection
+  struct Intersection
 	{
 		Solid *node;	
 		float t;

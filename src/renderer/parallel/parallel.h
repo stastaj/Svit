@@ -31,6 +31,8 @@ namespace Svit
 	class ParallelRenderer : public Renderer
 	{
 		private:
+      static volatile sig_atomic_t interrupted;
+
 			Tiles
       worker (TaskDispatcher& _task_dispatcher, World& _world, Settings&
           _settings, Engine& _engine, SuperSampling* _super_sampling,
@@ -41,11 +43,13 @@ namespace Svit
                        Engine& _engine, SuperSampling* _super_sampling,
                        volatile sig_atomic_t interrupted);
 
+      static void
+      sig_handler(int sig, siginfo_t *siginfo, void *context);
+
 		public:
 			Image
       render (World& _world, Settings& _settings, Engine& _engine,
           SuperSampling* _super_sampling);
-
 	};
 }
 

@@ -15,7 +15,7 @@ namespace Svit
 	{
 		public:
 			virtual Vector3 
-			get_color (Ray& _ray, World& _world) = 0;
+      get_color (const Ray& _ray, const World& _world) const = 0;
 
 			boost::optional<Intersection>
 			get_best_intersection (std::list<Intersection>& _intersections)

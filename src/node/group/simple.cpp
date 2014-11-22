@@ -18,7 +18,7 @@ namespace Svit
 	}
 	
 	boost::optional<Intersection>
-	SimpleGroup::intersect (Ray& _ray, float _best)
+  SimpleGroup::intersect ( const Ray& _ray, const float _best)
 	{
 		float best = _best;
 		boost::optional<Intersection> result;

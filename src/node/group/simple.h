@@ -15,7 +15,7 @@ namespace Svit
 
 		public:
 			boost::optional<Intersection>
-			intersect (Ray& _ray, float _best);
+      intersect (const Ray& _ray, const float _best);
 
 			void
 			set_material (std::unique_ptr<Material> _material);

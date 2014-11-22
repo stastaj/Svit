@@ -15,7 +15,7 @@ namespace Svit
 	}
 
 	boost::optional<Intersection>
-	Triangle::intersect (Ray& _ray, float _best)
+  Triangle::intersect (const Ray& _ray, const float _best)
 	{
 		Vector3 P = _ray.direction & e2;
 		float det = e1 % P;

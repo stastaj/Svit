@@ -10,13 +10,13 @@ namespace Svit
 	}
 
 	boost::optional<Intersection>
-	Instance::intersect (Ray& _ray, float _best)
+  Instance::intersect (const Ray& _ray, const float _best)
 	{
-		_ray.origin.w = 1.0f;
-		_ray.direction.w = 0.0f;
-		Ray new_ray(inverse * _ray.origin, ~(inverse * _ray.direction));
+    Vector4 new_origin(_ray.origin.x,_ray.origin.y,_ray.origin.z,1.0f);
+    Vector4 new_dir(_ray.direction.x,_ray.direction.y,_ray.direction.z,0.0f);
+    const Ray new_ray(inverse * new_origin, ~(inverse * new_dir));
 
-		new_ray.origin.w = 0.0f;
+    //new_ray.origin.w = 0.0f;
 		boost::optional<Intersection> node_intersection = node->intersect(new_ray, 
 		    _best);
 

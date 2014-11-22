@@ -3,7 +3,7 @@
 namespace Svit
 {
 	boost::optional<Intersection>
-	Sphere::intersect (Ray& _ray, float _best)
+  Sphere::intersect (const Ray& _ray,const float _best)
 	{
 		Vector3 ray_origin_vector = _ray.origin - Point3(0,0,0);
 		Vector3 sphere_center_vector = center - Point3(0,0,0);

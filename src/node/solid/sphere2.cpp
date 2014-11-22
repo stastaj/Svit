@@ -3,7 +3,7 @@
 namespace Svit
 {
 	boost::optional<Intersection>
-  Sphere2::intersect (Ray& _ray, float _best)
+  Sphere2::intersect (const Ray& _ray, const float _best)
 	{
     // http://wiki.cgsociety.org/index.php/Ray_Sphere_Intersection
 

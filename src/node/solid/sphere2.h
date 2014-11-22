@@ -20,7 +20,7 @@ namespace Svit
 			{ }
 
 			boost::optional<Intersection>
-			intersect (Ray& _ray, float _best);
+      intersect (const Ray& _ray, const float _best);
 
 			void
 			complete_intersection (Intersection *_intersection);
