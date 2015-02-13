@@ -1,39 +1,42 @@
 #include "node/solid/infinite_plane.h"
 
+#include <limits>
 #include <iostream>
 #include <string>
 
 namespace Svit
 {
-	boost::optional<Intersection>
-  InfinitePlane::intersect ( const Ray& _ray, const float _best)
+	bool InfinitePlane::intersect(const Ray& _ray, Intersection& _intersection)
 	{
-		std::list<Intersection> result;
-
 		float angle = normal % _ray.direction;
 
 		if (angle == 0.0)
-			return boost::optional<Intersection>();
+			return false;
 
 		float t = -(normal % (_ray.origin - point))/angle;
-		if (t < _best && t > 0.0f)
+		if (t < _intersection.t && t > _ray.t_min)
 		{
-			Intersection intersection;
-			intersection.t = t;
-			intersection.point = _ray(t);
-			intersection.node = this;
+			_intersection.t = t;
+			_intersection.node = this;
 
-			boost::optional<Intersection> result(intersection);
-			return result;
+			return true;
 		}
 		else
-			return boost::optional<Intersection>();
+			return false;
 	}
 
+  AABB
+  InfinitePlane::get_aabb() const {
+    return AABB(Vector3(-std::numeric_limits<float>::infinity()),
+                Vector3(std::numeric_limits<float>::infinity()));
+  }
+  
 	void
-	InfinitePlane::complete_intersection (Intersection *_intersection)
+	InfinitePlane::complete_intersection (Intersection& _intersection, 
+                                        const Ray& _ray) const
 	{
-		_intersection->normal = normal;
+		_intersection.normal = normal;
+    _intersection.point = _ray(_intersection.t);
 	}
 
 	void

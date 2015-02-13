@@ -1,4 +1,5 @@
 #include "node/solid/disc.h"
+#include "node/aabb.h"
 
 namespace Svit
 {
@@ -7,43 +8,63 @@ namespace Svit
 		point = _point;
 		normal = _normal;
 		radius = _radius;
-		radius2 = radius * radius;
+		radius_sqr = radius * radius;
 	}
 
-	boost::optional<Intersection>
-  Disc::intersect (const Ray& _ray, const float _best)
+	bool Disc::intersect(const Ray& _ray, Intersection& _intersection)
 	{
 		float angle = normal % _ray.direction;
 
-		if (angle == 0.0)
-			return boost::optional<Intersection>();
+		if (angle <= 0.0f)
+			return false;
 
 		float t = -(normal % (_ray.origin - point))/angle;
-		if (t < _best && t > 0.0f)
+		if (t < _intersection.t && t > _ray.t_min)
 		{
 			Point3 hit_point = _ray(t);
 			Vector3 difference = hit_point - point;
 
-			if (difference % difference > radius2)
-				return boost::optional<Intersection>();	
+			if (difference % difference > radius_sqr)
+				return false;	
 
-			Intersection intersection;
-			intersection.t = t;
-			intersection.point = _ray(t);
-			intersection.node = this;
+			_intersection.t = t;
+			_intersection.node = this;
 
-			boost::optional<Intersection> result(intersection);
-			return result;
+			return true;
 		}
 		else
-			return boost::optional<Intersection>();
+			return false;
 	}
 
 	void
-	Disc::complete_intersection (Intersection *_intersection)
+	Disc::complete_intersection (Intersection& _intersection, const Ray& _ray)
+  const
 	{
-		_intersection->normal = normal;
+		_intersection.normal = normal;
+    _intersection.point = _ray(_intersection.t);
 	}
+
+  AABB
+  Disc::get_aabb() const {
+    if(std::abs(normal.x) < 0.95f){
+      Vector3 u(1.f,0.f,0.f);
+      u=radius*~(u-(normal % u)*normal);
+      Vector3 v=radius*~(normal & u);
+      Vector3 p(normal.x,0.f,normal.z);
+      p=~p;
+      return AABB(Vector3(point.x-u.x,(p.x*u + p.z*v).y,point.z-v.z),
+                  Vector3(point.x+u.x,(-p.x*u + -p.z*v).y,point.z+v.z));
+    }
+    else{
+      Vector3 u(0.f,1.f,0.f);
+      u=radius*~(u-(normal % u)*normal);
+      Vector3 v=radius*~(normal & u);
+      Vector3 p(0.f,normal.y,normal.z);
+      p=~p;
+      return AABB(Vector3((p.x*u + p.z*v).x,point.y-u.y,point.z-v.z),
+                  Vector3((-p.x*u + -p.z*v).x,point.y+u.y,point.z+v.z));
+    }
+  }
 
 	void
 	Disc::dump (const char *_name, unsigned int _level)

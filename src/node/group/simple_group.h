@@ -4,18 +4,22 @@
 #include "node/group/group.h"
 #include "geom/ray.h"
 
-#include <list>
+#include <vector>
 
 namespace Svit
 {
 	class SimpleGroup : public Group
 	{
 		private:
-			std::list<Node*> nodes;
+      std::vector<Node*> nodes;
 
 		public:
-			boost::optional<Intersection>
-      intersect (const Ray& _ray, const float _best);
+			bool
+      intersect (const Ray& _ray, Intersection& _best) override;
+
+      AABB
+      get_aabb() const override;
+
 
 			void
 			set_material (std::unique_ptr<Material> _material);

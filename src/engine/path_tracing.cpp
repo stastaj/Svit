@@ -1,52 +1,42 @@
 #include "engine/path_tracing.h"
-#include "light/light.h"
-#include "math/numeric.h"
-#include "math/frame.h"
+
 
 #include <numeric>
 
 namespace Svit
 {
 	Vector3
-  RayTracingEngine::get_color (const Ray& _ray, const World& _world) const
+  PathTracing::get_color (const Ray& _ray, const World& _world) const
 	{
-		boost::optional<Intersection> best = _world.scene->intersect(_ray,
-		    std::numeric_limits<float>::max());
-
-		if (best)
-		{
-      Vector3 color(0,0,0);
-			Intersection i = *best;
-			best->node->complete_intersection(&i);
-
-			Vector3 light_component(0.0, 0.0, 0.0);
-			for (auto &light : _world.lights)
-			{
-				LightHit light_hit = light->get_light_hit(i.point);
-
-				Point3 shadow_point = i.point + (light_hit.direction * 0.0001f);
-        const Ray shadow_ray(shadow_point, light_hit.direction);
-
-        const float dist=light_hit.distance - 0.0001f;
-				boost::optional<Intersection> shadow =
-            _world.scene->intersect(shadow_ray, dist);
-
-				if (shadow)
-					continue;
-
-				light_component += light->get_intensity(light_hit);
-
-        Frame frame;
-        frame.set_from_z(i.normal);
-
+    Intersection intersection(std::numeric_limits<float>::max());
+    if(_world.scene->intersect(_ray,intersection)){
+      intersection.node->complete_intersection(intersection,_ray);
+      
+      Vector3 light_component(0.0f,0.0f,0.0f);
+      Vector3 color(0.0f,0.0f,0.0f);
+      for (auto &light : _world.lights)
+      {
+        const LightHit light_hit = light->get_light_hit(intersection.point);
+        
+        const Point3 shadow_point = intersection.point+RAY_EPSILON*light_hit.direction;
+        const Ray shadow_ray(shadow_point, light_hit.direction, 0);
+        
+        Intersection shadow_isect(light_hit.distance-2.0f*RAY_EPSILON);
+        if (_world.scene->intersect(shadow_ray, shadow_isect))
+          continue;
+        
+        light_component += light->get_intensity(light_hit);
+        
+        Frame frame(intersection.normal);
+        
         Vector3 to_light=frame.to_local(light_hit.direction);
         Vector3 to_camera=frame.to_local(! _ray.direction);
-        Vector3 material_component = i.node->material->eval_brdf(i.point,
-        to_light,to_camera);
-
-        color=color+material_component*light_component;
-			}
-
+        Vector3 mat = intersection.node->material->eval_brdf(intersection.point,
+                                                             to_light,to_camera);
+        
+        color=color+mat*light_component;
+      }
+      
 
       return color;
 		}

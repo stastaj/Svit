@@ -27,9 +27,10 @@ namespace Svit
 				__m128 v;
 			};
 
-			inline Vector (float _x = 0.0, float _y = 0.0, float _z = 0.0, float _w = 0.0)
+			inline Vector (float _x = 0.0, float _y = 0.0, 
+                     float _z = 0.0, float _w = 0.0) :x(_x),y(_y),z(_z),w(_w)
 			{ 
-				v = _mm_setr_ps(_x, _y, _z, _w);
+				//v = _mm_setr_ps(_x, _y, _z, _w);
 			}
 
 			inline Vector (const Vector& other)
@@ -48,6 +49,16 @@ namespace Svit
         return std::max(std::max(x,y),std::max(z,w));
       }
 
+      void
+      normalize()
+      {
+        const __m128 tmp=_mm_mul_ps(v,v);
+        const __m128 t = _mm_add_ps(tmp, _mm_movehl_ps(tmp, tmp));
+        const __m128 sum = _mm_add_ss(t, _mm_shuffle_ps(t, t, 1));
+        
+        v *= 1.f / (float)sqrt(sum[0]);
+      }
+      
       inline float&
 			operator[](int nth)
 			{

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project(Svit)
 
 option (USE_SSE "Use SSE instructions" ON)
-
+  
 file(GLOB_RECURSE Svit_SOURCES "src/*.cpp" "src/*.h")
 
 include_directories("src/")
@@ -15,7 +15,7 @@ if (USE_SSE)
   message(STATUS "Enabling SSE support")
   add_definitions ("-DUSE_SSE")
 endif ()
-
+ 
 add_executable (Svit ${Svit_SOURCES})
 target_link_libraries(Svit ${PNG_LIBRARY} boost_system)
 

@@ -1,9 +1,10 @@
 #ifndef SVIT_GEOM_OPERATIONS
 #define SVIT_GEOM_OPERATIONS
 
-#include "geom/vector.h"
-#include "geom/point.h"
 #include "geom/matrix.h"
+//#include "geom/vector.h"
+#include "geom/point.h"
+
 
 #include <cmath>
 
@@ -128,11 +129,43 @@ namespace Svit
 		return a;
 	}
 
+  template <typename Scalar>
+  Vector<Scalar>&
+  operator-=(Vector<Scalar>& a, const Vector<Scalar>& b)
+  {
+    a.x -= b.x;
+    a.y -= b.y;
+    a.z -= b.z;
+    a.w -= b.w;
+
+    return a;
+  }
+
+  template <typename Scalar>
+	Vector<Scalar>& 
+  operator*=(Vector<Scalar>& v,const Vector<Scalar>& w){
+    v.x*=w.x;
+    v.y*=w.y;
+    v.z*=w.z;
+    v.w*=w.w;    
+    return v;
+  }
+  
+  template <typename Scalar>
+	Vector<Scalar>& 
+  operator*=(Vector<Scalar>& v,const Scalar f){
+    v.x*=f;
+    v.y*=f;
+    v.z*=f;
+    v.w*=f;
+    return v;
+  }
+  
 	template <typename Scalar>
 	Vector<Scalar>& 
 	operator/=(Vector<Scalar>& v, Scalar s) 
 	{
-    Scalar inv_s=1.0/s;
+    Scalar inv_s=1.0f/s;
     v.x *= inv_s;
     v.y *= inv_s;
     v.z *= inv_s;

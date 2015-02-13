@@ -3,25 +3,27 @@
 
 #include "geom/vector.h"
 #include "geom/point.h"
+#include "node/solid/solid.h"
 
 namespace Svit
 {
+  const float RAY_EPSILON=0.001f;
+  
 	class Ray
 	{
 		public:
 			Point3 origin;
 			Vector3 direction;
-
-			Ray () { } 
-
-			Ray (Point3 const& _origin, Vector3 const& _direction)
-				: origin(_origin), direction(_direction)
+      float t_min;
+      
+			Ray (Point3 const& _origin, Vector3 const& _direction, const float _f=RAY_EPSILON)
+				: origin(_origin), direction(_direction), t_min(_f)
 			{ }
 
 			Point3 
 			operator() (float _time) const
 			{
-				return origin + direction * _time;
+				return origin + (direction * _time);
 			}
 
 			void
@@ -33,6 +35,11 @@ namespace Svit
 				direction.dump("direction", level+1);
 			}
 	};
+  
+  
+
+  
+  
 }
 
 #endif

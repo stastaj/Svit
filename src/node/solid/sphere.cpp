@@ -2,74 +2,55 @@
 
 namespace Svit
 {
-	boost::optional<Intersection>
-  Sphere::intersect (const Ray& _ray,const float _best)
+	bool Sphere::intersect(const Ray& _ray, Intersection& _intersection)
 	{
-		Vector3 ray_origin_vector = _ray.origin - Point3(0,0,0);
-		Vector3 sphere_center_vector = center - Point3(0,0,0);
+    // Real-time Rendering, 3rd edition, page 738
 
-		float A = _ray.direction % _ray.direction;
-		float B = 2.0f * (_ray.direction % ray_origin_vector) 
-		        - 2.0f * (sphere_center_vector % _ray.direction);
-		float C = (ray_origin_vector % ray_origin_vector)
-		        - 2.0f * (sphere_center_vector % ray_origin_vector)
-						+ (sphere_center_vector % sphere_center_vector)
-						- radius * radius;
+    Vector3 l=center-_ray.origin;
+    float l_length_sqr=l % l;    
+    float s=l % _ray.direction; 
+    if(s < 0 && l_length_sqr > radius_sqr){
+      return false;
+    }
+    float m_sqr=l_length_sqr-s*s;
+    if(m_sqr > radius_sqr){
+      return false;
+    }
+    // now the ray definitely intersect the sphere.
+    float q=std::sqrt(radius_sqr-m_sqr);
+    
+    float t;
+    if(l_length_sqr > radius_sqr){
+      t=s-q;
+    }
+    else{
+      t=s+q;
+    }
 
-		float t = 1.0f;
-
-		if (A == 0.0f)
-		{
-			t = - C / B;
-			if (t < _best && t > 0.0f)
-			{	
-				Intersection intersection;
-				intersection.t = t;
-				intersection.point = _ray(t);
-				intersection.node = this;
-
-				boost::optional<Intersection> result(intersection);
-				return result;
-			}
-			else
-				return boost::optional<Intersection>();
-		}
-		else
-		{
-			float discriminant = B * B - 4.0f * A * C;
-
-			if (discriminant < 0.0f)
-				return boost::optional<Intersection>();
-
-			float t1 = ( - B + sqrt(discriminant)) / (2 * A);
-			float t2 = ( - B - sqrt(discriminant)) / (2 * A);
-
-			bool t1_valid = t1 < _best && t1 >= 0.0001f;
-			bool t2_valid = t2 < _best && t2 >= 0.0001f;
-
-			if (!t1_valid && !t2_valid) return boost::optional<Intersection>();
-			if ( t1_valid &&  t2_valid) t = fmin(t1, t2);
-			if (!t1_valid &&  t2_valid) t = t2;
-			if ( t1_valid && !t2_valid) t = t1;
-	
-			Intersection intersection;
-			intersection.t = t;
-			intersection.point = _ray(t);
-			intersection.node = this;
-
-			boost::optional<Intersection> result(intersection);
-			return result;
-		}
-	}
+    if( t <= _ray.t_min ||  t >= _intersection.t){
+      return false;
+    }
+    _intersection.t = t;
+    _intersection.node = this;
+    
+    return true;
+  }
 
 	void
-	Sphere::complete_intersection (Intersection *_intersection)
+  Sphere::complete_intersection (Intersection &_intersection, const Ray& _ray)
+  const
 	{
-		_intersection->normal = ~(_intersection->point - center);
+		_intersection.normal = ~(_intersection.point - center);
+    _intersection.point = _ray(_intersection.t);
 	}
 
+  AABB
+  Sphere::get_aabb() const {
+    return AABB(center-radius,center+radius);
+  }
+
 	void
-	Sphere::dump (const char *_name, unsigned int _level)
+  Sphere::dump (const char *_name, unsigned int _level)
 	{
 		std::cout << std::string(' ', _level*2) << _name << " = Sphere" <<
 		    std::endl;

@@ -6,21 +6,26 @@
 
 namespace Svit
 {
-	Vector3& 
+	const Vector3& 
   Image::operator() (int x, int y)
 	{
 		assert(x >= 0 && y >= 0);
-		return data[x * size.y + y];
+		return data[y * size.x + x];
 	}
 
 	void
-	Image::resize (Vector2i _size)
+	Image::resize (Vector2i& _size)
 	{
 		data.resize(_size.x * _size.y);
 		size = _size;
 	}
 
-	Image::Image ()
+  void
+  Image::set_pixel(const int x,const int y, const Vector3 v){
+    data[y * size.x + x]=v;
+  }
+	
+  Image::Image ()
 	{
 		// TODO use this::resize
 		data.resize(0);
@@ -33,23 +38,23 @@ namespace Svit
 	{
 		data.resize(size.x * size.y);
 
-		for (int x = 0; x < size.x; x++)
 		for (int y = 0; y < size.y; y++)
-      (*this)(x, y) = Vector3(0.0f, 0.0f, 0.0f);
+      for (int x = 0; x < size.x; x++)
+        data[y*size.x + x] = Vector3(0.0f, 0.0f, 0.0f);
 	}
 
   void
   Image::add_image(Image &_img){
-    for (int x = 0; x < size.x; x++)
-      for (int y = 0; y < size.y; y++)
-        (*this)(x, y) = (*this)(x, y)+_img(x,y);
+    for (int y = 0; y < size.y; y++)
+      for (int x = 0; x < size.x; x++)
+        data[y*size.x + x] += _img(x,y);
   }
 
   void
   Image::scale(float _scale){
-    for (int x = 0; x < size.x; x++)
-      for (int y = 0; y < size.y; y++)
-        (*this)(x, y) = (*this)(x, y) * _scale;
+    for (int y = 0; y < size.y; y++)
+      for (int x = 0; x < size.x; x++)
+        data[y*size.x + x] *= _scale;
   }
 
 	int 
@@ -83,7 +88,7 @@ namespace Svit
 		{
 			for (unsigned x = 0; x < size.x; x++)
 			{
-        Vector3& rgb = (*this)(x, y);
+        const Vector3& rgb = (*this)(x, y);
 				row[x*3 + 0] = (png_byte)((rgb.x > 1.0 ? 1.0 : rgb.x) * 255.0); 
 				row[x*3 + 1] = (png_byte)((rgb.y > 1.0 ? 1.0 : rgb.y) * 255.0); 
 				row[x*3 + 2] = (png_byte)((rgb.z > 1.0 ? 1.0 : rgb.z) * 255.0); 

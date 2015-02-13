@@ -37,6 +37,14 @@ namespace Svit
       {
         return std::max(std::max(x,y),std::max(z,w));
       }
+      
+      void
+      normalize()
+      {
+        Scalar length=sqrt(x*x+y*y+z*z+w*w);
+        
+        *this *= 1.0 / length;
+      }
 
 			Scalar& 
 			operator[](int nth)

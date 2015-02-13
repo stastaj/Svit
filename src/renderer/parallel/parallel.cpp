@@ -87,6 +87,9 @@ namespace Svit
 		{
 			futures[i].wait();
 		}
+    for(SuperSampling* s: samplers){
+      delete s;
+    }
     samplers.clear();
 
     int iterations=0;
@@ -128,8 +131,8 @@ namespace Svit
       {
         const Vector2 samples = _super_sampling->next_sample(x, y);
         const Vector2i pixel(x,y);
-        Ray ray = _world.camera->get_ray(pixel, samples);
-        result(x, y) = _engine.get_color(ray, _world);
+        const Ray ray = _world.camera->get_ray(pixel, samples);
+        result.set_pixel(x, y, _engine.get_color(ray, _world));
       }
     }
 

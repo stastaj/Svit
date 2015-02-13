@@ -20,11 +20,15 @@ namespace Svit
 				: point(_point), normal(_normal)
 			{ }
 
-			boost::optional<Intersection>
-      intersect ( const Ray& _ray, const float _best) override;
+			bool
+      intersect ( const Ray& _ray, Intersection& _intersection) override;
 
+      AABB
+      get_aabb() const override;
+      
 			void
-			complete_intersection (Intersection *_intersection);
+			complete_intersection (Intersection &_intersection, const Ray& _ray) 
+      const override;
 
 			void
 			dump (const char *_name, unsigned int _level = 0);

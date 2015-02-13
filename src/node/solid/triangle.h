@@ -4,6 +4,8 @@
 #include "node/solid/solid.h"
 #include "geom/point.h"
 #include "geom/vector.h"
+#include "geom/intersection.h"
+#include "geom/ray.h"
 
 #include <list>
 
@@ -23,11 +25,15 @@ namespace Svit
 
 			Triangle (Point3 _p1, Point3 _p2, Point3 _p3);
 
-			boost::optional<Intersection>
-      intersect (const Ray& _ray, const float _best);
+			bool
+      intersect (const Ray& _ray, Intersection& _intersection) override;
+
+      AABB
+      get_aabb() const override;
 
 			void
-			complete_intersection (Intersection *_intersection);
+			complete_intersection (Intersection &_intersection, const Ray& _ray)
+      const override;
 
 			void
 			dump (const char *_name, unsigned int _level = 0);

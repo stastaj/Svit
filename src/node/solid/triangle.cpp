@@ -14,45 +14,54 @@ namespace Svit
 		normal = ~(~e1 & ~e2);
 	}
 
-	boost::optional<Intersection>
-  Triangle::intersect (const Ray& _ray, const float _best)
+	bool Triangle::intersect(const Ray& _ray, Intersection& _intersection) 
 	{
 		Vector3 P = _ray.direction & e2;
 		float det = e1 % P;
 		if (det == 0.0f) 
-			return boost::optional<Intersection>();
+			false;
 		float inv_det = 1.0f / det;
 
 		Vector3 T = _ray.origin - p1;
 		float u = (T % P) * inv_det;
 		if (u < 0.f || u > 1.f) 
-			return boost::optional<Intersection>();
+			return false;
 
 		Vector3 Q = T & e1;
 		float v = (_ray.direction % Q) * inv_det;
 		if (v < 0.f || u + v  > 1.f) 
-			return boost::optional<Intersection>();
+			return false;
 																												  
 		float t = (e2 % Q) * inv_det;
-		if(t > 0.0f && t < _best)
+		if(t > _ray.t_min && t < _intersection.t)
 		{ 
-			Intersection intersection;
-			intersection.t = t;
-			intersection.point = _ray(t);
-			intersection.node = this;
+			_intersection.t = t;
+			_intersection.node = this;
 
-			boost::optional<Intersection> result(intersection);
-			return result;
+			return true;
 		}
 
-		return boost::optional<Intersection>();
+		return false;
 	}
 
 	void
-	Triangle::complete_intersection (Intersection *_intersection)
+	Triangle::complete_intersection (Intersection &_intersection, const Ray& _ray)
+  const
 	{
-		_intersection->normal = normal;
+		_intersection.normal = normal;
+    _intersection.point = _ray(_intersection.t);
 	}
+
+  AABB
+  Triangle::get_aabb() const {
+    return AABB( Vector3(std::min(std::min(p1.x,p2.x),p3.x),
+                         std::min(std::min(p1.y,p2.y),p3.y),
+                         std::min(std::min(p1.z,p2.z),p3.z)),
+                 Vector3(std::max(std::max(p1.x,p2.x),p3.x),
+                         std::max(std::max(p1.y,p2.y),p3.y),
+                         std::max(std::max(p1.z,p2.z),p3.z))
+          );
+  }
 
 	void
 	Triangle::dump (const char *_name, unsigned int _level)

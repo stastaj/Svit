@@ -7,17 +7,13 @@ Phong::eval_brdf(const Point3& _point, const Vector3& _wil,
                  const Vector3& _wol) const
 {
   if( _wil.z <= 0 && _wol.z <= 0)
-    return Vector3(0,0,0);
+    return Vector3(0);
 
-  Vector3 diffuseComponent = texture->get_color(_point) * INV_PI_F;
-  Vector3 r;
-  r.x=-_wil.x;
-  r.y=-_wil.y;
-  r.z=_wil.z;
+  Vector3 r(-_wil.x,-_wil.y,_wil.z);
   Vector3 glossyComponent  =
-    ((exponent+2)*0.5f*INV_PI_F)*gloss_reflectance*pow((r % _wol),exponent);
+    gloss_reflectance*((exponent+2.0f)*0.5f*INV_PI_F)*(float)(pow((r % _wol),exponent));
 
-  return diffuseComponent + glossyComponent;
+  return texture->get_color(_point)*INV_PI_F + glossyComponent;
 }
 
 float
@@ -30,7 +26,7 @@ Phong::get_pdf(const Point3& _point,const Frame& _frame,const Vector3& _wog,
   pd/=sum;
   ps/=sum;
   Vector3 refl=2*(_wog % _frame.mZ)*_frame.mZ;
-  refl=refl-_wog;
+  refl-=_wog;
 
   float spec=power_cos_hemisphere_pdf_w(refl,_wig,exponent);
   float diff=cos_hemisphere_pdf_w(_frame.mZ,_wig);
@@ -53,14 +49,14 @@ const
 
   if(_samples.x<=pd){
     //sample diffuse
-    _samples.x=_samples.x*(1.f/pd); //sample reuse
+    _samples.x*=(1.f/pd); //sample reuse
 
     //_samples.x=rand();
 
     Vector3 local=sample_cos_hemisphere_w(_samples,_pdf);
     _sampled_dir_global=~(_frame.to_world(local));
     _brdf=diffuseColor * INV_PI_F;
-    *_pdf=(*_pdf)*pd;
+    *_pdf*=pd;
     type=diffuse;
   }else{
     //sample specular
@@ -69,8 +65,7 @@ const
     Vector3 wog=_frame.to_world(_wol);
     Vector3 refl=2.0f*(wog % _frame.mZ)*_frame.mZ;
     refl=refl-wog;
-    Frame local;
-    local.set_from_z(refl);
+    Frame local(refl);
 
     Vector3 local_dir=sample_power_cos_hemisphere_w(_samples,exponent,_pdf);
     _sampled_dir_global=~(local.to_world(local_dir));
@@ -82,7 +77,7 @@ const
       _brdf=gloss_reflectance * ((exponent+2.0f) * 0.5f * INV_PI_F *
                                    pow(local_dir.z,exponent));
     }
-    *_pdf=(*_pdf)*ps;
+    *_pdf*=ps;
     type=specular;
   }
 }

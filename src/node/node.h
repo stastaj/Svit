@@ -1,36 +1,32 @@
 #ifndef SVIT_NODE
 #define SVIT_NODE
 
-#include "geom/ray.h"
-#include "material/material.h"
+//#include "geom/ray.h"
+//#include "geom/intersection.h"
+//#include "material/material.h"
+#include "node/aabb.h"
 
 #include <memory>
 #include <list>
 #include <iostream>
-#include <boost/optional.hpp>
 
 namespace Svit
 {
-	struct Intersection;
-
+  class Material;
+  class Ray;
+  class Intersection;
+  
 	class Node
 	{
 		public:
 			virtual void
 			set_material (std::unique_ptr<Material> _material) = 0;
 
-			virtual boost::optional<Intersection>
-      intersect (const Ray& _ray,const float _best) = 0;
-	};
+			virtual bool
+      intersect (const Ray& _ray, Intersection& _intersection) = 0;
 
-	class Solid;
-
-  struct Intersection
-	{
-		Solid *node;	
-		float t;
-		Vector3 normal;
-		Point3 point;
+      virtual AABB
+      get_aabb() const =0;
 	};
 }
 

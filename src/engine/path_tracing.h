@@ -2,10 +2,16 @@
 #define SVIT_RAY_TRACING_ENGINE
 
 #include "engine/engine.h"
+#include "light/light.h"
+#include "math/numeric.h"
+#include "math/frame.h"
+#include "geom/ray.h"
+#include "geom/intersection.h"
+#include "material/material.h"
 
 namespace Svit
 {
-	class RayTracingEngine : public Engine
+	class PathTracing : public Engine
 	{
 		public:
 			Vector3

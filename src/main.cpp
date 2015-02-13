@@ -5,9 +5,8 @@
 #include "engine/engine.h"
 #include "engine/path_tracing.h"
 #include "image/image.h"
-#include "node/group/simple.h"
+#include "node/group/simple_group.h"
 #include "node/solid/sphere.h"
-#include "node/solid/sphere2.h"
 #include "node/solid/infinite_plane.h"
 #include "node/solid/disc.h"
 #include "renderer/settings.h"
@@ -131,28 +130,17 @@ get_marble_world (Vector2i& resolution)
 int 
 main (void)
 {
+  
   auto t1 = std::chrono::high_resolution_clock::now();
-
-
+  
 	Settings settings;
   settings.resolution = Vector2i(1280, 720);
 	settings.max_thread_count = std::thread::hardware_concurrency();
-  settings.iterations= 20;
+  settings.iterations= 2;
 
-  RayTracingEngine engine;
+  PathTracing engine;
   ParallelRenderer renderer;
   SuperSampling* super_sampling=new RandomSuperSampling();
-/*
-  World marble_world = get_marble_world(settings.resolution);
-  Image marble_image = renderer.render(marble_world, settings, engine,
-        super_sampling);
-
-  end = clock();
-  double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-
-  std::string filename="marble_"+std::to_string(elapsed_secs)+"s.png";
-  marble_image.write(filename.data());
-*/
 
   World wood_world = get_wood_world(settings.resolution);
   Image wood_image = renderer.render(wood_world, settings, engine,
@@ -165,6 +153,8 @@ main (void)
                        std::to_string(elapsed_millisecs).substr(0,10)+"ms.png";
   wood_image.write(filename.data());
 
+  delete super_sampling;
+  
   return 0;
 }
 

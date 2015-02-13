@@ -20,7 +20,7 @@ namespace Svit
         const Vector2 samples = _super_sampling->next_sample(x, y);
         const Vector2i pixel(x,y);
         Ray ray = _world.camera->get_ray(pixel, samples);
-        result(x, y) = _engine.get_color(ray, _world);
+        result.set_pixel(x, y,_engine.get_color(ray, _world));
       }
 
 

@@ -19,11 +19,14 @@ namespace Svit
       int iterations;
 			Vector2i size;
 
-			Vector3& 
+			const Vector3& 
       operator() (int x, int y);
-
+      
+      void
+      set_pixel(const int x,const int y, const Vector3 v);
+      
 			void
-			resize (Vector2i _size);
+			resize (Vector2i& _size);
 
 			Image ();
 
