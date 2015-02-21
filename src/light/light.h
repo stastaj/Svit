@@ -6,6 +6,8 @@
 
 namespace Svit
 {
+  enum LightType {Point,Area,Background};
+  
 	struct LightHit
 	{
 		Vector3 direction;
@@ -14,7 +16,12 @@ namespace Svit
 
 	class Light 
 	{
-		public:
+    protected:
+      Light(const LightType _type):type(_type){}
+		
+    public:      
+      const LightType type;
+      
 			virtual LightHit 
 			get_light_hit (Point3 _point) = 0;
 

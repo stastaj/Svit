@@ -2,6 +2,7 @@
 #define SVIT_SIMPLE_GROUP
 
 #include "node/group/group.h"
+#include "node/aabb.h"
 #include "geom/ray.h"
 
 #include <vector>
@@ -20,15 +21,14 @@ namespace Svit
       AABB
       get_aabb() const override;
 
+			void
+			set_material (std::unique_ptr<Material> _material) override;
 
 			void
-			set_material (std::unique_ptr<Material> _material);
+			add (Node* _node) override;
 
 			void
-			add (Node* _node);
-
-			void
-			finish () { }
+      build_kdtree () override { }
 	};
 }
 

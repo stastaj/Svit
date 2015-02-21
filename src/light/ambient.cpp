@@ -2,11 +2,6 @@
 
 namespace Svit
 {
-	AmbientLight::AmbientLight (Vector3 _color)
-	{
-		color = _color;
-	}
-
 	LightHit 
 	AmbientLight::get_light_hit (Point3 _point)
 	{
@@ -23,7 +18,7 @@ namespace Svit
 	AmbientLight::get_intensity (LightHit _hit)
 	{
 		(void) _hit;
-		return color;			
+		return intensity;			
 	}
 }
 

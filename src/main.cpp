@@ -5,6 +5,7 @@
 #include "engine/engine.h"
 #include "engine/path_tracing.h"
 #include "image/image.h"
+#include "node/group/kdtree_group.h"
 #include "node/group/simple_group.h"
 #include "node/solid/sphere.h"
 #include "node/solid/infinite_plane.h"
@@ -22,7 +23,6 @@
 #include "texture/wood_perlin_noise.h"
 #include "texture/marble_perlin_noise.h"
 #include "light/point.h"
-#include "light/directional.h"
 #include "light/ambient.h"
 
 #include <iostream>
@@ -36,7 +36,7 @@ using namespace Svit;
 World
 get_wood_world (Vector2i& resolution)
 {
-	SimpleGroup *scene = new SimpleGroup();
+	KdTreeGroup *scene = new KdTreeGroup();
 
 	InfinitePlane *plane = new InfinitePlane(Point3(0.0, 0.02, 0.0), 
 	    Vector3(0.0, 1.0, 0.0));
@@ -53,12 +53,19 @@ get_wood_world (Vector2i& resolution)
 	wood_texture->add_octave(1.0, 3.0);
 	std::unique_ptr<Texture> wood_sphere_tex(wood_texture);
   std::unique_ptr<Material> sphere_material(new Phong(
-      std::move(wood_sphere_tex),20.0f,0.0f));
+      std::move(wood_sphere_tex),20.0f,Vector3(0.0f,0.0f,0.0f)));
 	sphere->set_material(std::move(sphere_material));
 
 	scene->add(plane);
 	scene->add(sphere);
-
+  
+  auto t1 = std::chrono::high_resolution_clock::now();
+  scene->build_kdtree();
+  auto t2 = std::chrono::high_resolution_clock::now();
+    int elapsed_millisecs = std::chrono::duration_cast
+                       <std::chrono::milliseconds>(t2 - t1).count();
+  std::cout<< "Building of kdtree took "<< elapsed_millisecs<< "ms." <<std::endl;
+  
 	PerspectiveCamera *camera = new PerspectiveCamera(
 		Point3(0.0, 0.75, -2.0),
 		Vector3(0.0, -0.1, 1.0),
@@ -71,11 +78,11 @@ get_wood_world (Vector2i& resolution)
 	world.camera = camera;
 
 	std::unique_ptr<Light> ambient_light(new AmbientLight(
-	    Vector3(1.0f, 1.0f, 1.0f)));
+	    Vector3(0.25f, 0.25f, 0.25f)));
 	world.add_light(std::move(ambient_light));
 
 	std::unique_ptr<Light> point_light(new PointLight(Point3(0.0, 1.5, 0.0),
-	   Vector3(1.0f, 1.0f, 1.0f) * 3.0f));
+	   Vector3(1.0f, 1.0f, 1.0f) * 2.0f));
 	world.add_light(std::move(point_light));
 
 	return world;
@@ -91,7 +98,7 @@ get_marble_world (Vector2i& resolution)
 	std::unique_ptr<Texture> checker_texture(new CheckerboardTexture(Vector3(0.5f, 
 	    0.5f, 0.5f), Vector3(1.0, 1.0, 1.0), 4.25));
   std::unique_ptr<Material> plane_material(new Phong(
-      std::move(checker_texture),50.0f,0.0f));
+      std::move(checker_texture),50.0f,Vector3(0.0f,0.0f,0.0f)));
 	plane->set_material(std::move(plane_material));
 
 	MarblePerlinNoiseTexture *marble_texture = new MarblePerlinNoiseTexture(
@@ -101,7 +108,7 @@ get_marble_world (Vector2i& resolution)
 
 	std::unique_ptr<Texture> marble_sphere_tex(marble_texture);
   std::unique_ptr<Material> marble_sphere_mat(new Phong(
-      std::move(marble_sphere_tex),50.0f,0.0f));
+      std::move(marble_sphere_tex),50.0f,Vector3(0.0f,0.0f,0.0f)));
 	Sphere *sphere = new Sphere(Point3(12.8, 15.35, 2.0), 15.35);
 	sphere->set_material(std::move(marble_sphere_mat));
 
@@ -136,7 +143,7 @@ main (void)
 	Settings settings;
   settings.resolution = Vector2i(1280, 720);
 	settings.max_thread_count = std::thread::hardware_concurrency();
-  settings.iterations= 2;
+  settings.iterations= 6;
 
   PathTracing engine;
   ParallelRenderer renderer;

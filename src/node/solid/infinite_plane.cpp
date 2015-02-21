@@ -10,15 +10,14 @@ namespace Svit
 	{
 		float angle = normal % _ray.direction;
 
-		if (angle == 0.0)
+		if (std::abs(angle) <= EPS_DIVISION)
 			return false;
 
 		float t = -(normal % (_ray.origin - point))/angle;
 		if (t < _intersection.t && t > _ray.t_min)
 		{
 			_intersection.t = t;
-			_intersection.node = this;
-
+			_intersection.solid = this;
 			return true;
 		}
 		else
@@ -27,8 +26,12 @@ namespace Svit
 
   AABB
   InfinitePlane::get_aabb() const {
-    return AABB(Vector3(-std::numeric_limits<float>::infinity()),
-                Vector3(std::numeric_limits<float>::infinity()));
+    return AABB(Vector3(-std::numeric_limits<float>::infinity(),
+                        -std::numeric_limits<float>::infinity()
+                        -std::numeric_limits<float>::infinity()),
+                Vector3(std::numeric_limits<float>::infinity(),
+                        std::numeric_limits<float>::infinity(),
+                        std::numeric_limits<float>::infinity()));
   }
   
 	void

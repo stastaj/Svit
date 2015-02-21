@@ -11,7 +11,7 @@
 namespace Svit
 {  
   volatile sig_atomic_t ParallelRenderer::interrupted=false;
-
+  
   void
   ParallelRenderer::sig_handler(int sig, siginfo_t *siginfo, void *context)
   {
@@ -26,22 +26,18 @@ namespace Svit
                      volatile sig_atomic_t& interrupted)
 	{
 		Tiles result;
-
     while (!interrupted)
 		{
-
 			boost::optional<Task> optional_task = _task_dispatcher.get_task();
 			if (!optional_task)
 				break;
-
 			Task task = optional_task.get();
-
-      Image rendered_image = render_iteration(_world, _settings, _engine,
-          _super_sampling,interrupted);
 
 			Tile tile;
 			tile.task = task;
-			tile.image = rendered_image;
+			tile.image = render_iteration(_world, _settings, _engine,
+                                    _super_sampling,interrupted);
+      
 			result.push_back(tile);
 		}
 
@@ -76,13 +72,7 @@ namespace Svit
                          interrupted);
           }));
 		}
-/*
-    std::thread([](){
-      std::chrono::milliseconds dura( 2000 );
-      std::this_thread::sleep_for( dura );
-      interrupted=true;
-    });
-*/
+
 		for (unsigned i = 0; i < futures.size(); i++)
 		{
 			futures[i].wait();

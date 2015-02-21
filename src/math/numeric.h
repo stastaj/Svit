@@ -5,13 +5,9 @@
 #include "geom/vector.h"
 
 
-#define PI_F 3.14159265358979f
-#define INV_PI_F 0.318309886f
-#define PI_D 3.1415926535897932384626433832795028841971
-#define INV_PI_D (1.0f / PI_D)
-
 namespace Svit
 {
+  
 	void
 	decompose_float (float _float, int *_integral, float *_fractional, 
 	    bool _abs = true);

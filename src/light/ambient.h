@@ -9,10 +9,11 @@ namespace Svit
 	class AmbientLight : public Light
 	{
 		private:
-			Vector3 color;
+			Vector3 intensity;
 
 		public:
-			AmbientLight (Vector3 _color);
+      AmbientLight (Vector3 _intensity):Light(Background),intensity(_intensity)
+      {}
 
 		 	LightHit 
 			get_light_hit (Point3 _point);

@@ -1,4 +1,5 @@
 #include "material/phong.h"
+#include "math/constants.h"
 
 using namespace Svit;
 
@@ -7,7 +8,7 @@ Phong::eval_brdf(const Point3& _point, const Vector3& _wil,
                  const Vector3& _wol) const
 {
   if( _wil.z <= 0 && _wol.z <= 0)
-    return Vector3(0);
+    return Vector3(0.0f,0.0f,0.0f);
 
   Vector3 r(-_wil.x,-_wil.y,_wil.z);
   Vector3 glossyComponent  =
@@ -54,7 +55,8 @@ const
     //_samples.x=rand();
 
     Vector3 local=sample_cos_hemisphere_w(_samples,_pdf);
-    _sampled_dir_global=~(_frame.to_world(local));
+    _sampled_dir_global=_frame.to_world(local);
+    _sampled_dir_global.normalize();
     _brdf=diffuseColor * INV_PI_F;
     *_pdf*=pd;
     type=diffuse;

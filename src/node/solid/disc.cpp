@@ -28,7 +28,7 @@ namespace Svit
 				return false;	
 
 			_intersection.t = t;
-			_intersection.node = this;
+			_intersection.solid = this;
 
 			return true;
 		}
@@ -46,7 +46,7 @@ namespace Svit
 
   AABB
   Disc::get_aabb() const {
-    if(std::abs(normal.x) < 0.95f){
+    if(std::abs(normal.x) < 0.99f){
       Vector3 u(1.f,0.f,0.f);
       u=radius*~(u-(normal % u)*normal);
       Vector3 v=radius*~(normal & u);

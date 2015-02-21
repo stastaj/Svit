@@ -2,7 +2,8 @@
 
 namespace Svit
 {
-	bool Sphere::intersect(const Ray& _ray, Intersection& _intersection)
+	bool 
+  Sphere::intersect(const Ray& _ray, Intersection& _intersection)
 	{
     // Real-time Rendering, 3rd edition, page 738
 
@@ -19,21 +20,27 @@ namespace Svit
     // now the ray definitely intersect the sphere.
     float q=std::sqrt(radius_sqr-m_sqr);
     
-    float t;
+    float t_min;//, t_max;
     if(l_length_sqr > radius_sqr){
-      t=s-q;
+      t_min=s-q;
+      //t_max=s+q;
     }
     else{
-      t=s+q;
+      t_min=s+q;
+      //t_max=s-q;
     }
 
-    if( t <= _ray.t_min ||  t >= _intersection.t){
-      return false;
+    if( t_min > _ray.t_min &&  t_min < _intersection.t){
+      _intersection.t = t_min;
+      _intersection.solid = this;
+      return true;      
     }
-    _intersection.t = t;
-    _intersection.node = this;
-    
-    return true;
+    /*if( t_max > _ray.t_min &&  t_max < _intersection.t){
+      _intersection.t = t_max;
+      _intersection.solid = this;
+      return true;      
+    }*/
+    return false;
   }
 
 	void
@@ -46,7 +53,8 @@ namespace Svit
 
   AABB
   Sphere::get_aabb() const {
-    return AABB(center-radius,center+radius);
+    return AABB(center-Vector3(radius,radius,radius),
+                center+Vector3(radius,radius,radius));
   }
 
 	void

@@ -2,12 +2,12 @@ cmake_minimum_required(VERSION 2.8)
 project(Svit)
 
 option (USE_SSE "Use SSE instructions" ON)
-  
+ 
 file(GLOB_RECURSE Svit_SOURCES "src/*.cpp" "src/*.h")
 
 include_directories("src/")
 
-list(APPEND CMAKE_CXX_FLAGS "-pthread -std=c++11 ${CMAKE_CXX_FLAGS} -O3 ")
+list(APPEND CMAKE_CXX_FLAGS "-pthread -pg -std=c++11 ${CMAKE_CXX_FLAGS} -O3 ")
 find_package(PNG REQUIRED)
 include_directories(${PNG_INCLUDE_DIR})
 

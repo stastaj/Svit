@@ -22,12 +22,6 @@ namespace Svit
 				material = std::move(_material);	
 			}
 
-			std::list<Intersection>
-			fail ()
-			{
-				return std::list<Intersection>();
-			}
-
 			virtual void
 			complete_intersection (Intersection &_intersection, const Ray& _ray) 
       const = 0;

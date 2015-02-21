@@ -4,11 +4,10 @@
 #include "geom/vector.h"
 #include "geom/point.h"
 #include "node/solid/solid.h"
+#include "math/constants.h"
 
 namespace Svit
-{
-  const float RAY_EPSILON=0.001f;
-  
+{  
 	class Ray
 	{
 		public:

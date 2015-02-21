@@ -75,7 +75,8 @@ namespace Svit
       //return a.x*b.x+a.y*b.y+a.z*b.z;
 		#endif
 
-		return dp[0];
+    //float[4] f=dp;
+		return dp[0]; 
 	}
 
   

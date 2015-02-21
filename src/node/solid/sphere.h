@@ -2,6 +2,7 @@
 #define SVIT_SPHERE
 
 #include "node/solid/solid.h"
+#include "node/aabb.h"
 #include "geom/point.h"
 #include "geom/intersection.h"
 #include "geom/ray.h"

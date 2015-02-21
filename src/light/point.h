@@ -10,10 +10,12 @@ namespace Svit
 	{
 		private:
 			Point3 position;
-			Vector3 color;
+			Vector3 intensity;
 
 		public:
-			PointLight(Point3 _position, Vector3 _color);
+      PointLight(Point3 _position, Vector3 _intensity):Light(Point),
+        position(_position), intensity(_intensity)
+      {}
 			
 		 	LightHit 
 			get_light_hit (Point3 _point);

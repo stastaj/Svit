@@ -2,7 +2,7 @@
 #define SVIT_WORLD
 
 #include "camera/camera.h"
-#include "node/node.h"
+#include "node/group/group.h"
 #include "light/light.h"
 
 #include <vector>
@@ -12,7 +12,7 @@ namespace Svit
 {
 	struct World
 	{
-		Node *scene;
+		Group *scene;
 		Camera *camera;
 		std::vector<std::unique_ptr<Light>> lights;
 

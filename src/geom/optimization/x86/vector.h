@@ -27,7 +27,7 @@ namespace Svit
 				__m128 v;
 			};
 
-			inline Vector (float _x = 0.0, float _y = 0.0, 
+			explicit inline Vector (float _x = 0.0, float _y = 0.0, 
                      float _z = 0.0, float _w = 0.0) :x(_x),y(_y),z(_z),w(_w)
 			{ 
 				//v = _mm_setr_ps(_x, _y, _z, _w);
@@ -80,7 +80,25 @@ namespace Svit
 
 				throw std::runtime_error("Bad index");
 			}
-
+      
+      inline float
+			operator[](int nth) const
+			{
+				assert(nth >= 0 && nth <= 3);
+				switch (nth)
+				{
+					case 0:
+						return x;
+					case 1:
+						return y;
+					case 2:
+						return z;
+					case 3:
+						return w;
+				}
+				throw std::runtime_error("Bad index");
+			}
+      
 			inline void
 			dump (const char *name, unsigned int level = 0)
 			{

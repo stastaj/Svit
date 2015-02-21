@@ -2,6 +2,9 @@
 #define SVIT_AABB
 
 #include "geom/vector.h"
+#include "geom/ray.h"
+
+#include <memory>
 
 namespace Svit
 {
@@ -10,17 +13,24 @@ namespace Svit
    */
   class AABB
 	{
+    private:
+      Vector3 center;
 		public:
       Vector3 min;
       Vector3 max;
-
-      AABB(Vector3 _min, Vector3 _max) : min(_min),max(_max) {}
       
+      AABB(Vector3 _min, Vector3 _max) : min(_min),max(_max),
+        center(min+(max-min)*0.5f)
+      {}
+      
+      bool
+      intersect_with_line (const Ray& _ray, float& a, float& b) const ;
+            
       float 
-      surface_area()const {
-        Vector3 tmp=max-min;
-        return 2.0f*(tmp.x*tmp.y+tmp.x*tmp.z+tmp.y*tmp.z);
-      }
+      surface_area()const ;
+      
+      void 
+      update_to_contain(AABB& _bb);
 
 	};
 

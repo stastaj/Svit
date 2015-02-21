@@ -4,7 +4,7 @@
 //#include "geom/ray.h"
 //#include "geom/intersection.h"
 //#include "material/material.h"
-#include "node/aabb.h"
+//#include "node/aabb.h"
 
 #include <memory>
 #include <list>
@@ -12,6 +12,7 @@
 
 namespace Svit
 {
+  class AABB;
   class Material;
   class Ray;
   class Intersection;

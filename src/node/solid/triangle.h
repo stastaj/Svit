@@ -6,6 +6,7 @@
 #include "geom/vector.h"
 #include "geom/intersection.h"
 #include "geom/ray.h"
+#include "node/aabb.h"
 
 #include <list>
 

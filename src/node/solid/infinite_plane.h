@@ -3,6 +3,7 @@
 
 #include "node/solid/solid.h"
 #include "node/node.h"
+#include "node/aabb.h"
 #include "geom/point.h"
 #include "geom/vector.h"
 #include "geom/ray.h"

@@ -9,11 +9,9 @@ namespace Svit
   class Solid;
   
   class Intersection
-	{
-      
-      
+	{      
     public:
-      const Solid *node;	
+      const Solid *solid;	
       float t; // distance to the closest intersection - serves as t_max
       Vector3 normal;
       Point3 point; // intersection point coordinates
@@ -21,11 +19,11 @@ namespace Svit
       short light;
       
       explicit Intersection(const float _t_max):t(_t_max),material(-1),
-        light(-1),normal(Vector3()),point(Vector3()),node(0) 
+        light(-1),normal(Vector3()),point(Vector3()),solid(0) 
       {}
       
       Intersection(const Intersection& _i):t(_i.t),material(_i.material),
-        light(_i.light),node(_i.node)
+        light(_i.light),solid(_i.solid)
       {}
       
 	};

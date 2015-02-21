@@ -67,6 +67,24 @@ namespace Svit
 
 				throw std::runtime_error("Bad index");
 			}
+      
+      Scalar
+			operator[](int nth) const
+			{
+				assert(nth >= 0 && nth <= 3);
+				switch (nth)
+				{
+					case 0:
+						return x;
+					case 1:
+						return y;
+					case 2:
+						return z;
+					case 3:
+						return w;
+				}
+				throw std::runtime_error("Bad index");
+			}
 
 			void
 			dump (const char *name, unsigned int level = 0)

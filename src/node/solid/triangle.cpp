@@ -36,7 +36,7 @@ namespace Svit
 		if(t > _ray.t_min && t < _intersection.t)
 		{ 
 			_intersection.t = t;
-			_intersection.node = this;
+			_intersection.solid = this;
 
 			return true;
 		}
