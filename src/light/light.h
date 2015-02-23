@@ -3,16 +3,11 @@
 
 #include "geom/vector.h"
 #include "geom/point.h"
+#include "math/frame.h"
 
 namespace Svit
 {
   enum LightType {Point,Area,Background};
-  
-	struct LightHit
-	{
-		Vector3 direction;
-		float distance;
-	};
 
 	class Light 
 	{
@@ -22,11 +17,16 @@ namespace Svit
     public:      
       const LightType type;
       
-			virtual LightHit 
-			get_light_hit (Point3 _point) = 0;
-
-			virtual Vector3
-			get_intensity (LightHit _hit) = 0;
+			virtual Vector3 
+      sample_light ( const Point3& _surface_point, const Frame& _frame, 
+                     const Vector2& _samples, Vector3& _wig, float& _light_dist,
+                     float& _pdf) const = 0;
+      
+      //virtual
+      //Vector3 get_power() = 0;
+      
+			virtual Vector3 
+      get_radiance ( Vector3& wig ) const = 0;
 	};
 }
 

@@ -2,7 +2,6 @@
 #define SVIT_SETTINGS
 
 #include "geom/vector.h"
-#include "geom/rect.h"
 
 namespace Svit
 {
@@ -11,6 +10,7 @@ namespace Svit
     Vector2i resolution;
 		unsigned int max_thread_count;
     unsigned int iterations;
+    unsigned int time;
 
 		void
 		dump (const char *name, unsigned int level = 0)

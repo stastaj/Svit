@@ -23,7 +23,6 @@
 #include "texture/wood_perlin_noise.h"
 #include "texture/marble_perlin_noise.h"
 #include "light/point.h"
-#include "light/ambient.h"
 
 #include <iostream>
 #include <sstream>
@@ -33,8 +32,8 @@
 
 using namespace Svit;
 
-World
-get_wood_world (Vector2i& resolution)
+void
+get_wood_world (World& world,Vector2i& resolution)
 {
 	KdTreeGroup *scene = new KdTreeGroup();
 
@@ -43,7 +42,7 @@ get_wood_world (Vector2i& resolution)
 	std::unique_ptr<Texture> checker_texture(new CheckerboardTexture(Vector3(0.5f, 
 	    0.5f, 0.5f), Vector3(1.0, 1.0, 1.0), 0.25));
   std::unique_ptr<Material> plane_material(new Phong(
-      std::move(checker_texture),50.0f,Vector3(0.f,0.f,0.f)));
+      std::move(checker_texture),5.0f,Vector3(0.f,0.f,0.f)));
 	plane->set_material(std::move(plane_material));
 
   Solid *sphere = new Sphere(Point3(-0.9, 0.35, 0.0), 0.35);
@@ -53,7 +52,7 @@ get_wood_world (Vector2i& resolution)
 	wood_texture->add_octave(1.0, 3.0);
 	std::unique_ptr<Texture> wood_sphere_tex(wood_texture);
   std::unique_ptr<Material> sphere_material(new Phong(
-      std::move(wood_sphere_tex),20.0f,Vector3(0.0f,0.0f,0.0f)));
+      std::move(wood_sphere_tex),5.0f,Vector3(0.2f,0.2f,0.2f)));
 	sphere->set_material(std::move(sphere_material));
 
 	scene->add(plane);
@@ -73,19 +72,29 @@ get_wood_world (Vector2i& resolution)
     PI_F*0.5f,
     resolution);
 
-	World world;
+	//World world;
 	world.scene = scene;
 	world.camera = camera;
-
-	std::unique_ptr<Light> ambient_light(new AmbientLight(
-	    Vector3(0.25f, 0.25f, 0.25f)));
-	world.add_light(std::move(ambient_light));
 
 	std::unique_ptr<Light> point_light(new PointLight(Point3(0.0, 1.5, 0.0),
 	   Vector3(1.0f, 1.0f, 1.0f) * 2.0f));
 	world.add_light(std::move(point_light));
+}
 
-	return world;
+void
+get_cornell_box_world(World& _world, Vector2i& _resolution){
+  Vector3 cb[8] = {
+              Vector3(-1.27029f,  1.30455f, -1.28002f),
+              Vector3( 1.28975f,  1.30455f, -1.28002f),
+              Vector3( 1.28975f,  1.30455f,  1.28002f),
+              Vector3(-1.27029f,  1.30455f,  1.28002f),
+              Vector3(-1.27029f, -1.25549f, -1.28002f),
+              Vector3( 1.28975f, -1.25549f, -1.28002f),
+              Vector3( 1.28975f, -1.25549f,  1.28002f),
+              Vector3(-1.27029f, -1.25549f,  1.28002f)
+          };
+  
+  
 }
 
 World
@@ -126,42 +135,94 @@ get_marble_world (Vector2i& resolution)
 	world.scene = scene;
 	world.camera = camera;
 
-	std::unique_ptr<Light> ambient_light(new AmbientLight(
-	    Vector3(1.0f, 1.0f, 1.0f) * 3.0f));
-	world.add_light(std::move(ambient_light));
   std::unique_ptr<Light> point_light(new PointLight(Point3(0.0, 1.5, 0.0),
      Vector3(1.0f, 1.0f, 1.0f) * 1.0f));
 	return world;
 }
 
-int 
-main (void)
+void usage(){
+  std::cout<< "Usage: Svit [-i ITERATIONS][-s SCENE_NUMBER][-t TIME][-thr THREADS]"<<std::endl;
+  std::cout<< "     ITERATIONS is an unsinged int (number of paths"<<std::endl;
+  std::cout<< "     sent through each pixel),"<<std::endl;
+  std::cout<< "     SCENE_NUMBER is 0-2"<<std::endl;
+  std::cout<< "     TIME is number of seconds to be spent computing,"<<std::endl;
+  std::cout<< "     THREADS is number of threads to use."<<std::endl;
+}
+
+void parse_params(std::vector<std::string>& _args, Settings& _settings, 
+                  World& _world)
 {
-  
-  auto t1 = std::chrono::high_resolution_clock::now();
-  
+  get_wood_world(_world,_settings.resolution);
+  _settings.max_thread_count = std::thread::hardware_concurrency();
+  _settings.iterations= 10;
+  _settings.time=0;
+  for (auto it = ++ begin (_args); it != end (_args); ++it) {
+    if(*it=="-i"){
+      if(++it==end(_args)){
+        usage();
+        std::exit(1);
+      }
+      std::istringstream reader(*it);
+      unsigned int value;
+      reader >> value;
+      _settings.iterations=value;
+    }
+    else if(*it=="-s"){
+      if(++it==end(_args)){
+        usage();
+        std::exit(1);
+      }
+      std::istringstream reader(*it);
+      unsigned int value;
+      reader >> value;
+      if(value==0)
+      {}//get_wood_world(_world,_settings.resolution);
+      else{
+        std::cout<<"Unknown scene number. "<<std::endl;
+        usage();
+      }
+    }
+    else if(*it=="-thr"){
+      if(++it==end(_args)){
+        usage();
+        std::exit(1);
+      }
+      std::istringstream reader(*it);
+      unsigned int value;
+      reader >> value;
+      _settings.max_thread_count=value;
+    }
+  }
+}
+
+
+
+int 
+main (int argc, char** argv)
+{
+  std::vector<std::string> arguments(argv,argv+argc);
 	Settings settings;
   settings.resolution = Vector2i(1280, 720);
-	settings.max_thread_count = std::thread::hardware_concurrency();
-  settings.iterations= 6;
+  World world;
+  
+  parse_params(arguments,settings,world);
 
   PathTracing engine;
   ParallelRenderer renderer;
   SuperSampling* super_sampling=new RandomSuperSampling();
-
-  World wood_world = get_wood_world(settings.resolution);
-  Image wood_image = renderer.render(wood_world, settings, engine,
-                                     super_sampling);
+  
+  auto t1 = std::chrono::high_resolution_clock::now();
+  
+  Image final_image(settings.resolution);
+  renderer.render(world, settings, engine,super_sampling,final_image);
   auto t2 = std::chrono::high_resolution_clock::now();
   int elapsed_millisecs = std::chrono::duration_cast
                      <std::chrono::milliseconds>(t2 - t1).count();
-  //int dot=std::to_string(elapsed_secs).find(".");
-  std::string filename="wood_"+std::to_string(wood_image.iterations)+"i_"+
+  std::string filename="wood_"+std::to_string(final_image.iterations)+"i_"+
                        std::to_string(elapsed_millisecs).substr(0,10)+"ms.png";
-  wood_image.write(filename.data());
+  final_image.write(filename.data());
 
   delete super_sampling;
-  
   return 0;
 }
 

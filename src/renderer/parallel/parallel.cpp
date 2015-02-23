@@ -19,37 +19,41 @@ namespace Svit
       std::exit(1);
     interrupted=true;
   }
+  
+  void
+  ParallelRenderer::sleep_and_stop(int _seconds)
+  {
+    sleep(_seconds);
+    raise(SIGINT);
+  }
+  
 
-	Tiles
+	Image
   ParallelRenderer::worker (TaskDispatcher& _task_dispatcher, World& _world,
       Settings& _settings, Engine& _engine, SuperSampling* _super_sampling,
-                     volatile sig_atomic_t& interrupted)
+                     volatile sig_atomic_t& interrupted) const
 	{
-		Tiles result;
+		Image result(_settings.resolution);
     while (!interrupted)
 		{
 			boost::optional<Task> optional_task = _task_dispatcher.get_task();
 			if (!optional_task)
 				break;
-			Task task = optional_task.get();
-
-			Tile tile;
-			tile.task = task;
-			tile.image = render_iteration(_world, _settings, _engine,
-                                    _super_sampling,interrupted);
-      
-			result.push_back(tile);
+			Task task = optional_task.get(); // use iteration number??
+			Image tmp=render_iteration(_world, _settings, _engine,
+                                 _super_sampling, interrupted);
+			result.add_image(tmp);
+      ++result.iterations;
 		}
 
     return result;
 	}
 
-	Image
-  ParallelRenderer::render (World& _world, Settings& _settings, Engine&
-      _engine, SuperSampling* _super_sampling)
+	void ParallelRenderer::render(World& _world, Settings& _settings, Engine&
+      _engine, SuperSampling* _super_sampling, Image& _final_image)
 	{
 		TaskDispatcher task_dispatcher(_settings);
-		std::vector<std::future<Tiles>> futures(0);
+		std::vector<std::future<Image>> futures(0);
     std::vector<SuperSampling*> samplers;
 
     struct sigaction action;
@@ -72,8 +76,16 @@ namespace Svit
                          interrupted);
           }));
 		}
-
-		for (unsigned i = 0; i < futures.size(); i++)
+    
+    if(_settings.time>0){
+      std::async(std::launch::async,
+       [this, &_settings]()
+          {
+            return sleep_and_stop(_settings.time);
+          });
+    }
+    
+    for (unsigned i = 0; i < futures.size(); i++)
 		{
 			futures[i].wait();
 		}
@@ -82,30 +94,24 @@ namespace Svit
     }
     samplers.clear();
 
-    int iterations=0;
-    Image final_image(_settings.resolution);
 		for (unsigned i = 0; i < futures.size(); i++)
 		{
       try{
-        Tiles tiles = futures[i].get();
-
-        for(unsigned k = 0; k< tiles.size(); k++){
-          final_image.add_image(tiles[k].image);
-          iterations++;
-        }
+        Image img= futures[i].get();
+        _final_image.add_image(img);
+        _final_image.iterations+=img.iterations;
+        
       }
       catch (std::exception&) {
       }
 		}
-    final_image.scale(1.0f/(float)iterations);
-    final_image.iterations=iterations;
-		return final_image;
+    _final_image.scale(1.0f/(float)_final_image.iterations);
 	}
 
   Image
   ParallelRenderer::render_iteration (World& _world, Settings& _settings,
       Engine& _engine, SuperSampling* _super_sampling,
-      volatile sig_atomic_t interrupted)
+      volatile sig_atomic_t interrupted) const
   {
     int res_x = _settings.resolution.x;
     int res_y = _settings.resolution.y;
@@ -122,7 +128,8 @@ namespace Svit
         const Vector2 samples = _super_sampling->next_sample(x, y);
         const Vector2i pixel(x,y);
         const Ray ray = _world.camera->get_ray(pixel, samples);
-        result.set_pixel(x, y, _engine.get_color(ray, _world));
+        const Vector3 illum=_engine.get_color(ray, _world);
+        result.set_pixel(x, y, illum);
       }
     }
 

@@ -12,9 +12,9 @@ namespace Svit
 	class Renderer
 	{
 		public:
-			virtual Image
+			virtual void
 			render (World& _world, Settings& _settings, Engine& _engine,
-      SuperSampling* _super_sampling) = 0;
+      SuperSampling* _super_sampling, Image& _final_image) = 0;
 	};
 }
 

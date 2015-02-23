@@ -22,8 +22,10 @@ namespace Svit
 			const Vector3& 
       operator() (int x, int y);
       
-      void
-      set_pixel(const int x,const int y, const Vector3 v);
+      inline void
+      set_pixel(const int x,const int y, const Vector3& v){
+        data[y * size.x + x]=v;
+      }
       
 			void
 			resize (Vector2i& _size);

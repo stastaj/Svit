@@ -20,41 +20,33 @@ namespace Svit
 		size = _size;
 	}
 
-  void
-  Image::set_pixel(const int x,const int y, const Vector3 v){
-    data[y * size.x + x]=v;
-  }
-	
-  Image::Image ()
+  Image::Image ():iterations(0),size(Vector2i(0,0))
 	{
 		// TODO use this::resize
-		data.resize(0);
-		size = Vector2i(0, 0);
-    iterations=0;
+		data.resize(0);    
 	}
 
 	Image::Image (Vector2i& _size)
-		: size(_size)
+		: size(_size),iterations(0)
 	{
 		data.resize(size.x * size.y);
 
-		for (int y = 0; y < size.y; y++)
-      for (int x = 0; x < size.x; x++)
-        data[y*size.x + x] = Vector3(0.0f, 0.0f, 0.0f);
+		for (std::vector<Vector3>::iterator it=data.begin();it!=data.end();++it)
+      *it = Vector3(0.0f, 0.0f, 0.0f);
 	}
 
   void
   Image::add_image(Image &_img){
-    for (int y = 0; y < size.y; y++)
-      for (int x = 0; x < size.x; x++)
-        data[y*size.x + x] += _img(x,y);
+    std::vector<Vector3>::iterator it2=_img.data.begin();
+    for(std::vector<Vector3>::iterator it=data.begin();
+        it!=data.end();++it,++it2)
+        *it += *it2;
   }
 
   void
   Image::scale(float _scale){
-    for (int y = 0; y < size.y; y++)
-      for (int x = 0; x < size.x; x++)
-        data[y*size.x + x] *= _scale;
+    for(std::vector<Vector3>::iterator it=data.begin();it!=data.end();++it)
+        *it *= _scale;
   }
 
 	int 

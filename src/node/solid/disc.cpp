@@ -15,7 +15,7 @@ namespace Svit
 	{
 		float angle = normal % _ray.direction;
 
-		if (angle <= 0.0f)
+		if (std::abs(angle) <= EPS_DIVISION)
 			return false;
 
 		float t = -(normal % (_ray.origin - point))/angle;

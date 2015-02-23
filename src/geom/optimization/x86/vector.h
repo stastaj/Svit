@@ -12,7 +12,7 @@
 namespace Svit
 {
 	template<>
-	class Vector<float>
+	class alignas(16) Vector<float>
 	{
 		public:
 			union
@@ -43,16 +43,17 @@ namespace Svit
 				v = other;
 			}
 
-      float
+      inline float
       max() const
       {
         return std::max(std::max(x,y),std::max(z,w));
       }
 
-      void
+      inline void
       normalize()
       {
         const __m128 tmp=_mm_mul_ps(v,v);
+        
         const __m128 t = _mm_add_ps(tmp, _mm_movehl_ps(tmp, tmp));
         const __m128 sum = _mm_add_ss(t, _mm_shuffle_ps(t, t, 1));
         
@@ -107,6 +108,8 @@ namespace Svit
 				std::cout << indentation << name << " = SSE Vector (" << x << ", " << 
 						y << ", " << z << ", " << w << ")" << std::endl;
 			}
+    private:
+      
 	};
 }
 

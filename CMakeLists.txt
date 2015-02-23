@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project(Svit)
 
 option (USE_SSE "Use SSE instructions" ON)
- 
+
 file(GLOB_RECURSE Svit_SOURCES "src/*.cpp" "src/*.h")
 
 include_directories("src/")

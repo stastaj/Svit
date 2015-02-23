@@ -12,11 +12,10 @@ namespace Svit
       intersection.solid->complete_intersection(intersection,_ray);
       
       
-      Vector3 color(0.0f,0.0f,0.0f);
+      Vector3 illumination(0.0f,0.0f,0.0f);
       for (auto &light : _world.lights)
       {
-       
-        
+        /*
         const LightHit light_hit = light->get_light_hit(intersection.point);
         
         if(light->type!=Background){
@@ -28,19 +27,31 @@ namespace Svit
             continue;
         }
         Vector3 light_component = light->get_intensity(light_hit);
+        */
+        Vector3 wig;
+        float pdf;
+        float dist_sqr;
+        const Vector2 samples;
         
-        Frame frame(intersection.normal);
         
-        Vector3 to_light=frame.to_local(light_hit.direction);
-        Vector3 to_camera=frame.to_local(! _ray.direction);
-        Vector3 mat = intersection.solid->material->eval_brdf(intersection.point,
+        const Frame frame(intersection.normal);
+        const Vector3 radiance=light->sample_light(intersection.point,frame,
+                                                   samples,wig,dist_sqr,pdf);
+        
+        const Ray shadow_ray(intersection.point+wig*RAY_EPSILON, wig, 0);
+        Intersection shadow_isect(dist_sqr-2.0f*RAY_EPSILON);
+        if (_world.scene->intersect(shadow_ray, shadow_isect))
+            continue;
+        const Vector3 to_light=frame.to_local(wig);
+        const Vector3 to_camera=frame.to_local(! _ray.direction);
+        const Vector3 brdf = intersection.solid->material->eval_brdf(intersection.point,
                                                              to_light,to_camera);
         
-        color+=mat*light_component;
+        illumination+=(brdf*radiance)/(pdf);
       }
       
 
-      return color;
+      return illumination;
 		}
 		else
 			return Vector3();
