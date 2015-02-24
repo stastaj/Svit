@@ -195,11 +195,63 @@ void parse_params(std::vector<std::string>& _args, Settings& _settings,
   }
 }
 
+void SSE_test_normalization(SuperSampling* s){
+  int N=500000;
+  
+  Vector3 w(2.0f,0.5f,-0.4f);
+  (~w).dump("normalize_operator");
+  w.normalize_fast();
+  w.dump("normalize_fast_in_place");
+  w=Vector3(2.0f,0.5f,-0.4f);
+  w.normalize();
+  w.dump("normalize_in_place");
+  
+  Vector3 v[N];
+  for(int i=0;i<N;++i)
+    s->next_sample(v[i]);
+  
+  auto t1 = std::chrono::high_resolution_clock::now();
+  for(int i=0;i<N;++i){
+    v[i].normalize();
+  }
+  auto t2 = std::chrono::high_resolution_clock::now();
+  int elapsed_millisecs = std::chrono::duration_cast
+                     <std::chrono::milliseconds>(t2 - t1).count();
+  std::cout<<"Normalization in place took "<<elapsed_millisecs<<"ms."<<std::endl;
+  
+  for(int i=0;i<N;++i)
+    s->next_sample(v[i]);
+  
+  t1 = std::chrono::high_resolution_clock::now();
+  for(int i=0;i<N;++i){
+    v[i].normalize_fast();
+  }
+  t2 = std::chrono::high_resolution_clock::now();
+  elapsed_millisecs = std::chrono::duration_cast
+                     <std::chrono::milliseconds>(t2 - t1).count();
+  std::cout<<"Fast normalization in place took "<<elapsed_millisecs<<"ms."<<std::endl;
+  
+  for(int i=0;i<N;++i)
+    s->next_sample(v[i]);
+  
+  t1 = std::chrono::high_resolution_clock::now();
+  for(int i=0;i<N;++i){
+    v[i]=~v[i];
+  }
+  t2 = std::chrono::high_resolution_clock::now();
+  elapsed_millisecs = std::chrono::duration_cast
+                     <std::chrono::milliseconds>(t2 - t1).count();
+  std::cout<<"Normalization operator took "<<elapsed_millisecs<<"ms."<<std::endl;
+}
+
 
 
 int 
 main (int argc, char** argv)
 {
+  SuperSampling* super_sampling=new RandomSuperSampling();
+  //SSE_test_normalization(super_sampling);
+  
   std::vector<std::string> arguments(argv,argv+argc);
 	Settings settings;
   settings.resolution = Vector2i(1280, 720);
@@ -209,7 +261,7 @@ main (int argc, char** argv)
 
   PathTracing engine;
   ParallelRenderer renderer;
-  SuperSampling* super_sampling=new RandomSuperSampling();
+  
   
   auto t1 = std::chrono::high_resolution_clock::now();
   

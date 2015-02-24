@@ -46,6 +46,13 @@ namespace Svit
         *this *= 1.0 / length;
       }
 
+      void
+      normalize_fast()
+      {
+        normalize();
+      }
+      
+      
 			Scalar& 
 			operator[](int nth)
 			{

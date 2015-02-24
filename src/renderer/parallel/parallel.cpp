@@ -125,7 +125,8 @@ namespace Svit
         return Image(_settings.resolution);
       for (int y = 0; y < res_y; y++)
       {
-        const Vector2 samples = _super_sampling->next_sample(x, y);
+        Vector2 samples; 
+        _super_sampling->next_sample(samples);
         const Vector2i pixel(x,y);
         const Ray ray = _world.camera->get_ray(pixel, samples);
         const Vector3 illum=_engine.get_color(ray, _world);

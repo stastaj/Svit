@@ -8,20 +8,21 @@ namespace Svit
 {
 	bool InfinitePlane::intersect(const Ray& _ray, Intersection& _intersection)
 	{
-		float angle = normal % _ray.direction;
+		const float angle = normal % _ray.direction;
 
 		if (std::abs(angle) <= EPS_DIVISION)
 			return false;
 
-		float t = -(normal % (_ray.origin - point))/angle;
-		if (t < _intersection.t && t > _ray.t_min)
-		{
-			_intersection.t = t;
-			_intersection.solid = this;
-			return true;
-		}
-		else
-			return false;
+		const float t = (normal % (point - _ray.origin))/angle;
+		
+    if(t <= _ray.t_min)
+      return false;
+    if( t>=_intersection.t)
+      return false;
+    
+    _intersection.t = t;
+    _intersection.solid = this;
+    return true;
 	}
 
   AABB

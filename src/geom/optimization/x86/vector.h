@@ -11,6 +11,9 @@
 
 namespace Svit
 {
+  const __m128 half=_mm_set1_ps(0.5f);
+  const __m128 three=_mm_set1_ps(3.0f);
+  
 	template<>
 	class alignas(16) Vector<float>
 	{
@@ -27,21 +30,18 @@ namespace Svit
 				__m128 v;
 			};
 
-			explicit inline Vector (float _x = 0.0, float _y = 0.0, 
+      explicit inline Vector () :v (_mm_setr_ps(0.f,0.f,0.f,0.f))
+			{ }
+      
+			explicit inline Vector (float _x , float _y = 0.0, 
                      float _z = 0.0, float _w = 0.0) :x(_x),y(_y),z(_z),w(_w)
-			{ 
-				//v = _mm_setr_ps(_x, _y, _z, _w);
-			}
+			{ }
 
-			inline Vector (const Vector& other)
-			{ 
-				v = other.v;
-			}
+			inline Vector (const Vector& other):v(other.v)
+			{ }
 
-			inline Vector (__m128 other)
-			{ 
-				v = other;
-			}
+			inline Vector (__m128 other):v(other)
+			{ }
 
       inline float
       max() const
@@ -52,12 +52,28 @@ namespace Svit
       inline void
       normalize()
       {
-        const __m128 tmp=_mm_mul_ps(v,v);
+        __m128 v0 = _mm_mul_ps(v, v);
+        __m128 v1 = _mm_shuffle_ps(v0, v0, _MM_SHUFFLE(2, 3, 0, 1));
+        v0 = _mm_add_ps(v0, v1);
+        v1 = _mm_shuffle_ps(v0, v0, _MM_SHUFFLE(0, 1, 2, 3));
+        v0 = _mm_add_ps(v0, v1);
         
-        const __m128 t = _mm_add_ps(tmp, _mm_movehl_ps(tmp, tmp));
-        const __m128 sum = _mm_add_ss(t, _mm_shuffle_ps(t, t, 1));
+        v =_mm_div_ps(v, _mm_sqrt_ps(v0));
+      }
+      
+      inline void
+      normalize_fast() 
+      {
+        __m128 v0 = _mm_mul_ps(v, v);
+        __m128 v1 = _mm_shuffle_ps(v0, v0, _MM_SHUFFLE(2, 3, 0, 1));
+        v0 = _mm_add_ps(v0, v1);
+        v1 = _mm_shuffle_ps(v0, v0, _MM_SHUFFLE(0, 1, 2, 3));
+        v0 = _mm_add_ps(v0, v1);
         
-        v *= 1.f / (float)sqrt(sum[0]);
+        v1 = _mm_rsqrt_ps(v0);
+        
+        v0 = _mm_mul_ps( _mm_mul_ps( v0, v1 ), v1 ); 
+        v =_mm_mul_ps(v, _mm_mul_ps( _mm_mul_ps( half, v1 ), _mm_sub_ps( three, v0 ) ));
       }
       
       inline float&

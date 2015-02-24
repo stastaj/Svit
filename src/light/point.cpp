@@ -7,13 +7,14 @@ namespace Svit
                          const Vector2& _samples, Vector3& _wig, 
                             float& _light_dist, float& _pdf) const 
 	{
+    (void)_samples;
     _pdf=1.f;
     _wig = position - _surface_point;
     float distance_sqr = _wig % _wig;
     _light_dist = std::sqrt(distance_sqr);
-    _wig *= 1.0f/_light_dist;
+    _wig.normalize_fast();
     float cos_theta = _frame.mZ % _wig;
-    if(cos_theta < 0)
+    if(std::signbit(cos_theta)) // cos_theta is negative
       return Vector3();
     return intensity * cos_theta  / distance_sqr;
 	}

@@ -30,9 +30,10 @@ namespace Svit
   PerspectiveCamera::get_ray (const Vector2i& _pos, const Vector2& _samples)
   const
 	{
-		return Ray (position,~(top_left_corner+
-                       (_pos.x+_samples.x)*grid_diff_x+
-                       (_pos.y+_samples.y)*grid_diff_y));		
+    Vector3 direction(top_left_corner+(_pos.x+_samples.x)*grid_diff_x+
+                                      (_pos.y+_samples.y)*grid_diff_y);
+    direction.normalize();
+		return Ray (position,direction);		
 	}
 
 	void

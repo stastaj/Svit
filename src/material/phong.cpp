@@ -70,7 +70,8 @@ const
     Frame local(refl);
 
     Vector3 local_dir=sample_power_cos_hemisphere_w(_samples,exponent,_pdf);
-    _sampled_dir_global=~(local.to_world(local_dir));
+    _sampled_dir_global=local.to_world(local_dir);
+    _sampled_dir_global.normalize();
     float cosThetaIn = _frame.mZ % _sampled_dir_global;
     if(cosThetaIn <= 0){
       _brdf=Vector3(0,0,0,0);

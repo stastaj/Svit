@@ -8,22 +8,14 @@ namespace Svit
 	class SuperSampling
 	{
 		public:
-			unsigned int sample_count;
-			bool adaptive;
-
-			virtual Vector2
-			next_sample (int _x, int _y) = 0;
+      
+      virtual void
+			next_sample3 (Vector3& v) = 0;
+      
+			virtual void
+			next_sample (Vector2& v) = 0;
 
 			virtual ~SuperSampling() { }
-
-			virtual void
-			add_result (Vector3 _result) = 0;
-
-			virtual bool
-			enough () = 0;
-
-			virtual Vector3 
-			final_result () = 0;
 
 			virtual SuperSampling*
       copy ( unsigned int ) = 0;

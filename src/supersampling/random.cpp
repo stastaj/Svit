@@ -2,17 +2,17 @@
 
 namespace Svit
 {
-  Vector2
-	RandomSuperSampling::next_sample (int _x, int _y)
+  void RandomSuperSampling::next_sample(Vector2& v)
 	{
-		(void) _x;
-		(void) _y;
-
-    float x = distribution(generator);
-    float y = distribution(generator);
-
-		return Vector2(x, y);
+    v.x = distribution(generator);
+    v.y = distribution(generator);
 	}
-
+  
+  void RandomSuperSampling::next_sample3(Vector3& v)
+	{
+    v.x = distribution(generator);
+    v.y = distribution(generator);
+    v.z = distribution(generator);
+	}
 }
 
