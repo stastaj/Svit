@@ -7,35 +7,23 @@
 namespace Svit
 {      
     bool
-    AABB::intersect_with_line (const Ray& _ray, float& t_min, float& t_max) const {
-      t_min=-std::numeric_limits<float>::max();
-      t_max=std::numeric_limits<float>::max();
+    AABB::intersect_with_line (const Ray& _ray, float& t_min, float& t_max) const {      
+      const Vector3 f_inv=Vector3(1.0f,1.0f,1.0f)/_ray.direction;
+      const Vector3 e_plus_h=max-_ray.origin;
+      const Vector3 e_minus_h=min-_ray.origin;
+      Vector3 tmp_min=e_minus_h*f_inv;
+      Vector3 tmp_max=e_plus_h*f_inv;
       
-      //const Vector3 e_plus_h=max-_ray.origin;
-      //const Vector3 e_minus_h=min-_ray.origin;
-      //const Vector3 f_inv=Vector3(1.0f,1.0f,1.0f)/_ray.direction;
-      
-      for(int i=0;i<3;++i){
-        const float e_plus_h=max[i]-_ray.origin[i];
-        const float e_minus_h=min[i]-_ray.origin[i];
-        if(std::abs(_ray.direction[i])>EPS_DIVISION){
-          const float f_inv=1.0f/_ray.direction[i];
-          float t1=(e_plus_h)*f_inv;
-          float t2=(e_minus_h)*f_inv;
-          if(t1>t2)
-            std::swap(t1,t2);
-          if(t1>t_min)
-            t_min=t1;
-          if(t2<t_max)
-            t_max=t2;
-          if(t_min>t_max)
-            return false;    
-          if(std::signbit(t_max)) // t_max is negative
-            return false;
-        }    
-        else if(std::signbit(e_plus_h) || !std::signbit(e_minus_h))
-          return false;
-      }
+      t_min=std::max(std::max(std::min(tmp_min.x, tmp_max.x),
+                              std::min(tmp_min.y, tmp_max.y)), 
+                     std::min(tmp_min.z, tmp_max.z));
+      t_max=std::min(std::min(std::max(tmp_min.x, tmp_max.x),
+                              std::max(tmp_min.y, tmp_max.y)), 
+                     std::max(tmp_min.z, tmp_max.z));
+      if(t_min>t_max)
+        return false;    
+      if(std::signbit(t_max)) // t_max is negative
+        return false;
       return true;
     }
     

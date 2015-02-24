@@ -8,7 +8,8 @@
 namespace Svit
 {
   const __m128 minus_one=_mm_set1_ps(-1.f);
-  
+  //const __m128 half=_mm_set1_ps(0.5f);
+  //const __m128 three=_mm_set1_ps(3.f);
   
   
 	inline Vector<float> 
@@ -137,7 +138,7 @@ namespace Svit
     v1 = _mm_rsqrt_ps(v0);
     
     v0 = _mm_mul_ps( _mm_mul_ps( v0, v1 ), v1 ); 
-    return _mm_mul_ps(v.v, _mm_mul_ps( _mm_mul_ps( _mm_set1_ps(0.5f), v1 ), _mm_sub_ps( _mm_set1_ps(3.f), v0 ) )); 
+    return _mm_mul_ps(v.v, _mm_mul_ps( _mm_mul_ps( half, v1 ), _mm_sub_ps( three, v0 ) )); 
     
     //return Vector<float> (_mm_div_ps(v.v, _mm_sqrt_ps(_mm_set1_ps(v % v)))); 
     

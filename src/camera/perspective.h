@@ -31,7 +31,7 @@ namespace Svit
           float _horizontal_angle, Vector2i _resolution);
 
 			Ray
-      get_ray (const Vector2i& _pos, const Vector2& _samples) const override;
+      get_ray (const int _x, const int _y, const Vector2& _samples) const override;
 
 			void
       look_at (Point3 _dest) override;

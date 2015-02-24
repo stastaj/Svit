@@ -46,7 +46,13 @@ namespace Svit
       inline float
       max() const
       {
-        return std::max(std::max(x,y),std::max(z,w));
+        return std::max(std::max(x,y),z);
+      }
+      
+      inline float
+      min() const
+      {
+        return std::min(std::min(x,y),z);
       }
 
       inline void

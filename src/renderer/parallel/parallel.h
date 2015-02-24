@@ -31,10 +31,9 @@ namespace Svit
           _settings, Engine& _engine, SuperSampling* _super_sampling,
               volatile sig_atomic_t& interrupted) const;
 
-      Image
-      render_iteration(World& _world, Settings& _settings,
-                       Engine& _engine, SuperSampling* _super_sampling,
-                       volatile sig_atomic_t interrupted) const;
+      void
+      render_iteration(World& _world, Settings& _settings, Engine& _engine,
+                       SuperSampling* _super_sampling, Image& _result) const;
 
       static void
       sig_handler(int sig, siginfo_t *siginfo, void *context);

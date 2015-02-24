@@ -23,8 +23,8 @@ namespace Svit
       operator() (int x, int y);
       
       inline void
-      set_pixel(const int x,const int y, const Vector3& v){
-        data[y * size.x + x]=v;
+      add_to_pixel(const int x,const int y, const Vector3& v){
+        data[y * size.x + x]+=v;
       }
       
 			void

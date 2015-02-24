@@ -40,16 +40,16 @@ namespace Svit
 			if (!optional_task)
 				break;
 			Task task = optional_task.get(); // use iteration number??
-			Image tmp=render_iteration(_world, _settings, _engine,
-                                 _super_sampling, interrupted);
-			result.add_image(tmp);
+			render_iteration(_world, _settings, _engine,
+                                 _super_sampling, result);
       ++result.iterations;
 		}
 
     return result;
 	}
 
-	void ParallelRenderer::render(World& _world, Settings& _settings, Engine&
+	void 
+  ParallelRenderer::render(World& _world, Settings& _settings, Engine&
       _engine, SuperSampling* _super_sampling, Image& _final_image)
 	{
 		TaskDispatcher task_dispatcher(_settings);
@@ -108,34 +108,21 @@ namespace Svit
     _final_image.scale(1.0f/(float)_final_image.iterations);
 	}
 
-  Image
+  void
   ParallelRenderer::render_iteration (World& _world, Settings& _settings,
-      Engine& _engine, SuperSampling* _super_sampling,
-      volatile sig_atomic_t interrupted) const
+      Engine& _engine, SuperSampling* _super_sampling, Image& _result) const
   {
-    int res_x = _settings.resolution.x;
-    int res_y = _settings.resolution.y;
-
-    Image result(_settings.resolution);
-
-
-    for (int x = 0; x < res_x; x++)
+    for (int x = 0; x < _settings.resolution.x; x++)
     {
-      if(interrupted)
-        return Image(_settings.resolution);
-      for (int y = 0; y < res_y; y++)
+      for (int y = 0; y < _settings.resolution.y; y++)
       {
         Vector2 samples; 
         _super_sampling->next_sample(samples);
-        const Vector2i pixel(x,y);
-        const Ray ray = _world.camera->get_ray(pixel, samples);
+        const Ray ray = _world.camera->get_ray(x, y, samples);
         const Vector3 illum=_engine.get_color(ray, _world);
-        result.set_pixel(x, y, illum);
+        _result.add_to_pixel(x, y, illum);
       }
     }
-
-
-    return result;
   }
 
 }

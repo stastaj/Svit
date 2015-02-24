@@ -6,20 +6,6 @@
 
 namespace Svit
 {
-	const Vector3& 
-  Image::operator() (int x, int y)
-	{
-		assert(x >= 0 && y >= 0);
-		return data[y * size.x + x];
-	}
-
-	void
-	Image::resize (Vector2i& _size)
-	{
-		data.resize(_size.x * _size.y);
-		size = _size;
-	}
-
   Image::Image ():iterations(0),size(Vector2i(0,0))
 	{
 		// TODO use this::resize
@@ -32,7 +18,21 @@ namespace Svit
 		data.resize(size.x * size.y);
 
 		for (std::vector<Vector3>::iterator it=data.begin();it!=data.end();++it)
-      *it = Vector3(0.0f, 0.0f, 0.0f);
+      *it = Vector3();
+	}
+  
+	const Vector3& 
+  Image::operator() (int x, int y)
+	{
+		assert(x >= 0 && y >= 0);
+		return data[y * size.x + x];
+	}
+
+	void
+	Image::resize (Vector2i& _size)
+	{
+		data.resize(_size.x * _size.y);
+		size = _size;
 	}
 
   void
