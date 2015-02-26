@@ -8,7 +8,7 @@ namespace Svit
 	}
 
 	Vector3
-	ConstantTexture::get_color (Point3 _point)
+	ConstantTexture::get_color (const Point3& _point) const
 	{
 		(void) _point;
 		return color;

@@ -13,7 +13,7 @@ namespace Svit
 			ConstantTexture (Vector3 _color);
 
 			Vector3
-			get_color (Point3 _point);
+			get_color (const Point3& _point) const override;
 	};
 }
 

@@ -38,6 +38,12 @@ namespace Svit
         return std::max(std::max(x,y),std::max(z,w));
       }
       
+      Scalar
+      min()
+      {
+        return std::min(std::min(x,y),std::min(z,w));
+      }
+      
       void
       normalize()
       {

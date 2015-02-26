@@ -12,10 +12,10 @@ namespace Svit
 
 		public:
 			WoodPerlinNoiseTexture (Vector3 _black, Vector3 _white, 
-			    float _param = 20.0);	
+			    float _param = 20.0) ;	
 
 			Vector3
-			get_color (Point3 _point);
+			get_color (const Point3& _point) const override;
 	};
 }
 

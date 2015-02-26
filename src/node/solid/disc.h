@@ -16,17 +16,16 @@ namespace Svit
 			float radius_sqr;
 
 		public:
-			Disc (Point3 _point, Vector3 _normal, float _radius);
+			Disc (Point3 _point, Vector3 _normal, float _radius, int _mat, int _l):
+        Solid(_mat,_l), point(_point),normal(_normal),radius(_radius),
+                                    radius_sqr (_radius * _radius)
+      {}
 
 			bool
-      intersect (const Ray& _ray, Intersection& _intersection) override;
+      intersect (const Ray& _ray, Intersection& _intersection) const override;
 
       AABB
       get_aabb() const override;
-      
-			void
-			complete_intersection (Intersection &_intersection, const Ray& _ray)
-      const override;
 
 			void
 			dump (const char *_name, unsigned int _level = 0);

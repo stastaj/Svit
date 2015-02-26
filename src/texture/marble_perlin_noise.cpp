@@ -3,13 +3,8 @@
 
 namespace Svit
 {
-	MarblePerlinNoiseTexture::MarblePerlinNoiseTexture(Vector3 _black, 
-	    Vector3 _white)
-		: PerlinNoiseTexture(_black, _white)
-	{ }
-
 	Vector3
-	MarblePerlinNoiseTexture::get_color (Point3 _point)
+	MarblePerlinNoiseTexture::get_color (const Point3& _point) const
 	{
 		float sum = 0.0;
 		float discard;

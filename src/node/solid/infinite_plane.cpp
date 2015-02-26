@@ -6,7 +6,8 @@
 
 namespace Svit
 {
-	bool InfinitePlane::intersect(const Ray& _ray, Intersection& _intersection)
+	bool InfinitePlane::intersect(const Ray& _ray, Intersection& _intersection) 
+  const
 	{
 		const float angle = normal % _ray.direction;
 
@@ -21,7 +22,9 @@ namespace Svit
       return false;
     
     _intersection.t = t;
-    _intersection.solid = this;
+    _intersection.point=_ray(t);
+    _intersection.normal=normal;
+    _intersection.solid = (Solid*)this;
     return true;
 	}
 
@@ -34,14 +37,6 @@ namespace Svit
                         std::numeric_limits<float>::infinity(),
                         std::numeric_limits<float>::infinity()));
   }
-  
-	void
-	InfinitePlane::complete_intersection (Intersection& _intersection, 
-                                        const Ray& _ray) const
-	{
-		_intersection.normal = normal;
-    _intersection.point = _ray(_intersection.t);
-	}
 
 	void
 	InfinitePlane::dump (const char *_name, unsigned int _level)

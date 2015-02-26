@@ -10,7 +10,7 @@ namespace Svit
 	{
 		public:
 			virtual Vector3
-			get_color (Point3 _point) = 0;
+			get_color (const Point3& _point) const = 0;
 	};
 }
 

@@ -4,23 +4,9 @@
 #include <iostream>
 #include <png.h>
 
+
 namespace Svit
-{
-  Image::Image ():iterations(0),size(Vector2i(0,0))
-	{
-		// TODO use this::resize
-		data.resize(0);    
-	}
-
-	Image::Image (Vector2i& _size)
-		: size(_size),iterations(0)
-	{
-		data.resize(size.x * size.y);
-
-		for (std::vector<Vector3>::iterator it=data.begin();it!=data.end();++it)
-      *it = Vector3();
-	}
-  
+{  
 	const Vector3& 
   Image::operator() (int x, int y)
 	{
@@ -28,16 +14,9 @@ namespace Svit
 		return data[y * size.x + x];
 	}
 
-	void
-	Image::resize (Vector2i& _size)
-	{
-		data.resize(_size.x * _size.y);
-		size = _size;
-	}
-
   void
   Image::add_image(Image &_img){
-    std::vector<Vector3>::iterator it2=_img.data.begin();
+    std::vector<Vector3>::const_iterator it2=_img.data.begin();
     for(std::vector<Vector3>::iterator it=data.begin();
         it!=data.end();++it,++it2)
         *it += *it2;

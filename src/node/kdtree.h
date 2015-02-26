@@ -47,7 +47,8 @@ namespace Svit
       KdTree() {}
       
       bool
-      traverse(KdTreeNode* root, const AABB& bb, const Ray& _ray, Intersection& _intersection);
+      traverse(KdTreeNode* root, const AABB& bb, const Ray& _ray, 
+               Intersection& _intersection) const;
       
       KdTreeNode*
       build(std::vector<Node*>& _primitives, Vector3 _min, Vector3 _max,

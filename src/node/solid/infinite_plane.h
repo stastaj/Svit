@@ -17,19 +17,15 @@ namespace Svit
 			Vector3 normal;
 
 		public:
-			InfinitePlane (Point3 _point, Vector3 _normal)
-				: point(_point), normal(_normal)
+			InfinitePlane (Point3 _point, Vector3 _normal, int _mat, int _light)
+				: Solid(_mat,_light), point(_point), normal(_normal)
 			{ }
 
 			bool
-      intersect ( const Ray& _ray, Intersection& _intersection) override;
+      intersect ( const Ray& _ray, Intersection& _intersection) const override;
 
       AABB
       get_aabb() const override;
-      
-			void
-			complete_intersection (Intersection &_intersection, const Ray& _ray) 
-      const override;
 
 			void
 			dump (const char *_name, unsigned int _level = 0);

@@ -8,7 +8,7 @@ namespace Svit
   
   bool 
   KdTree::traverse(KdTreeNode* root, const AABB& bb, const Ray& _ray, 
-                   Intersection& _intersection)
+                   Intersection& _intersection) const
   {
     float a,b;
     bool hit=bb.intersect_with_line(_ray, a, b );

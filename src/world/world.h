@@ -15,11 +15,19 @@ namespace Svit
 		Group *scene;
 		Camera *camera;
 		std::vector<std::unique_ptr<Light>> lights;
-
+    std::vector<std::unique_ptr<Material>> materials;
+    
 		void
 		add_light (std::unique_ptr<Light> _light)
 		{
 			lights.push_back(std::move(_light));	
+		}
+    
+    int
+		add_material (std::unique_ptr<Material> _material)
+		{
+			materials.push_back(std::move(_material));	
+      return materials.size()-1;
 		}
 	};
 }

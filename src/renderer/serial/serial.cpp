@@ -9,7 +9,6 @@ namespace Svit
       SuperSampling* _super_sampling)
 	{
     Image result(_settings.resolution);
-
     for (int x = 0; x < _settings.resolution.x; x++)
       for (int y = 0; y < _settings.resolution.y; y++)
       {

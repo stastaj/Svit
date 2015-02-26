@@ -19,19 +19,16 @@ namespace Svit
       double radius_sqr;
 
 		public:
-      Sphere (Point3 _center, float _radius)
-        : center(_center), radius(_radius),radius_sqr(_radius*_radius)
+      Sphere (Point3 _center, float _radius, int _mat, int _light)
+        : Solid(_mat, _light), center(_center), radius(_radius),
+          radius_sqr(_radius*_radius)
 			{ }
 
 			bool
-      intersect (const Ray& _ray, Intersection& _intersection) override;
+      intersect (const Ray& _ray, Intersection& _intersection) const override;
 
       AABB
       get_aabb() const override;
-
-			void
-			complete_intersection (Intersection &_intersection, const Ray& _ray) 
-      const override;
 
 			void
 			dump (const char *_name, unsigned int _level = 0);

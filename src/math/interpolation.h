@@ -7,7 +7,7 @@ namespace Svit
 {
 	template <typename Scalar>
 	Vector<Scalar>
-	lerp_1D (Vector<Scalar>& _a, Vector<Scalar>& _b, Scalar _v)
+	lerp_1D (const Vector<Scalar>& _a, const Vector<Scalar>& _b, Scalar _v)
 	{
 		return (_a + ((_b - _a) * _v));	
 	}

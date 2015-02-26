@@ -15,12 +15,8 @@ namespace Svit
     bb.update_to_contain(_bb);
 		nodes.push_back(_node);
 	}
-
-	void
-	KdTreeGroup::set_material (std::unique_ptr<Material> _material)
-	{}
 	
-	bool KdTreeGroup::intersect(const Ray& _ray, Intersection& _best)
+	bool KdTreeGroup::intersect(const Ray& _ray, Intersection& _best) const
 	{
     float t_max=_best.t;
     bool intersected=kdtree.traverse(root,bb,_ray,_best);    

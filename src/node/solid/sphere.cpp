@@ -3,7 +3,7 @@
 namespace Svit
 {
 	bool 
-  Sphere::intersect(const Ray& _ray, Intersection& _intersection)
+  Sphere::intersect(const Ray& _ray, Intersection& _intersection) const
 	{
     // Real-time Rendering, 3rd edition, page 738
 
@@ -32,7 +32,9 @@ namespace Svit
 
     if( t_min > _ray.t_min &&  t_min < _intersection.t){
       _intersection.t = t_min;
-      _intersection.solid = this;
+      _intersection.point=_ray(t_min);
+      _intersection.normal=~(_intersection.point - center);;
+      _intersection.solid = (Solid*)this;
       return true;      
     }
     /*if( t_max > _ray.t_min &&  t_max < _intersection.t){
@@ -42,14 +44,6 @@ namespace Svit
     }*/
     return false;
   }
-
-	void
-  Sphere::complete_intersection (Intersection &_intersection, const Ray& _ray)
-  const
-	{
-		_intersection.normal = ~(_intersection.point - center);
-    _intersection.point = _ray(_intersection.t);
-	}
 
   AABB
   Sphere::get_aabb() const {

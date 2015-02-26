@@ -14,18 +14,12 @@ namespace Svit
 	class Solid : public Node
 	{
 		public:
-		  std::unique_ptr<Material> material;
-
-			void
-			set_material (std::unique_ptr<Material> _material)
-			{
-				material = std::move(_material);	
-			}
-
-			virtual void
-			complete_intersection (Intersection &_intersection, const Ray& _ray) 
-      const = 0;
-
+		  const int material;
+      const int light;
+      
+      Solid(int _mat,int _light):material(_mat),light(_light)
+      {}
+      
 			virtual void
 			dump (const char *_name, unsigned int _level = 0) = 0;
 	};

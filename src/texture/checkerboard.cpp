@@ -13,7 +13,7 @@ namespace Svit
 	}
 
 	Vector3
-	CheckerboardTexture::get_color (Point3 _point)
+	CheckerboardTexture::get_color (const Point3& _point) const
 	{
 		bool x = (int)floor(_point.x / size) % 2 == 0;
 		bool y = (int)floor(_point.y / size) % 2 == 0;

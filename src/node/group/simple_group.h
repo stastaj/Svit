@@ -16,13 +16,10 @@ namespace Svit
 
 		public:
 			bool
-      intersect (const Ray& _ray, Intersection& _best) override;
+      intersect (const Ray& _ray, Intersection& _best) const override;
 
       AABB
       get_aabb() const override;
-
-			void
-			set_material (std::unique_ptr<Material> _material) override;
 
 			void
 			add (Node* _node) override;

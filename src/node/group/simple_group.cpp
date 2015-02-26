@@ -7,17 +7,8 @@ namespace Svit
 	{
 		nodes.push_back(_node);
 	}
-
-	void
-	SimpleGroup::set_material (std::unique_ptr<Material> _material)
-	{
-		// TODO solve this problem:
-		// unique_ptr does not allow to share the pointer we do not want to make
-		// copy for each group member just imagine a huge model with 300k
-		// triangles, sharing the same material with copying is insane. 
-	}
 	
-	bool SimpleGroup::intersect(const Ray& _ray, Intersection& _best)
+	bool SimpleGroup::intersect(const Ray& _ray, Intersection& _best) const
 	{
     bool intersected=false;
 		for (auto node : nodes)

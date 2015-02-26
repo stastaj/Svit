@@ -8,10 +8,12 @@ namespace Svit
 	class MarblePerlinNoiseTexture : public PerlinNoiseTexture
 	{
 		public:
-			MarblePerlinNoiseTexture (Vector3 _black, Vector3 _white);	
+			MarblePerlinNoiseTexture (Vector3 _black, Vector3 _white) : 
+        PerlinNoiseTexture(_black, _white)
+      {}	
 
 			Vector3
-			get_color (Point3 _point);
+			get_color (const Point3& _point) const override;
 	};
 }
 

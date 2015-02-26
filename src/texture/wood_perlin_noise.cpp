@@ -11,7 +11,7 @@ namespace Svit
 	}
 
 	Vector3
-	WoodPerlinNoiseTexture::get_color (Point3 _point)
+	WoodPerlinNoiseTexture::get_color (const Point3& _point) const
 	{
 		float sum = 0.0;
 		float discard;

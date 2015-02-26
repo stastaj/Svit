@@ -20,11 +20,9 @@ namespace Svit
 	class Node
 	{
 		public:
-			virtual void
-			set_material (std::unique_ptr<Material> _material) = 0;
 
 			virtual bool
-      intersect (const Ray& _ray, Intersection& _intersection) = 0;
+      intersect (const Ray& _ray, Intersection& _intersection) const = 0;
 
       virtual AABB
       get_aabb() const =0;

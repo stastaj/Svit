@@ -18,23 +18,22 @@ namespace Svit
 			Vector3 normal;			
       Vector3 e1;
       Vector3 e2;
-
+      Point3 p1;
+      
 		public:
-			Point3 p1;
-			Point3 p2;
-			Point3 p3;
+			
 
-			Triangle (Point3 _p1, Point3 _p2, Point3 _p3);
+			Triangle (Point3 _p1, Point3 _p2, Point3 _p3, int _mat, int _light)
+        : Solid(_mat, _light), p1(_p1), e1(_p2 - _p1),e2(_p3 - _p1), 
+          normal(~(e1 & e2))
+      {}
+        
 
 			bool
-      intersect (const Ray& _ray, Intersection& _intersection) override;
+      intersect (const Ray& _ray, Intersection& _intersection) const override;
 
       AABB
       get_aabb() const override;
-
-			void
-			complete_intersection (Intersection &_intersection, const Ray& _ray)
-      const override;
 
 			void
 			dump (const char *_name, unsigned int _level = 0);

@@ -34,51 +34,40 @@ using namespace Svit;
 
 void
 get_wood_world (World& world,Vector2i& resolution)
-{
-	KdTreeGroup *scene = new KdTreeGroup();
-
-	InfinitePlane *plane = new InfinitePlane(Point3(0.0, 0.02, 0.0), 
-	    Vector3(0.0, 1.0, 0.0));
-	std::unique_ptr<Texture> checker_texture(new CheckerboardTexture(Vector3(0.5f, 
+{  
+  world.camera = new PerspectiveCamera(
+                   Point3(0.0, 0.75, -2.0),
+                   Vector3(0.0, -0.1, 1.0),
+                   Vector3(0.0, 1.0, 0.1),
+                   PI_F*0.5f,
+                   resolution);;
+  
+  world.scene = new KdTreeGroup();
+  
+  std::unique_ptr<Texture> checker_texture(new CheckerboardTexture(Vector3(0.5f, 
 	    0.5f, 0.5f), Vector3(1.0, 1.0, 1.0), 0.25));
   std::unique_ptr<Material> plane_material(new Phong(
       std::move(checker_texture),5.0f,Vector3(0.f,0.f,0.f)));
-	plane->set_material(std::move(plane_material));
-
-  Solid *sphere = new Sphere(Point3(-0.9, 0.35, 0.0), 0.35);
-	WoodPerlinNoiseTexture *wood_texture = new WoodPerlinNoiseTexture(
+  int plane_mat=world.add_material(std::move(plane_material));
+	InfinitePlane *plane = new InfinitePlane(Point3(0.0, 0.02, 0.0), 
+	    Vector3(0.0, 1.0, 0.0),plane_mat,0);
+	
+  WoodPerlinNoiseTexture *wood_texture = new WoodPerlinNoiseTexture(
 			Vector3(149.0f/255.0f, 69.0f/255.0f, 53.0f/255.0f), Vector3(237.0f/255.0f,
 			201.0f/255.0f, 175.0f/255.0f));
 	wood_texture->add_octave(1.0, 3.0);
 	std::unique_ptr<Texture> wood_sphere_tex(wood_texture);
   std::unique_ptr<Material> sphere_material(new Phong(
       std::move(wood_sphere_tex),5.0f,Vector3(0.2f,0.2f,0.2f)));
-	sphere->set_material(std::move(sphere_material));
+  int sphere_mat=world.add_material(std::move(sphere_material));
+  Solid *sphere = new Sphere(Point3(-0.9, 0.35, 0.0), 0.35,sphere_mat,0);
 
-	scene->add(plane);
-	scene->add(sphere);
-  
-  auto t1 = std::chrono::high_resolution_clock::now();
-  scene->build_kdtree();
-  auto t2 = std::chrono::high_resolution_clock::now();
-    int elapsed_millisecs = std::chrono::duration_cast
-                       <std::chrono::milliseconds>(t2 - t1).count();
-  std::cout<< "Building of kdtree took "<< elapsed_millisecs<< "ms." <<std::endl;
-  
-	PerspectiveCamera *camera = new PerspectiveCamera(
-		Point3(0.0, 0.75, -2.0),
-		Vector3(0.0, -0.1, 1.0),
-    Vector3(0.0, 1.0, 0.1),
-    PI_F*0.5f,
-    resolution);
-
-	//World world;
-	world.scene = scene;
-	world.camera = camera;
+	world.scene->add(plane);
+	world.scene->add(sphere);	
 
 	std::unique_ptr<Light> point_light(new PointLight(Point3(0.0, 1.5, 0.0),
 	   Vector3(1.0f, 1.0f, 1.0f) * 2.0f));
-	world.add_light(std::move(point_light));
+  world.add_light(std::move(point_light));
 }
 
 void
@@ -97,18 +86,25 @@ get_cornell_box_world(World& _world, Vector2i& _resolution){
   
 }
 
-World
-get_marble_world (Vector2i& resolution)
+void
+get_marble_world (World& _world,Vector2i& resolution)
 {
-	SimpleGroup *scene = new SimpleGroup();
-
-	InfinitePlane *plane = new InfinitePlane(Point3(0.0, 0.02, 0.0), 
-	    Vector3(0.0, 1.0, 0.0));
+  _world.camera = new PerspectiveCamera(
+		Point3(0.0, 24.75, -47.0),
+		Vector3(0.0, -0.1, 1.0),
+    Vector3(0.0, 1.0, 0.1),
+    PI_F*0.5f,
+    resolution);
+  
+  _world.scene = new KdTreeGroup();	
+	
 	std::unique_ptr<Texture> checker_texture(new CheckerboardTexture(Vector3(0.5f, 
 	    0.5f, 0.5f), Vector3(1.0, 1.0, 1.0), 4.25));
   std::unique_ptr<Material> plane_material(new Phong(
       std::move(checker_texture),50.0f,Vector3(0.0f,0.0f,0.0f)));
-	plane->set_material(std::move(plane_material));
+	int plane_mat=_world.add_material(std::move(plane_material));
+  InfinitePlane *plane = new InfinitePlane(Point3(0.0, 0.02, 0.0), 
+	    Vector3(0.0, 1.0, 0.0),plane_mat,0);
 
 	MarblePerlinNoiseTexture *marble_texture = new MarblePerlinNoiseTexture(
 			Vector3(1.0f, 1.0f, 1.0f), Vector3(0.0f, 0.0f, 0.0f));
@@ -118,26 +114,15 @@ get_marble_world (Vector2i& resolution)
 	std::unique_ptr<Texture> marble_sphere_tex(marble_texture);
   std::unique_ptr<Material> marble_sphere_mat(new Phong(
       std::move(marble_sphere_tex),50.0f,Vector3(0.0f,0.0f,0.0f)));
-	Sphere *sphere = new Sphere(Point3(12.8, 15.35, 2.0), 15.35);
-	sphere->set_material(std::move(marble_sphere_mat));
+	int marble=_world.add_material(std::move(marble_sphere_mat));
+  Sphere *sphere = new Sphere(Point3(12.8, 15.35, 2.0), 15.35, marble, 0);
 
-	scene->add(plane);
-	scene->add(sphere);
-
-	PerspectiveCamera *camera = new PerspectiveCamera(
-		Point3(0.0, 24.75, -47.0),
-		Vector3(0.0, -0.1, 1.0),
-    Vector3(0.0, 1.0, 0.1),
-    PI_F*0.5f,
-    resolution);
-
-	World world;
-	world.scene = scene;
-	world.camera = camera;
+	_world.scene->add(plane);
+	_world.scene->add(sphere);	
 
   std::unique_ptr<Light> point_light(new PointLight(Point3(0.0, 1.5, 0.0),
      Vector3(1.0f, 1.0f, 1.0f) * 1.0f));
-	return world;
+  _world.add_light(std::move(point_light));
 }
 
 void usage(){
@@ -177,6 +162,10 @@ void parse_params(std::vector<std::string>& _args, Settings& _settings,
       reader >> value;
       if(value==0)
       {}//get_wood_world(_world,_settings.resolution);
+      else if(value==1)
+      {
+        get_marble_world(_world,_settings.resolution);
+      }
       else{
         std::cout<<"Unknown scene number. "<<std::endl;
         usage();
@@ -259,16 +248,23 @@ main (int argc, char** argv)
   
   parse_params(arguments,settings,world);
 
+  auto t1 = std::chrono::high_resolution_clock::now();
+  world.scene->build_kdtree();
+  auto t2 = std::chrono::high_resolution_clock::now();
+    int elapsed_millisecs = std::chrono::duration_cast
+                       <std::chrono::milliseconds>(t2 - t1).count();
+  std::cout<< "Building of kdtree took "<< elapsed_millisecs<< "ms." <<std::endl;
+  
   PathTracing engine;
   ParallelRenderer renderer;
   
   
-  auto t1 = std::chrono::high_resolution_clock::now();
+  t1 = std::chrono::high_resolution_clock::now();
   
   Image final_image(settings.resolution);
   renderer.render(world, settings, engine,super_sampling,final_image);
-  auto t2 = std::chrono::high_resolution_clock::now();
-  int elapsed_millisecs = std::chrono::duration_cast
+  t2 = std::chrono::high_resolution_clock::now();
+  elapsed_millisecs = std::chrono::duration_cast
                      <std::chrono::milliseconds>(t2 - t1).count();
   std::string filename="wood_"+std::to_string(final_image.iterations)+"i_"+
                        std::to_string(elapsed_millisecs).substr(0,10)+"ms.png";

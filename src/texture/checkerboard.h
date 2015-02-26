@@ -16,7 +16,7 @@ namespace Svit
 			CheckerboardTexture (Vector3 _black, Vector3 _white, float _size);
 
 			Vector3
-			get_color (Point3 _point);
+			get_color (const Point3& _point) const override;
 	};
 }
 

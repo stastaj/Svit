@@ -2,19 +2,7 @@
 
 namespace Svit
 {
-	Triangle::Triangle (Point3 _p1, Point3 _p2, Point3 _p3)
-	  : p1(_p1), p2(_p2), p3(_p3)
-	{
-		p1.w = 0.0f;
-		p2.w = 0.0f;
-		p3.w = 0.0f;
-
-		e1 = p2 - p1;
-		e2 = p3 - p1;
-		normal = ~(~e1 & ~e2);
-	}
-
-	bool Triangle::intersect(const Ray& _ray, Intersection& _intersection) 
+	bool Triangle::intersect(const Ray& _ray, Intersection& _intersection) const
 	{
 		Vector3 P = _ray.direction & e2;
 		float det = e1 % P;
@@ -36,7 +24,9 @@ namespace Svit
 		if(t > _ray.t_min && t < _intersection.t)
 		{ 
 			_intersection.t = t;
-			_intersection.solid = this;
+      _intersection.point = _ray(t);
+      _intersection.normal=normal;
+			_intersection.solid = (Solid*)this;
 
 			return true;
 		}
@@ -44,16 +34,10 @@ namespace Svit
 		return false;
 	}
 
-	void
-	Triangle::complete_intersection (Intersection &_intersection, const Ray& _ray)
-  const
-	{
-		_intersection.normal = normal;
-    _intersection.point = _ray(_intersection.t);
-	}
-
   AABB
   Triangle::get_aabb() const {
+    Vector3 p2=p1+e1;
+    Vector3 p3=p1+e2;
     return AABB( Vector3(std::min(std::min(p1.x,p2.x),p3.x),
                          std::min(std::min(p1.y,p2.y),p3.y),
                          std::min(std::min(p1.z,p2.z),p3.z)),
@@ -70,8 +54,8 @@ namespace Svit
 		    std::endl;
 
 		p1.dump("p1", _level+1);
-		p2.dump("p2", _level+1);
-		p3.dump("p3", _level+1);
+		(p1+e1).dump("p2", _level+1);
+		(p1+e2).dump("p3", _level+1);
 	}
 }
 

@@ -3,22 +3,14 @@
 
 namespace Svit
 {
-	Disc::Disc (Point3 _point, Vector3 _normal, float _radius)
-	{
-		point = _point;
-		normal = _normal;
-		radius = _radius;
-		radius_sqr = radius * radius;
-	}
-
-	bool Disc::intersect(const Ray& _ray, Intersection& _intersection)
+	bool Disc::intersect(const Ray& _ray, Intersection& _intersection) const
 	{
 		float angle = normal % _ray.direction;
 
 		if (std::abs(angle) <= EPS_DIVISION)
 			return false;
 
-		float t = -(normal % (_ray.origin - point))/angle;
+		float t = (normal % (point-_ray.origin))/angle;
 		if (t < _intersection.t && t > _ray.t_min)
 		{
 			Point3 hit_point = _ray(t);
@@ -28,20 +20,14 @@ namespace Svit
 				return false;	
 
 			_intersection.t = t;
-			_intersection.solid = this;
+      _intersection.normal=normal;
+      _intersection.point=hit_point;
+			_intersection.solid = (Solid*)this;
 
 			return true;
 		}
 		else
 			return false;
-	}
-
-	void
-	Disc::complete_intersection (Intersection& _intersection, const Ray& _ray)
-  const
-	{
-		_intersection.normal = normal;
-    _intersection.point = _ray(_intersection.t);
 	}
 
   AABB

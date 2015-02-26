@@ -7,7 +7,7 @@
 namespace Svit
 {
 	float
-	PerlinNoiseTexture::noise (int _x, int _y, int _z)
+	PerlinNoiseTexture::noise (int _x, int _y, int _z) const
 	{
 		int n = _x + _y * 57 + _z * 997;
 		n = (n << 13) ^ n;
@@ -18,7 +18,7 @@ namespace Svit
 	}
 
 	float
-	PerlinNoiseTexture::noise_3D (Point3 _point)
+	PerlinNoiseTexture::noise_3D (const Point3& _point) const
 	{
 		int ix, iy, iz;
 		float dx, dy, dz;
@@ -46,13 +46,6 @@ namespace Svit
 		return result;
 	}
 
-	PerlinNoiseTexture::PerlinNoiseTexture (Vector3 _black, Vector3 _white)
-	{
-		black = _black;
-		white = _white;
-		octave_count = 0;
-	}
-
 	void
 	PerlinNoiseTexture::add_octave (float _amplitude, float _frequency)
 	{
@@ -62,7 +55,7 @@ namespace Svit
 	}
 
 	Vector3
-	PerlinNoiseTexture::get_color (Point3 _point)
+	PerlinNoiseTexture::get_color (const Point3& _point) const
 	{
 		float sum = 0.0;
 		for (unsigned int i = 0; i < octave_count; i++)
