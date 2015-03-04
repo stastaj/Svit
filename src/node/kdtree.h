@@ -56,8 +56,8 @@ namespace Svit
       
     private:
       void
-      split_primitives(std::vector<Node*> _primitives,float _split,Axis _axis,
-                       std::vector<Node*> _left, std::vector<Node*> _right);
+      split_primitives(std::vector<Node*>& _primitives, float _split, Axis _axis,
+                       std::vector<Node*>& _left, std::vector<Node*>& _right);
       
       bool
       terminate(int depth,std::vector<Node*>& _objects);

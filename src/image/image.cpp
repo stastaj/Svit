@@ -3,10 +3,22 @@
 #include <assert.h>
 #include <iostream>
 #include <png.h>
-
+#include <fstream>
 
 namespace Svit
 {  
+  Image::Image(Vector2i& _size):size(_size),iterations(0){
+    data.resize(_size.x*_size.y,Vector3(0.0f,0.0f,0.0f));
+  }      
+  
+  Image::Image(const Image& _img):iterations(_img.iterations),size(_img.size){
+    data.resize(_img.size.x*_img.size.y,Vector3(0.0f,0.0f,0.0f));
+    auto it2=std::begin(_img.data);
+    for (auto it = std::begin(data); it != std::end(data); ++it,++it2){
+      *it+=*it2;
+    }
+  }
+  
 	const Vector3& 
   Image::operator() (int x, int y)
 	{
@@ -29,7 +41,7 @@ namespace Svit
   }
 
 	int 
-  Image::write (std::string filename)
+  Image::write_png (std::string filename)
 	{
 		FILE *file = fopen(filename.c_str(), "wb");
 		png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, 
@@ -76,5 +88,40 @@ namespace Svit
 
 		return 0;
 	}
+  
+  int 
+  Image::write_hdr(std::string filename)
+  {
+      std::ofstream hdr(filename, std::ios::binary);
+
+      hdr << "#?RADIANCE" << '\n';
+      hdr << "# SvitRenderer" << '\n';
+      hdr << "FORMAT=32-bit_rle_rgbe" << '\n' << '\n';
+      hdr << "-Y " << size.y << " +X " << size.x << '\n';
+
+      for(int y=0; y<size.y; y++)
+      {
+          for(int x=0; x<size.x; x++)
+          {
+              typedef unsigned char byte;
+              byte rgbe[4] = {0,0,0,0};
+
+              const Vector3& rgbF = data[x + y*size.x];
+              float v = std::max(rgbF.x, std::max(rgbF.y, rgbF.z));
+
+              if(v >= 1e-32f)
+              {
+                  int e;
+                  v = float(frexp(v, &e) * 256.f / v);
+                  rgbe[0] = byte(rgbF.x * v);
+                  rgbe[1] = byte(rgbF.y * v);
+                  rgbe[2] = byte(rgbF.z * v);
+                  rgbe[3] = byte(e + 128);
+              }
+
+              hdr.write((char*)&rgbe[0], 4);
+          }
+      }
+  }
 }
 

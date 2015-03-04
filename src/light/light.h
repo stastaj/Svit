@@ -26,7 +26,7 @@ namespace Svit
       //Vector3 get_power() = 0;
       
 			virtual Vector3 
-      get_radiance ( Vector3& wig ) const = 0;
+      get_radiance ( const Vector3& wig ) const = 0;
 	};
 }
 

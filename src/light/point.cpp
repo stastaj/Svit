@@ -20,8 +20,9 @@ namespace Svit
 	}
 
   Vector3 
-  PointLight::get_radiance ( Vector3& wig ) const 
+  PointLight::get_radiance (const Vector3& wig ) const 
 	{
+    (void)wig;
 		return intensity; 
 	}
 }

@@ -16,7 +16,7 @@ namespace Svit
 			float radius_sqr;
 
 		public:
-			Disc (Point3 _point, Vector3 _normal, float _radius, int _mat, int _l):
+			Disc (Point3 _point, Vector3 _normal, float _radius, int _mat, int _l=-1):
         Solid(_mat,_l), point(_point),normal(_normal),radius(_radius),
                                     radius_sqr (_radius * _radius)
       {}

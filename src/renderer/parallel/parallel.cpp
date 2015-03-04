@@ -102,7 +102,9 @@ namespace Svit
         _final_image.iterations+=img.iterations;
         
       }
-      catch (std::exception&) {
+      catch (const std::future_error& e) {
+        std::cout << "Caught a future_error with code \"" << e.code()
+                         << "\"\nMessage: \"" << e.what() << "\"\n";
       }
 		}
     _final_image.scale(1.0f/(float)_final_image.iterations);
@@ -116,10 +118,9 @@ namespace Svit
     {
       for (int y = 0; y < _settings.resolution.y; y++)
       {
-        Vector2 samples; 
-        _super_sampling->next_sample(samples);
+        Vector2 samples=_super_sampling->next_sample();
         const Ray ray = _world.camera->get_ray(x, y, samples);
-        const Vector3 illum=_engine.get_color(ray, _world);
+        const Vector3 illum=_engine.get_color(ray, _world,_super_sampling);
         _result.add_to_pixel(x, y, illum);
       }
     }

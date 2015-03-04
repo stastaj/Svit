@@ -76,6 +76,8 @@ namespace Svit
         v1 = _mm_shuffle_ps(v0, v0, _MM_SHUFFLE(0, 1, 2, 3));
         v0 = _mm_add_ps(v0, v1);
         
+        //v =_mm_div_ps(v, _mm_sqrt_ps(v0));
+        
         v1 = _mm_rsqrt_ps(v0);
         
         v0 = _mm_mul_ps( _mm_mul_ps( v0, v1 ), v1 ); 

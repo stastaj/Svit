@@ -18,16 +18,13 @@ namespace Svit
       float area_inv;
       
 		public:
-      RectangleLight(Point3& _p0, Point3& _p1, Point3& _p2,Vector3& _radiance):
-        Light(Area), p0(_p0),radiance(_radiance)
+      RectangleLight(Point3 _p0, Point3 _p1, Point3 _p2,Vector3 _radiance):
+        Light(Area), p0(_p0),radiance(_radiance),e1(_p1 - _p0), e2(_p2 - _p0),
+        normal(~(e1 & e2))
       {
-        e1 = _p1 - p0;
-        e2 = _p2 - p0;
-        normal = e1 & e2;
-        float len = std::sqrt(normal % normal);
-        area_inv = 1.0f / len;
-        normal *= area_inv;
-        power=len*radiance*PI_F;
+        float area = std::sqrt((e2 & e1) % (e2 & e1));
+        area_inv = 1.0f / area;
+        power=area*radiance*PI_F;
       }
 			
       Vector3 
@@ -36,7 +33,7 @@ namespace Svit
       float& _pdf) const override;
 
 			Vector3
-			get_radiance ( Vector3& wig ) const override;
+			get_radiance ( const Vector3& wig ) const override;
 	};
 }
 

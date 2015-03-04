@@ -12,10 +12,9 @@ namespace Svit
     for (int x = 0; x < _settings.resolution.x; x++)
       for (int y = 0; y < _settings.resolution.y; y++)
       {
-        Vector2 samples;
-        _super_sampling->next_sample(samples);
+        Vector2 samples=_super_sampling->next_sample();
         Ray ray = _world.camera->get_ray(x, y, samples);
-        Vector3 illum=_engine.get_color(ray, _world);
+        Vector3 illum=_engine.get_color(ray, _world, _super_sampling);
         result.add_to_pixel(x, y,illum);
       }
 

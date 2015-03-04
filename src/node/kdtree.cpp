@@ -83,7 +83,7 @@ namespace Svit
       
       bool intersection_found=false;
       //_ray.t_min=stack[enPt].t;
-      _intersection.t=std::min(stack[exPt].t,_intersection.t);
+      _intersection.t=std::min(stack[exPt].t+RAY_EPSILON,_intersection.t);
       for(Node* node: currNode->primitives){
         if(node->intersect(_ray,_intersection)){
           intersection_found=true;
@@ -132,54 +132,23 @@ namespace Svit
   }
   
   void
-  KdTree::split_primitives(std::vector<Node*> _primitives,float _split,Axis _axis,
-                           std::vector<Node*> _left, std::vector<Node*> _right){
+  KdTree::split_primitives(std::vector<Node*>& _primitives,float _split,Axis _axis,
+                           std::vector<Node*>& _left, std::vector<Node*>& _right){
     for(Node* node:_primitives){
       AABB bb = node->get_aabb();
-      switch(_axis){
-        case X:
-          if(bb.max.x <= _split){
-            _left.push_back(node);
-          }
-          else if(bb.min.x >= _split){
-            _right.push_back(node);
-          }
-          else{
-            _left.push_back(node);
-            _right.push_back(node);
-          }
-          break;
-        case Y:
-          if(bb.max.y <= _split){
-            _left.push_back(node);
-          }
-          else if(bb.min.y >= _split){
-            _right.push_back(node);
-          }
-          else{
-            _left.push_back(node);
-            _right.push_back(node);
-          }
-          break;
-        case Z:
-          if(bb.max.z <= _split){
-            _left.push_back(node);
-          }
-          else if(bb.min.z >= _split){
-            _right.push_back(node);
-          }
-          else{
-            _left.push_back(node);
-            _right.push_back(node);
-          }
-          break;
+      if(bb.max[_axis]>_split){
+        _right.push_back(node);
       }
+      if(bb.min[_axis]<_split){
+        _left.push_back(node);
+      }
+        
     }
   }
   
   bool
   KdTree::terminate(int depth, std::vector<Node*>& _primitives){
-    return _primitives.size() <= 1 || depth >= 20;
+    return _primitives.size() <= 6 || depth >= 8;
   }
   
   void

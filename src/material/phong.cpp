@@ -13,8 +13,12 @@ Phong::eval_brdf(const Point3& _point, const Vector3& _wil,
   Vector3 r(-_wil.x,-_wil.y,_wil.z);
   Vector3 glossyComponent  =
     gloss_reflectance*((exponent+2.0f)*0.5f*INV_PI_F)*(float)(pow((r % _wol),exponent));
-
-  return texture->get_color(_point)*INV_PI_F + glossyComponent;
+  Vector3 diffuse=texture->get_color(_point)*INV_PI_F;
+  
+  assert(! std::isnan(diffuse.x));
+  assert(! std::isnan(glossyComponent.x));
+  
+  return diffuse + glossyComponent;
 }
 
 float

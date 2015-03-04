@@ -17,11 +17,11 @@ namespace Svit
       RandomSuperSampling (unsigned int _seed=1234):generator(_seed)
       {}
 
-			void
-			next_sample (Vector2& v) override;
+			Vector2
+			next_sample () override;
 
-      void
-			next_sample3 (Vector3& v) override;
+      Vector3
+			next_sample3 () override;
 
 			SuperSampling*
       copy (unsigned int _seed)

@@ -19,7 +19,7 @@ namespace Svit
       double radius_sqr;
 
 		public:
-      Sphere (Point3 _center, float _radius, int _mat, int _light)
+      Sphere (Point3 _center, float _radius, int _mat, int _light=-1)
         : Solid(_mat, _light), center(_center), radius(_radius),
           radius_sqr(_radius*_radius)
 			{ }

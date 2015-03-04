@@ -17,7 +17,7 @@ namespace Svit
 			Vector3 normal;
 
 		public:
-			InfinitePlane (Point3 _point, Vector3 _normal, int _mat, int _light)
+			InfinitePlane (Point3 _point, Vector3 _normal, int _mat, int _light=-1)
 				: Solid(_mat,_light), point(_point), normal(_normal)
 			{ }
 

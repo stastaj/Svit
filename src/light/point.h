@@ -25,7 +25,7 @@ namespace Svit
                      float& _pdf) const override;
 
 			Vector3
-			get_radiance ( Vector3& wig ) const override;
+			get_radiance ( const Vector3& wig ) const override;
 	};
 }
 

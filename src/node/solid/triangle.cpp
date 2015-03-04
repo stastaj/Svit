@@ -2,11 +2,20 @@
 
 namespace Svit
 {
+  Triangle::Triangle(Point3 _p1, Point3 _p2, Point3 _p3, int _mat, 
+                     int _light): 
+    Solid(_mat, _light), p1(_p1),p2(_p2),p3(_p3) 
+  {
+    e1=(p3-p1);
+    e2=(p2-p1);
+    normal=~(e1 & e2);
+  }
+  
 	bool Triangle::intersect(const Ray& _ray, Intersection& _intersection) const
 	{
 		Vector3 P = _ray.direction & e2;
 		float det = e1 % P;
-		if (det == 0.0f) 
+		if (std::abs(det) <= EPS_DIVISION ) 
 			false;
 		float inv_det = 1.0f / det;
 
@@ -36,8 +45,6 @@ namespace Svit
 
   AABB
   Triangle::get_aabb() const {
-    Vector3 p2=p1+e1;
-    Vector3 p3=p1+e2;
     return AABB( Vector3(std::min(std::min(p1.x,p2.x),p3.x),
                          std::min(std::min(p1.y,p2.y),p3.y),
                          std::min(std::min(p1.z,p2.z),p3.z)),

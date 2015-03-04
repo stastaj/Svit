@@ -140,7 +140,7 @@ namespace Svit
     v0 = _mm_mul_ps( _mm_mul_ps( v0, v1 ), v1 ); 
     return _mm_mul_ps(v.v, _mm_mul_ps( _mm_mul_ps( half, v1 ), _mm_sub_ps( three, v0 ) )); 
     
-    //return Vector<float> (_mm_div_ps(v.v, _mm_sqrt_ps(_mm_set1_ps(v % v)))); 
+    //return Vector<float> (_mm_div_ps(v.v, _mm_sqrt_ps(v0))); 
     
 	}
   

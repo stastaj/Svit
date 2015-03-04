@@ -15,7 +15,8 @@ namespace Svit
 	{
 		public:
 			Vector3
-      get_color (const Ray& ray, const World& _world) const override;
+      get_color (const Ray& ray, const World& _world, SuperSampling* _sampler) 
+      const override;
 	};
 }
 

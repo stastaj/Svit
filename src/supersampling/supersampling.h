@@ -9,11 +9,11 @@ namespace Svit
 	{
 		public:
       
-      virtual void
-			next_sample3 (Vector3& v) = 0;
+      virtual Vector3
+			next_sample3 () = 0;
       
-			virtual void
-			next_sample (Vector2& v) = 0;
+			virtual Vector2
+			next_sample () = 0;
 
 			virtual ~SuperSampling() { }
 

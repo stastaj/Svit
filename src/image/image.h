@@ -13,18 +13,15 @@ namespace Svit
 	class Image
 	{
 		private:
-
 			std::vector<Vector3> data;
 
 		public:
       int iterations;
 			Vector2i size;
 
-      explicit Image (Vector2i& _size):size(_size),iterations(0)
-      {
-        data.resize(size.x*size.y);
-        memset(&data[0],0,sizeof(Vector3)*data.size());
-      }      
+      explicit Image (Vector2i& _size);
+      
+      Image(const Image& _img);
       
 			const Vector3& 
       operator() (int x, int y);
@@ -41,7 +38,10 @@ namespace Svit
       scale(float _scale);
 
 			int 
-      write (std::string filename);
+      write_png (std::string filename);
+      
+      int 
+      write_hdr(std::string filename);
 	};
 }
 
