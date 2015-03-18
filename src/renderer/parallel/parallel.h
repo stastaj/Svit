@@ -33,7 +33,8 @@ namespace Svit
 
       void
       render_iteration(World& _world, Settings& _settings, Engine& _engine,
-                       SuperSampling* _super_sampling, Image& _result) const;
+                       SuperSampling* _super_sampling, Image& _result, 
+                       const int _iteration) const;
 
       static void
       sig_handler(int sig, siginfo_t *siginfo, void *context);

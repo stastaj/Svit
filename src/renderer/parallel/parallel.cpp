@@ -41,7 +41,7 @@ namespace Svit
 				break;
 			Task task = optional_task.get(); // use iteration number??
 			render_iteration(_world, _settings, _engine,
-                                 _super_sampling, result);
+                                 _super_sampling, result, task);
       ++result.iterations;
 		}
 
@@ -112,7 +112,8 @@ namespace Svit
 
   void
   ParallelRenderer::render_iteration (World& _world, Settings& _settings,
-      Engine& _engine, SuperSampling* _super_sampling, Image& _result) const
+      Engine& _engine, SuperSampling* _super_sampling, Image& _result, 
+                                      const int _iteration) const
   {
     for (int x = 0; x < _settings.resolution.x; x++)
     {
@@ -120,7 +121,8 @@ namespace Svit
       {
         Vector2 samples=_super_sampling->next_sample();
         const Ray ray = _world.camera->get_ray(x, y, samples);
-        const Vector3 illum=_engine.get_color(ray, _world,_super_sampling);
+        const Vector3 illum=_engine.get_color(ray, _world,_super_sampling, 
+                                              _iteration);
         _result.add_to_pixel(x, y, illum);
       }
     }

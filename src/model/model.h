@@ -1,13 +1,14 @@
 #ifndef SVIT_MODEL
 #define SVIT_MODEL
 
-#include "node/solid/solid.h"
-#include "node/group/group.h"
-
+#include <list>                         // for list
 #include <string>
 
 namespace Svit
 {
+  class Group; 
+  class Solid; 
+  
 	class Model
 	{
 		public:

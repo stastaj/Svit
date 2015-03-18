@@ -2,8 +2,6 @@
 #include "math/numeric.h"
 #include "math/interpolation.h"
 
-#include <cstdio>
-
 namespace Svit
 {
 	float

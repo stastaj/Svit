@@ -1,4 +1,7 @@
 #include "light/point.h"
+#include "math/frame.h"                 // for Frame
+
+#include <cmath>                        // for signbit, sqrt
 
 namespace Svit
 {	
@@ -24,6 +27,14 @@ namespace Svit
 	{
     (void)wig;
 		return intensity; 
+	}
+  
+  float 
+  PointLight::get_pdf (const Vector3& _wig,float& _light_dist_sqr ) const 
+	{
+    (void)_wig;
+    (void)_light_dist_sqr;
+		return 0.f; 
 	}
 }
 

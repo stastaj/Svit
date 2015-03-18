@@ -1,4 +1,6 @@
 #include "model.h"
+#include "node/group/group.h"           // for Group
+#include "node/solid/solid.h"           // for Solid
 
 namespace Svit
 {

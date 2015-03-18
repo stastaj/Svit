@@ -242,7 +242,7 @@ void parse_params(std::vector<std::string>& _args, Settings& _settings,
 {
   //get_wood_world(_world,_settings.resolution);
   _settings.max_thread_count = std::thread::hardware_concurrency();
-  _settings.iterations= 10;
+  _settings.iterations= 2;
   _settings.time=0;
   for (auto it = ++ begin (_args); it != end (_args); ++it) {
     if(*it=="-i"){
@@ -382,6 +382,7 @@ main (int argc, char** argv)
   std::cout<< "Building of kdtree took "<< elapsed_millisecs<< "ms." <<std::endl;
   
   PathTracing engine;
+  //SerialRenderer renderer;
   ParallelRenderer renderer;
   
   

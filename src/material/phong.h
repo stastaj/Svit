@@ -1,16 +1,18 @@
 #ifndef SVIT_PHONG_MATERIAL
 #define SVIT_PHONG_MATERIAL
-
-#include <memory>
+             
+#include "geom/point.h"                 // for Point3
 #include "material/material.h"
 #include "texture/texture.h"
-#include "math/numeric.h"
 #include "geom/vector.h"
-#include "geom/operations.h"
 
+#include <algorithm>       // for move
+#include <memory>
 
 namespace Svit
 {
+  class Frame;
+  
   class Phong : public Material
 	{
 		private:
@@ -34,7 +36,7 @@ namespace Svit
       void
       sample_brdf(const Point3& _point, const Frame& _frame, float* _pdf,
                   Vector3& _sampled_dir_global, Vector3& _brdf,
-                  const Vector3& _wol,Vector2& _samples,reflection_type type)
+                  const Vector3& _wol, Vector2& _samples, reflection_type& type)
       const override;
 
       float

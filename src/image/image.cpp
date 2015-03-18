@@ -12,7 +12,7 @@ namespace Svit
   }      
   
   Image::Image(const Image& _img):iterations(_img.iterations),size(_img.size){
-    data.resize(_img.size.x*_img.size.y,Vector3(0.0f,0.0f,0.0f));
+    data.resize(_img.size.x*_img.size.y, Vector3(0.0f,0.0f,0.0f));
     auto it2=std::begin(_img.data);
     for (auto it = std::begin(data); it != std::end(data); ++it,++it2){
       *it+=*it2;

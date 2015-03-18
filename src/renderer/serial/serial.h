@@ -12,9 +12,9 @@ namespace Svit
 	class SerialRenderer : public Renderer
 	{
 		public:
-			Image
+			void
       render (World& _world, Settings& _settings, Engine& _engine,
-          SuperSampling* _super_sampling);
+              SuperSampling* _super_sampling, Image& _final_image);
 	};
 }
 

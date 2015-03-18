@@ -23,6 +23,8 @@ namespace Svit
       
       Image(const Image& _img);
       
+      ~Image(){}
+      
 			const Vector3& 
       operator() (int x, int y);
       

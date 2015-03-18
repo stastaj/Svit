@@ -30,7 +30,7 @@ namespace Svit
     stack[exPt].node = nullptr; 
     
     float t;
-    while ( currNode != nullptr ){
+    while ( currNode != nullptr  ){
       while ( currNode->axis != Leaf ){
         float splitVal = currNode->split;
         Axis axis=currNode->axis;
@@ -132,8 +132,11 @@ namespace Svit
   }
   
   void
-  KdTree::split_primitives(std::vector<Node*>& _primitives,float _split,Axis _axis,
-                           std::vector<Node*>& _left, std::vector<Node*>& _right){
+  KdTree::split_primitives(std::vector<Node*>& _primitives,
+                           float _split,
+                           Axis _axis,
+                           std::vector<Node*>& _left, 
+                           std::vector<Node*>& _right){
     for(Node* node:_primitives){
       AABB bb = node->get_aabb();
       if(bb.max[_axis]>_split){
@@ -148,7 +151,7 @@ namespace Svit
   
   bool
   KdTree::terminate(int depth, std::vector<Node*>& _primitives){
-    return _primitives.size() <= 6 || depth >= 8;
+    return _primitives.size() <= 12 || depth >= 5;
   }
   
   void

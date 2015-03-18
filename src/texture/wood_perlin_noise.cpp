@@ -1,5 +1,8 @@
 #include "texture/wood_perlin_noise.h"
 #include "math/interpolation.h"
+#include <math.h>                       // for modff
+#include <vector>                       // for vector
+
 
 namespace Svit
 {

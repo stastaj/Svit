@@ -4,7 +4,7 @@
 #include "geom/vector.h"
 #include "geom/point.h"
 #include "math/frame.h"
-
+ 
 namespace Svit
 {
   enum LightType {Point,Area,Background};
@@ -22,11 +22,11 @@ namespace Svit
                      const Vector2& _samples, Vector3& _wig, float& _light_dist,
                      float& _pdf) const = 0;
       
-      //virtual
-      //Vector3 get_power() = 0;
-      
 			virtual Vector3 
       get_radiance ( const Vector3& wig ) const = 0;
+      
+      virtual float 
+      get_pdf(const Vector3& _wig,float& _light_dist_sqr) const = 0;
 	};
 }
 

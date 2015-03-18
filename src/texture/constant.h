@@ -1,7 +1,7 @@
 #ifndef SVIT_CONSTANT_TEXTURE
 #define SVIT_CONSTANT_TEXTURE
 
-#include "texture/texture.h"
+#include "texture/texture.h"            // for Texture
 
 namespace Svit
 {

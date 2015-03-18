@@ -34,6 +34,9 @@ namespace Svit
 
   float
   pdf_AtoW(const float _pdfA,const float _dist,const float _cos_there);
+  
+  Vector3 
+  sample_uniform_sphere_w(const Vector2& samples,float* pdf);
 
 }
 

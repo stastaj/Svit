@@ -4,9 +4,12 @@
 #include "light/light.h"
 #include "geom/point.h"
 #include "math/constants.h"
+#include "geom/vector.h"                // for Vector3, Vector2
 
 namespace Svit
 {
+  class Frame;
+  
 	class PointLight : public Light
 	{
 		private:
@@ -26,6 +29,9 @@ namespace Svit
 
 			Vector3
 			get_radiance ( const Vector3& wig ) const override;
+      
+      float 
+      get_pdf(const Vector3& _wig,float& _light_dist_sqr) const;
 	};
 }
 

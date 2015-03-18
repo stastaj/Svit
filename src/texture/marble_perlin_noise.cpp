@@ -1,5 +1,7 @@
 #include "texture/marble_perlin_noise.h"
 #include "math/interpolation.h"
+#include <math.h>                       // for fabs, sinf
+#include <vector>                       // for vector
 
 namespace Svit
 {

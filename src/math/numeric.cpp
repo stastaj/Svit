@@ -116,6 +116,19 @@ namespace Svit
       return _pdfA * (_dist*_dist) / std::abs(_cos_there);
   }
 
-
+  Vector3
+  sample_uniform_sphere_w(const Vector2& samples,float* pdf)
+  {
+    const float term1 = 2.f * PI_F * samples.x;
+    const float term2 = 2.f * std::sqrt(samples.y - samples.y * samples.y);
+    if(pdf)
+    {
+      *pdf = INV_PI_F * 0.25f;
+    }
+    return Vector3(std::cos(term1) * term2,
+                   std::sin(term1) * term2,
+                   1.f - 2.f * samples.y);
+  }
+  
 }
 

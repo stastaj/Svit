@@ -1,22 +1,43 @@
-#ifndef SVIT_RAY_TRACING_ENGINE
-#define SVIT_RAY_TRACING_ENGINE
+#ifndef SVIT_PATH_TRACING_ENGINE
+#define SVIT_PATH_TRACING_ENGINE
 
 #include "engine/engine.h"
-#include "light/light.h"
-#include "math/numeric.h"
-#include "math/frame.h"
-#include "geom/ray.h"
-#include "geom/intersection.h"
-#include "material/material.h"
+#include "geom/vector.h"                // for Vector3
 
 namespace Svit
 {
+  class Frame;
+  class Material;
+  class Ray;
+  class SuperSampling;
+  struct World;
+  
+  
 	class PathTracing : public Engine
 	{
 		public:
 			Vector3
-      get_color (const Ray& ray, const World& _world, SuperSampling* _sampler) 
+      get_color (const Ray& ray, const World& _world, SuperSampling* _sampler, 
+                 const int _iteration) 
       const override;
+    
+    private:
+      Vector3
+      get_direct_illumination(int aIteration, const Frame& frame, const int matID,
+                              const Point3& surfpt, const Vector3& wol,
+                              Vector2& samples_brdf, Vector2& samples_light,
+                              const World& _world) const;
+      
+      bool
+      chooseSampling(int aIteration) const {
+        //return false;
+        return aIteration % 2;
+      }
+      
+      float 
+      computeMISWeight(float pdf1,float pdf2) const {
+        return pdf1/(pdf1+pdf2);
+      }
 	};
 }
 

@@ -37,7 +37,7 @@ namespace Svit
     virtual void
     sample_brdf( const Point3& _point, const Frame& _frame,float* _pdf,
                 Vector3& _sampled_dir_global, Vector3& _brdf,
-                const Vector3& _wol,Vector2& _samples,reflection_type type)
+                const Vector3& _wol,Vector2& _samples,reflection_type& type)
     const = 0;
 
     virtual float
