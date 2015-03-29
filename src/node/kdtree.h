@@ -41,19 +41,44 @@ namespace Svit
       int prev;
   };
   
-  class KdTree
-  {
+  
+  class KdTree{
     public:
-      KdTree() {}
+      KdTreeNode* root;
       
       bool
-      traverse(KdTreeNode* root, const AABB& bb, const Ray& _ray, 
+      traverse(const AABB& bb, const Ray& _ray, 
                Intersection& _intersection) const;
       
       KdTreeNode*
       build(std::vector<Node*>& _primitives, Vector3 _min, Vector3 _max,
             int _depth); 
       
+      bool
+      check_tree(KdTreeNode* node){
+        switch(node->axis){
+          case X:
+          case Y:
+          case Z:
+            if(node->left==nullptr || node->right==nullptr)
+              return false;
+            return check_tree(node->left) && check_tree(node->right);
+            break;
+          case Leaf:
+            if(node->right != nullptr || node->left != nullptr){
+              return false;
+            }
+            //if(node->primitives.empty())
+            for(Node* n: node->primitives){
+              if(n==nullptr)
+                return false;
+            }
+            break;
+          default:
+            return false;
+        }
+        return true;
+      }
     private:
       void
       split_primitives(std::vector<Node*>& _primitives, float _split, Axis _axis,
@@ -67,6 +92,9 @@ namespace Svit
       
       
       thread_local static std::vector<StackEntry> stack;
+      static const int MAX_STACK_SIZE=40;
+      const int MAX_PRIMITIVES_IN_LEAF=6;
+      const int MAX_TREE_DEPTH=5;
   };
   
 }

@@ -16,7 +16,6 @@ namespace Svit
       std::vector<Node*> nodes;
       std::vector<Node*> infinite_nodes;
       AABB bb;
-      KdTreeNode* root;
       KdTree kdtree;
       
 		public:

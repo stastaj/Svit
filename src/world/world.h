@@ -16,11 +16,13 @@ namespace Svit
 		Camera *camera;
 		std::vector<std::unique_ptr<Light>> lights;
     std::vector<std::unique_ptr<Material>> materials;
+    float lights_count_inv;
     
 		void
 		add_light (std::unique_ptr<Light> _light)
 		{
 			lights.push_back(std::move(_light));	
+      lights_count_inv= 1.f/ (float)lights.size();
 		}
     
     int
@@ -29,6 +31,7 @@ namespace Svit
 			materials.push_back(std::move(_material));	
       return materials.size()-1;
 		}
+    
 	};
 }
 

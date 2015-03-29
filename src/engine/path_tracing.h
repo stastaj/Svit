@@ -23,18 +23,12 @@ namespace Svit
     
     private:
       Vector3
-      get_direct_illumination(int aIteration, const Frame& frame, const int matID,
+      get_direct_illumination(const Frame& frame, const int matID,
                               const Point3& surfpt, const Vector3& wol,
                               Vector2& samples_brdf, Vector2& samples_light,
-                              const World& _world) const;
-      
-      bool
-      chooseSampling(int aIteration) const {
-        //return false;
-        return aIteration % 2;
-      }
-      
-      float 
+                              const World& _world, float _ior) const;
+            
+      inline float 
       computeMISWeight(float pdf1,float pdf2) const {
         return pdf1/(pdf1+pdf2);
       }

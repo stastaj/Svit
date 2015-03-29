@@ -28,30 +28,27 @@ namespace Svit
         return _world.lights[intersection.solid->light]->get_radiance(_ray.direction); 
       }
       
-      
-      Frame frame(intersection.normal); // tangent frame
+      Frame frame(intersection.normal); // tangent coordinate frame
       Vector3 wol= frame.to_local(! _ray.direction);
-      Vector2 samples_light=_sampler->next_sample();
-      Vector2 samples_brdf=_sampler->next_sample3();
-
+      Vector2 samples_light = _sampler->next_sample();
+      Vector2 samples_brdf  = _sampler->next_sample();
+      float ior=1.f;
+      
       return get_direct_illumination(
-            _iteration, frame, intersection.solid->material, intersection.point,
-            wol, samples_brdf, samples_light, _world);
+            frame, intersection.solid->material, intersection.point,
+            wol, samples_brdf, samples_light, _world, ior);
 		}
 		else
 			return Vector3();
 	}
   
   Vector3
-  PathTracing::get_direct_illumination(int aIteration,const Frame& frame,const int matID,
+  PathTracing::get_direct_illumination(const Frame& frame,const int matID,
                           const Point3& surfpt,const Vector3& wol,
                           Vector2& samples_brdf, Vector2& samples_light,
-                          const World& _world) const
+                          const World& _world, float _ior) const
   {
     float lightDist=1;
-    float pdfBrdf;				// brdf sampling
-    float pdfLight;				// light sampling
-    float weight;
     float pdfSampled=1.f;
     Vector3 wig;
     Vector3 brdfVal;
@@ -59,91 +56,182 @@ namespace Svit
     Vector3 LoDirect(0.f,0.f,0.f);
     reflection_type refl_type;
     
-    // generate secondary ray
-    if(chooseSampling(aIteration)){ // brdf sampling
-      _world.materials[matID]->sample_brdf(surfpt, frame, &pdfSampled,wig,
-                                           brdfVal,wol,samples_brdf, refl_type);
-    }
-    else{ // random light sampling
-      //get random light
-      int light_count=_world.lights.size();
-      int light_ID=(int) samples_light.x*light_count;
-      samples_light.x=(samples_light.x-(1.f/light_count)*light_ID)*light_count;
-      
-      assert( samples_light.x>= 0.f && samples_light.x <=1.f );
-      
-      //sample light
-      float pdfLight;
-      illum=_world.lights[light_ID]->sample_light(surfpt,frame,samples_light,
-                                                  wig,lightDist,pdfLight);	
-      brdfVal=_world.materials[matID]->eval_brdf(surfpt,frame.to_local(wig),wol);
-      if(_world.lights[light_ID]->type==Point){
-        if(! is_occluded(_world,surfpt,lightDist,wig) && illum.max()>0)
-          return illum * brdfVal ;
-      }
-    }
     
-    Ray ray_secondary(surfpt,wig);
-    Intersection intersection_sec(std::numeric_limits<float>::max());
+    // BRDF SAMPLING
+    _world.materials[matID]->sample_brdf(surfpt, frame, &pdfSampled,wig,brdfVal,
+                                         wol,samples_brdf, refl_type, _ior);
+    Ray ray_sec_brdf(surfpt,wig);
+    Intersection isect_sec_brdf(std::numeric_limits<float>::max());
     
-    //cast secondary ray
-    if(_world.scene->intersect(ray_secondary, intersection_sec))
+    if(_world.scene->intersect(ray_sec_brdf, isect_sec_brdf))
     {  
-      if(intersection_sec.solid->light >= 0){	//secondary ray hits light
-        const int light_ID=intersection_sec.solid->light;
-        if(chooseSampling(aIteration)){		// brdf sampling
-          // vraci radianci * cosThetaX
-          illum = _world.lights[light_ID]->get_radiance(wig) * (frame.mZ % wig);  
-          lightDist=Vector3(ray_secondary.direction*intersection_sec.t) 
-                    % Vector3(ray_secondary.direction*intersection_sec.t);
-          pdfLight=_world.lights[light_ID]->get_pdf(wig,lightDist)
-                   /_world.lights.size();
-          
-          // pdfLight=0; // //////////////////////////////////////////////
-          
-          pdfBrdf=_world.materials[matID]->get_pdf(surfpt,frame,
-                                                   frame.to_world(wol),wig);
-          weight=computeMISWeight(pdfBrdf,pdfLight);
-          if(illum.max()>0)
-            LoDirect += (illum * brdfVal * 2.f * weight / pdfSampled);
-        }
-        else{		// area light sampling
-          pdfBrdf=_world.materials[matID]->get_pdf(surfpt,frame,
-                                                   frame.to_world(wol),wig);
-          pdfLight=_world.lights[light_ID]->get_pdf(wig,lightDist)
-                   /_world.lights.size();
-          
-          //pdfBrdf=0.f; // //// ////////////////////////////////////////
-          
-          if(illum.max()>0)
-            LoDirect += (illum * brdfVal * 2.f  / (pdfLight + pdfBrdf));
-        }         
+      if(isect_sec_brdf.solid->light >= 0){	//secondary ray hits light
+        const int light_ID=isect_sec_brdf.solid->light;
+        illum = _world.lights[light_ID]->get_radiance(wig) * (frame.mZ % wig);  
+        lightDist=Vector3(ray_sec_brdf.direction*isect_sec_brdf.t) 
+                  % Vector3(ray_sec_brdf.direction*isect_sec_brdf.t);
+        float pdfLight=_world.lights[light_ID]->get_pdf(wig,lightDist)
+                 *_world.lights_count_inv;
+        
+        // pdfLight=0; // //////////////////////////////////////////////
+        
+        float pdfBrdf=_world.materials[matID]->get_pdf(surfpt,frame,
+                                                 frame.to_world(wol),wig);
+        float weight=computeMISWeight(pdfBrdf,pdfLight);
+        assert(illum.max()>=0 && brdfVal.max()>=0 && weight>=0 && pdfSampled >0);
+        LoDirect += (illum * brdfVal * weight / pdfSampled);     
       }
     }
     else // secondary ray doesnt intersect the scene
     {
-      for(int i=0; i<_world.lights.size(); i++){
+      for(int i=0; i<_world.lights.size(); ++i){
         if(_world.lights[i]->type==Background){
           Vector3 illum = _world.lights[i]->get_radiance(wig)*(frame.mZ % wig);
-          //lightDist=std::numeric_limits<float>::max();
-          pdfLight=_world.lights[i]->get_pdf(wig,lightDist)/_world.lights.size();
-          pdfBrdf=_world.materials[matID]->get_pdf(surfpt,frame,
+          float pdfLight=_world.lights[i]->get_pdf(wig,lightDist)*_world.lights_count_inv;
+          float pdfBrdf=_world.materials[matID]->get_pdf(surfpt,frame,
                                                    frame.to_world(wol),wig);
-          if(chooseSampling(aIteration)){
-            weight=computeMISWeight(pdfBrdf,pdfLight);
-            if(illum.max()>0)
-              //LoDirect += (illum * brdfVal * weight / pdfSampled);
-              LoDirect += (illum * brdfVal * 2.f * weight / pdfSampled);
-          }
-          else{
-            if(illum.max()>0)
-              //LoDirect += (illum * brdfVal / (pdfBrdf + pdfLight));
-              LoDirect += (illum * brdfVal * 2.f / (pdfBrdf + pdfLight));
-          }
-              
+          float weight=computeMISWeight(pdfBrdf,pdfLight);
+          assert(illum.max()>=0 && brdfVal.max()>=0 && weight>=0 && pdfSampled >0);
+          LoDirect += (illum * brdfVal  * weight / pdfSampled);
         }
       }
     }
+  
+    // RANDOM LIGHT SAMPLING
+    int light_count=_world.lights.size();
+    int light_ID=(int) samples_light.x*light_count;
+    samples_light.x=(samples_light.x-(_world.lights_count_inv)*light_ID)*light_count;
+    assert( samples_light.x>= 0.f && samples_light.x <=1.f );
+    //sample light
+    float pdfLight;
+    illum=_world.lights[light_ID]->sample_light(surfpt,frame,samples_light,
+                                                wig,lightDist,pdfLight);	
+    brdfVal=_world.materials[matID]->eval_brdf(surfpt,frame.to_local(wig),wol);
+    if(_world.lights[light_ID]->type==Point){
+      if(! is_occluded(_world,surfpt,lightDist,wig)){
+        assert(illum.max()>=0 && brdfVal.max()>=0);
+        return illum * brdfVal;
+      }
+    }
+    Ray ray_sec_light(surfpt,wig);
+    Intersection isect_sec_light(std::numeric_limits<float>::max());
+    
+    //cast secondary ray
+    if(_world.scene->intersect(ray_sec_light, isect_sec_light)){  
+      if(isect_sec_light.solid->light >= 0){	//secondary ray hits light
+        const int light_ID=isect_sec_light.solid->light;
+        float pdfBrdf=_world.materials[matID]->get_pdf(surfpt,frame,
+                                                 frame.to_world(wol),wig);
+        pdfLight=_world.lights[light_ID]->get_pdf(wig,lightDist)
+                 *_world.lights_count_inv;
+        
+        //pdfBrdf=0.f; // //// ////////////////////////////////////////
+        
+        assert(illum.max()>=0 && brdfVal.max()>=0 && (pdfLight+pdfBrdf)>0);
+        LoDirect += (illum * brdfVal  / (pdfLight + pdfBrdf));
+      }
+    }
+    else // secondary ray doesnt intersect the scene
+    {
+      for(int i=0; i<_world.lights.size(); ++i){
+        if(_world.lights[i]->type==Background){
+          Vector3 illum = _world.lights[i]->get_radiance(wig)*(frame.mZ % wig);
+          pdfLight=_world.lights[i]->get_pdf(wig,lightDist)*_world.lights_count_inv;
+          float pdfBrdf=_world.materials[matID]->get_pdf(surfpt,frame,
+                                                   frame.to_world(wol),wig);
+          assert(illum.max()>=0 && brdfVal.max()>=0 && (pdfLight+pdfBrdf)>0);
+          LoDirect += (illum * brdfVal / (pdfBrdf + pdfLight));    
+        }
+      }
+    }
+    
+    /*
+    for(int k=0;k<2;++k){
+      // generate secondary ray
+      if(chooseSampling(k)){ // brdf sampling
+        _world.materials[matID]->sample_brdf(surfpt, frame, &pdfSampled,wig,
+                                             brdfVal,wol,samples_brdf, refl_type, _ior);
+      }
+      else{ // random light sampling
+        //get random light
+        int light_count=_world.lights.size();
+        int light_ID=(int) samples_light.x*light_count;
+        samples_light.x=(samples_light.x-(_world.lights_count_inv)*light_ID)*light_count;
+        
+        assert( samples_light.x>= 0.f && samples_light.x <=1.f );
+        
+        //sample light
+        float pdfLight;
+        illum=_world.lights[light_ID]->sample_light(surfpt,frame,samples_light,
+                                                    wig,lightDist,pdfLight);	
+        brdfVal=_world.materials[matID]->eval_brdf(surfpt,frame.to_local(wig),wol);
+        if(_world.lights[light_ID]->type==Point){
+          if(! is_occluded(_world,surfpt,lightDist,wig)){
+            assert(illum.max()>=0 && brdfVal.max()>=0);
+            return illum * brdfVal;
+          }
+        }
+      }
+      
+      Ray ray_secondary(surfpt,wig);
+      Intersection intersection_sec(std::numeric_limits<float>::max());
+      
+      //cast secondary ray
+      if(_world.scene->intersect(ray_secondary, intersection_sec))
+      {  
+        if(intersection_sec.solid->light >= 0){	//secondary ray hits light
+          const int light_ID=intersection_sec.solid->light;
+          if(chooseSampling(k)){		// brdf sampling
+            illum = _world.lights[light_ID]->get_radiance(wig) * (frame.mZ % wig);  
+            lightDist=Vector3(ray_secondary.direction*intersection_sec.t) 
+                      % Vector3(ray_secondary.direction*intersection_sec.t);
+            pdfLight=_world.lights[light_ID]->get_pdf(wig,lightDist)
+                     *_world.lights_count_inv;
+            
+            // pdfLight=0; // //////////////////////////////////////////////
+            
+            pdfBrdf=_world.materials[matID]->get_pdf(surfpt,frame,
+                                                     frame.to_world(wol),wig);
+            weight=computeMISWeight(pdfBrdf,pdfLight);
+            assert(illum.max()>=0 && brdfVal.max()>=0 && weight>=0 && pdfSampled >0);
+            LoDirect += (illum * brdfVal * weight / pdfSampled);
+          }
+          else{		// area light sampling
+            pdfBrdf=_world.materials[matID]->get_pdf(surfpt,frame,
+                                                     frame.to_world(wol),wig);
+            pdfLight=_world.lights[light_ID]->get_pdf(wig,lightDist)
+                     *_world.lights_count_inv;
+            
+            //pdfBrdf=0.f; // //// ////////////////////////////////////////
+            
+            assert(illum.max()>=0 && brdfVal.max()>=0 && (pdfLight+pdfBrdf)>0);
+            LoDirect += (illum * brdfVal  / (pdfLight + pdfBrdf));
+          }         
+        }
+      }
+      else // secondary ray doesnt intersect the scene
+      {
+        for(int i=0; i<_world.lights.size(); ++i){
+          if(_world.lights[i]->type==Background){
+            Vector3 illum = _world.lights[i]->get_radiance(wig)*(frame.mZ % wig);
+            pdfLight=_world.lights[i]->get_pdf(wig,lightDist)*_world.lights_count_inv;
+            pdfBrdf=_world.materials[matID]->get_pdf(surfpt,frame,
+                                                     frame.to_world(wol),wig);
+            if(chooseSampling(k)){
+              weight=computeMISWeight(pdfBrdf,pdfLight);
+              assert(illum.max()>=0 && brdfVal.max()>=0 && weight>=0 && pdfSampled >0);
+              LoDirect += (illum * brdfVal  * weight / pdfSampled);
+            }
+            else{
+              assert(illum.max()>=0 && brdfVal.max()>=0 && (pdfLight+pdfBrdf)>0);
+              LoDirect += (illum * brdfVal / (pdfBrdf + pdfLight));
+            }
+                
+          }
+        }
+      }
+    }
+    */
     return LoDirect;
   }
 }

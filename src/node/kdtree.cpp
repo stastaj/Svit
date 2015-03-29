@@ -3,17 +3,18 @@
 namespace Svit
 { 
   
-  thread_local std::vector<StackEntry> KdTree::stack(50);
-  
+  thread_local std::vector<StackEntry> KdTree::stack(MAX_STACK_SIZE);
   
   bool 
-  KdTree::traverse(KdTreeNode* root, const AABB& bb, const Ray& _ray, 
+  KdTree::traverse(const AABB& bb, const Ray& _ray, 
                    Intersection& _intersection) const
   {
     float a,b;
     bool hit=bb.intersect_with_line(_ray, a, b );
     if ( ! hit )
       return false;
+    
+    //std::vector<StackEntry> stack(30);
     
     KdTreeNode* farChild;
     KdTreeNode* currNode = root; 
@@ -59,11 +60,11 @@ namespace Svit
         t = (splitVal - _ray.origin[axis]) / _ray.direction[axis];
         /* setup the new exit point */
         int tmp = exPt;
-        --exPt;
+        ++exPt;
         
         /* possibly skip current entry point so not to overwrite the data */
         if (exPt == enPt)
-          --exPt;
+          ++exPt;
         
         stack[exPt].prev = tmp;
         stack[exPt].t = t;
@@ -82,10 +83,9 @@ namespace Svit
       //"those lying before stack[enPt].t or farther than stack[exPt].t"
       
       bool intersection_found=false;
-      //_ray.t_min=stack[enPt].t;
-      _intersection.t=std::min(stack[exPt].t+RAY_EPSILON,_intersection.t);
-      for(Node* node: currNode->primitives){
-        if(node->intersect(_ray,_intersection)){
+      _intersection.t=stack[exPt].t+RAY_EPSILON;
+      for(Node* n: currNode->primitives){
+        if(n->intersect(_ray,_intersection)){
           intersection_found=true;
         }
       }
@@ -108,6 +108,8 @@ namespace Svit
     if (terminate( _depth, _primitives)) { 
       node->primitives=_primitives;
       node->axis=Leaf;
+      node->right=nullptr;
+      node->left=nullptr;
       return node;
     }
     find_plane(_min,_max,node->split,node->axis);
@@ -127,31 +129,31 @@ namespace Svit
         node->left=build(left,_min,Vector3(_max.x,_max.y,node->split),_depth+1);
         node->right=build(right,Vector3(_min.x,_min.y,node->split),_max,_depth+1);
         break;
+      default:
+        std::cout<<"";  
     }
     return node;
   }
   
   void
-  KdTree::split_primitives(std::vector<Node*>& _primitives,
-                           float _split,
-                           Axis _axis,
-                           std::vector<Node*>& _left, 
+  KdTree::split_primitives(std::vector<Node*>& _primitives, float _split,
+                           Axis _axis, std::vector<Node*>& _left, 
                            std::vector<Node*>& _right){
     for(Node* node:_primitives){
       AABB bb = node->get_aabb();
       if(bb.max[_axis]>_split){
         _right.push_back(node);
       }
-      if(bb.min[_axis]<_split){
+      if(bb.min[_axis]<=_split){
         _left.push_back(node);
-      }
-        
+      } 
     }
   }
   
   bool
   KdTree::terminate(int depth, std::vector<Node*>& _primitives){
-    return _primitives.size() <= 12 || depth >= 5;
+    return _primitives.size() <= MAX_PRIMITIVES_IN_LEAF || 
+        depth >= MAX_TREE_DEPTH;
   }
   
   void

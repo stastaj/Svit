@@ -9,7 +9,6 @@
 #include "node/group/simple_group.h"
 #include "node/solid/sphere.h"
 #include "node/solid/triangle.h"
-#include "node/solid/triangle2.h"
 #include "node/solid/infinite_plane.h"
 #include "node/solid/disc.h"
 #include "renderer/settings.h"
@@ -26,6 +25,7 @@
 #include "texture/marble_perlin_noise.h"
 #include "light/point.h"
 #include "light/rectangle.h"
+#include "light/background.h"
 
 #include <iostream>
 #include <sstream>
@@ -136,12 +136,12 @@ get_cornell_box_world(World& _world, Vector2i& _resolution, bool point_light,
           };
   // Floor
   _world.scene = new KdTreeGroup();	
-  _world.scene->add(new Triangle2(cb[0], cb[4], cb[5], white));
-  _world.scene->add(new Triangle2(cb[5], cb[1], cb[0], white));
+  _world.scene->add(new Triangle(cb[0], cb[4], cb[5], white));
+  _world.scene->add(new Triangle(cb[5], cb[1], cb[0], white));
   
   // Left wall
-  _world.scene->add(new Triangle2(cb[3], cb[7], cb[4], green));
-  _world.scene->add(new Triangle2(cb[4], cb[0], cb[3], green));
+  _world.scene->add(new Triangle(cb[3], cb[7], cb[4], green));
+  _world.scene->add(new Triangle(cb[4], cb[0], cb[3], green));
 
   // Right wall
   _world.scene->add(new Triangle(cb[1], cb[5], cb[6], red));
@@ -155,7 +155,7 @@ get_cornell_box_world(World& _world, Vector2i& _resolution, bool point_light,
   if(area_light){
     std::unique_ptr<Light> rectangle(new RectangleLight(cb[6], cb[2], cb[7], 
                                  Vector3(1.21f,1.21f,1.21f)));
-    _world.lights.push_back(std::move(rectangle));
+    _world.add_light( std::move(rectangle) );
     _world.scene->add(new Triangle(cb[2], cb[6], cb[7], white, 0));
     _world.scene->add(new Triangle(cb[7], cb[3], cb[2], white, 0));
   }
@@ -180,11 +180,12 @@ get_cornell_box_world(World& _world, Vector2i& _resolution, bool point_light,
     std::unique_ptr<Light> point(new PointLight(
                                         Vector3(0.0f, 1.0f, -0.5f),
                                         Vector3(intensity,intensity,intensity)));
-    _world.lights.push_back(std::move(point));
+    _world.add_light(std::move(point));
   }
   
   if(environment_light){
-    
+    std::unique_ptr<Light> background(new BackgroundLight());
+    _world.add_light(std::move(background));
   }
   
 }

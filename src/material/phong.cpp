@@ -32,9 +32,9 @@ Phong::get_pdf(const Point3& _point,const Frame& _frame,const Vector3& _wog,
 {
   float pd=(texture->get_color(_point)).max();
   float ps=gloss_reflectance.max();
-  float sum=pd+ps;
-  pd/=sum;
-  ps/=sum;
+  float sum_inv=1.f/(pd+ps);
+  pd*=sum_inv;
+  ps*=sum_inv;
   Vector3 refl=2*(_wog % _frame.mZ)*_frame.mZ;
   refl-=_wog;
 
@@ -47,19 +47,20 @@ Phong::get_pdf(const Point3& _point,const Frame& _frame,const Vector3& _wog,
 void
 Phong::sample_brdf(const Point3& _point, const Frame& _frame, float* _pdf,
                   Vector3& _sampled_dir_global, Vector3& _brdf,
-                  const Vector3& _wol,Vector2& _samples,reflection_type& type)
-const
+                  const Vector3& _wol, Vector2& _samples, reflection_type& _type,
+                   float& _ior) const
 {
+  (void)_ior;
   Vector3 diffuseColor=texture->get_color(_point);
   float pd=diffuseColor.max();
   float ps=gloss_reflectance.max();
-  float sum=pd+ps;
-  pd/=sum;
-  ps/=sum;
+  float sum_inv=1.f/(pd+ps);
+  pd*=sum_inv;
+  ps*=sum_inv;
 
-  if(_samples.z<=pd){
+  if(_samples.x<=pd){
     //sample diffuse
-    //_samples.x /= pd; //sample reuse
+    _samples.x /= pd; //sample reuse
 
     assert(_samples.x >= 0.f && _samples.x <= 1.f);
     
@@ -73,10 +74,10 @@ const
     
     _brdf=diffuseColor * INV_PI_F;
     *_pdf*=pd;
-    type=diffuse;
+    _type=diffuse;
   }else{
     //sample specular
-    //_samples.x=(_samples.x-pd)*(1.f/(ps)); // sample reuse
+    _samples.x=(_samples.x-pd)*(1.f/(ps)); // sample reuse
 
     Vector3 wog=_frame.to_world(_wol);
     Vector3 refl=2.0f*(wog % _frame.mZ)*_frame.mZ;
@@ -95,6 +96,6 @@ const
                                    pow(local_dir.z,exponent));
     }
     *_pdf*=ps;
-    type=specular;
+    _type=specular;
   }
 }

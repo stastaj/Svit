@@ -19,7 +19,7 @@ namespace Svit
 	bool KdTreeGroup::intersect(const Ray& _ray, Intersection& _best) const
 	{
     float t_max=_best.t;
-    bool intersected=kdtree.traverse(root,bb,_ray,_best);    
+    bool intersected=kdtree.traverse(bb,_ray,_best);    
 		if(! intersected)
       _best.t=t_max;
     for (auto node : infinite_nodes)
@@ -37,7 +37,8 @@ namespace Svit
   
   void
   KdTreeGroup::build_kdtree(){
-    root=kdtree.build(nodes,bb.min,bb.max,0);
+    kdtree.root=kdtree.build(nodes,bb.min,bb.max,0);
+    assert( kdtree.check_tree(kdtree.root) );
   }
 }
 
