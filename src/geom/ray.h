@@ -19,6 +19,10 @@ namespace Svit
 				: origin(_origin), direction(_direction), t_min(_f)
 			{ }
 
+      Ray (const Ray& _ray):origin(_ray.origin),direction(_ray.direction),
+        t_min(_ray.t_min)
+      {}
+      
 			Point3 
 			operator() (float _time) const
 			{

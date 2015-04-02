@@ -32,6 +32,10 @@ namespace Svit
       computeMISWeight(float pdf1,float pdf2) const {
         return pdf1/(pdf1+pdf2);
       }
+      
+      inline bool
+      chooseSampling(int i) const { return (i+1) % 2; }
+      
 	};
 }
 

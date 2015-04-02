@@ -15,7 +15,7 @@ namespace Svit
     _wig = position - _surface_point;
     float distance_sqr = _wig % _wig;
     _light_dist = std::sqrt(distance_sqr);
-    _wig.normalize_fast();
+    _wig.normalize();
     float cos_theta = _frame.mZ % _wig;
     if(std::signbit(cos_theta)) // cos_theta is negative
       return Vector3();

@@ -31,6 +31,8 @@ namespace Svit
     stack[exPt].node = nullptr; 
     
     float t;
+    float t_max=_intersection.t;
+    
     while ( currNode != nullptr  ){
       while ( currNode->axis != Leaf ){
         float splitVal = currNode->split;
@@ -83,7 +85,7 @@ namespace Svit
       //"those lying before stack[enPt].t or farther than stack[exPt].t"
       
       bool intersection_found=false;
-      _intersection.t=stack[exPt].t+RAY_EPSILON;
+      _intersection.t=std::min(t_max,stack[exPt].t+RAY_EPSILON);
       for(Node* n: currNode->primitives){
         if(n->intersect(_ray,_intersection)){
           intersection_found=true;
@@ -91,6 +93,9 @@ namespace Svit
       }
       if ( intersection_found ){
         return true;
+      }
+      if(t_max<stack[exPt].t+RAY_EPSILON){
+        return false;
       }
       /* pop from the stack */
       enPt = exPt; /* the signed distance intervals are adjacent */      
