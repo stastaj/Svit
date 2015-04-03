@@ -23,8 +23,12 @@ namespace Svit
   void
   ParallelRenderer::sleep_and_stop(int _seconds)
   {
-    sleep(_seconds);
-    raise(SIGINT);
+    for(int i=0;i<_seconds;++i){
+      sleep(1u);
+      if(ParallelRenderer::interrupted)
+        return;
+    }
+    ParallelRenderer::interrupted=true;
   }
   
 
@@ -81,7 +85,7 @@ namespace Svit
       std::async(std::launch::async,
        [this, &_settings]()
           {
-            return sleep_and_stop(_settings.time);
+            sleep_and_stop(_settings.time);
           });
     }
     
@@ -89,6 +93,7 @@ namespace Svit
 		{
 			futures[i].wait();
 		}
+    //interrupted=true;
     for(SuperSampling* s: samplers){
       delete s;
     }

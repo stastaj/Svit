@@ -28,12 +28,12 @@ namespace Svit
     float pdf;
     int pathLength=0;
     float ior=1.f;
-    reflection_type refl_type;
+    reflection_type refl_type=diffuse;
     Ray ray(_ray);
     while(true){
       ++pathLength;
       bool scene_hit=_world.scene->intersect(ray,intersection);
-      if(scene_hit && intersection.solid->light>=0 && pathLength==1){
+      if(scene_hit && intersection.solid->light>=0 && (pathLength==1 || refl_type==reflection || refl_type==refraction)){
         const int lightID=intersection.solid->light;
         Vector3 illum=throughput * _world.lights[lightID]->get_radiance(ray.direction);
         assert(illum.max()>0);
@@ -44,6 +44,11 @@ namespace Svit
         break;
       }
       
+      if((refl_type==refraction && std::abs(ior-1.f)>0.01f) || 
+         (refl_type==reflection && std::abs(ior-1.f)>0.01f))
+      {
+        intersection.normal =! intersection.normal;
+      }
       const Frame frame(intersection.normal);
       const int matID = intersection.solid->material ;
       const Vector3 wol=frame.to_local(! ray.direction);
@@ -54,7 +59,7 @@ namespace Svit
       // aIteration = 0, pdfLight=0
       Vector3 illum=get_direct_illumination(frame,matID,intersection.point,wol,
                                        samples_brdf,samples_light,_world,ior);
-      //if((throughput*illum).max()>0)
+      if((throughput*illum).max()>0)
         accum+=(throughput*illum);
       
       // mame dalsi prusecik v ceste
@@ -63,8 +68,10 @@ namespace Svit
       _world.materials[matID]->sample_brdf(intersection.point,frame,&pdf,wig,
                                            brdfVal,wol,samples,refl_type,ior);
       
-      float cosTheta=wig % frame.mZ;
+      float cosTheta=std::abs(wig % frame.mZ);
       float reflectance=std::min(1.f,(brdfVal.max()*cosTheta)/pdf);
+      if(wig % frame.mZ < 0)
+        std::cout<<"";
       if(_sampler->next_sample().x <= reflectance){
         throughput*=((brdfVal*cosTheta)/(reflectance*pdf));
         

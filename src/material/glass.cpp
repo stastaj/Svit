@@ -34,7 +34,7 @@ Glass::ideal_specular(Vector3 &_brdf, Vector3 &_globDir, const Vector3 &_wol,
                       const Frame& _frame) const
 {
    Vector3 wog=_frame.to_world(_wol);
-   float cosTheta=wog % _frame.mZ;
+   float cosTheta=std::abs(wog % _frame.mZ);
    Vector3 refl=2.f*(cosTheta)*_frame.mZ;
    refl-=wog;
    //assert( abs(refl % refl - 1) < 0.001f );
@@ -42,7 +42,7 @@ Glass::ideal_specular(Vector3 &_brdf, Vector3 &_globDir, const Vector3 &_wol,
    if(cosTheta<=EPS_DIVISION)
      _brdf=Vector3(0.f,0.f,0.f);
    else{
-     _brdf= Vector3(1.f);
+     _brdf= Vector3(1.f,1.f,1.f);
      _brdf/=cosTheta;
    }               
   
@@ -57,18 +57,16 @@ Glass::sample_brdf(const Point3& _point, const Frame& _frame, float* _pdf,
   (void)_point;
   *_pdf = 1.f;
   float n12,n1,n2;
-  if(abs(_ior-ior)<0.00001f){ // ray leaving glass
+  if(std::abs(_ior-ior)<0.00001f){ // ray leaving glass
     n1 = ior;
     n2 = 1.0f;
-    _ior=1.f;
   }
   else{ // ray entering glass
     n1 = 1.0f;
     n2 = ior;
-    _ior=ior;
   }
   n12 = n1/n2;
-  float cosTheta_i = abs(_wol.z);
+  float cosTheta_i = std::abs(_wol.z);
   float f =  1.f - n12*n12 * (1.f - cosTheta_i*cosTheta_i );
   if (f <= 0){ // total reflection
     _type=reflection;
@@ -76,18 +74,24 @@ Glass::sample_brdf(const Point3& _point, const Frame& _frame, float* _pdf,
     return;
   }
   float cosTheta_t = sqrt(f);
-  float rs = pow((n1*cosTheta_i-n2*cosTheta_t)/(n1*cosTheta_i+n2*cosTheta_t),2);
-  float rp = pow((n1*cosTheta_t-n2*cosTheta_i)/(n1*cosTheta_t+n2*cosTheta_i),2);
+  float rs = std::pow((n1*cosTheta_i-n2*cosTheta_t)/(n1*cosTheta_i+n2*cosTheta_t),2);
+  float rp = std::pow((n1*cosTheta_t-n2*cosTheta_i)/(n1*cosTheta_t+n2*cosTheta_i),2);
   float r = (rs + rp)*0.5f;
   if (_samples.x <= r) { // odrazeny paprsek
     ideal_specular(_brdf,_sampled_dir_global,_wol,_frame);
     _type=reflection;
     return;
-  }
+  }  
   // zalomeny paprsek
+  if(std::abs(_ior-ior)<0.00001f){ // ray leaving glass
+    _ior=1.f;
+  }
+  else{ // ray entering glass
+    _ior=ior;
+  }
   Vector3 wol2(_wol);
-  wol2.z=abs(_wol.z);
-  Vector3 light=_frame.to_world(-1.f*wol2);	
+  wol2.z=std::abs(_wol.z);
+  Vector3 light=_frame.to_world(!wol2);	
   _sampled_dir_global = ~((n12 * light) + (n12*cosTheta_i - cosTheta_t)*(_frame.mZ));
   if(cosTheta_t <= EPS_DIVISION){
     _brdf=Vector3(0,0,0);

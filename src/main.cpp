@@ -18,6 +18,7 @@
 #include "world/world.h"
 #include "material/material.h"
 #include "material/phong.h"
+#include "material/glass.h"
 #include "texture/constant.h"
 #include "texture/checkerboard.h"
 #include "texture/perlin_noise.h"
@@ -75,7 +76,8 @@ get_wood_world (World& world,Vector2i& resolution)
 
 void
 get_cornell_box_world(World& _world, Vector2i& _resolution, bool point_light, 
-                      bool area_light, bool environment_light, bool diffuse){
+                      bool area_light, bool environment_light, bool diffuse, 
+                      bool glass){
   _world.camera=new PerspectiveCamera(
               Vector3(-0.0439815f,  0.222539f, -4.12529f),
               Vector3( 0.00688625f,-0.0542161f, 0.998505f),
@@ -123,6 +125,8 @@ get_cornell_box_world(World& _world, Vector2i& _resolution, bool point_light,
   std::unique_ptr<Texture> tex5(new ConstantTexture( col5));
   std::unique_ptr<Material> mat5(new Phong(std::move(tex5),600.0f,  glossy7));
   int blue=_world.add_material(std::move(mat5));
+  std::unique_ptr<Material> mat6(new Glass());
+  int glass_mat=_world.add_material(std::move(mat6));
   
   Vector3 cb[8] = {
               Vector3(-1.27029f, -1.28002f,  1.30455f),
@@ -170,7 +174,10 @@ get_cornell_box_world(World& _world, Vector2i& _resolution, bool point_light,
   Vector3 leftBallCenter  = leftWallCenter  + Vector3(2.f * xlen / 7.f, 0, 0);
   Vector3 rightBallCenter = rightWallCenter - Vector3(2.f * xlen / 7.f, 0, -xlen/4);
 
-  _world.scene->add(new Sphere(leftBallCenter,  smallRadius, yellow));
+  if(! glass)
+    _world.scene->add(new Sphere(leftBallCenter,  smallRadius, yellow));
+  else
+    _world.scene->add(new Sphere(leftBallCenter,  smallRadius, glass_mat));
   _world.scene->add(new Sphere(rightBallCenter, smallRadius, blue));
   
   
@@ -256,6 +263,16 @@ void parse_params(std::vector<std::string>& _args, Settings& _settings,
       reader >> value;
       _settings.iterations=value;
     }
+    else if(*it=="-t"){
+      if(++it==end(_args)){
+        usage();
+        std::exit(1);
+      }
+      std::istringstream reader(*it);
+      unsigned int value;
+      reader >> value;
+      _settings.time=value;
+    }
     else if(*it=="-s"){
       if(++it==end(_args)){
         usage();
@@ -265,33 +282,37 @@ void parse_params(std::vector<std::string>& _args, Settings& _settings,
       unsigned int value;
       reader >> value;
       if(value==0){
-        get_cornell_box_world(_world,_settings.resolution,true,false,false,true);
+        get_cornell_box_world(_world,_settings.resolution,true,false,false,true,false);
         _filename="0_";
       }
       else if(value==1)
       {
-        get_cornell_box_world(_world,_settings.resolution,true,false,false,false);
+        get_cornell_box_world(_world,_settings.resolution,true,false,false,false,false);
         _filename="1_";
       }
       else if(value==2){
-        get_cornell_box_world(_world,_settings.resolution,false,true,false,true);
+        get_cornell_box_world(_world,_settings.resolution,false,true,false,true,false);
         _filename="2_";
       }
       else if(value==3){
-        get_cornell_box_world(_world,_settings.resolution,false,true,false,false);
+        get_cornell_box_world(_world,_settings.resolution,false,true,false,false,false);
         _filename="3_";
       }
       else if(value==4){
-        get_cornell_box_world(_world,_settings.resolution,false,false,true,true);
+        get_cornell_box_world(_world,_settings.resolution,false,false,true,true,false);
         _filename="4_";
       }
       else if(value==5){
-        get_cornell_box_world(_world,_settings.resolution,false,false,true,false);
+        get_cornell_box_world(_world,_settings.resolution,false,false,true,false,false);
         _filename="5_";
       }
       else if(value==6){
         get_wood_world(_world,_settings.resolution);
         _filename="wood_";
+      }
+      else if(value==7){
+        get_cornell_box_world(_world,_settings.resolution,false,true,false,false,true);
+        _filename="6_";
       }
       else{
         std::cout<<"Unknown scene number. "<<std::endl;

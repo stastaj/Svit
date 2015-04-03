@@ -100,6 +100,11 @@ namespace Svit
     return v;
   }
   
+  inline Vector<float>&
+  operator/=(Vector<float>& v,const float f){
+    v.v = _mm_div_ps(v.v, _mm_set1_ps(f));
+    return v;
+  }
   
   inline Vector<float>&
   operator*=(Vector<float>& v,const Vector<float>& _v){
