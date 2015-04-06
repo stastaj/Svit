@@ -52,11 +52,9 @@ namespace Svit
       const Frame frame(intersection.normal);
       const int matID = intersection.solid->material ;
       const Vector3 wol=frame.to_local(! ray.direction);
-      //const Point3 surfPt=ray(intersection.t);
       Vector2 samples_light=_sampler->next_sample();
       Vector2 samples_brdf=_sampler->next_sample();
       
-      // aIteration = 0, pdfLight=0
       Vector3 illum=get_direct_illumination(frame,matID,intersection.point,wol,
                                        samples_brdf,samples_light,_world,ior);
       if((throughput*illum).max()>0)
@@ -70,14 +68,11 @@ namespace Svit
       
       float cosTheta=std::abs(wig % frame.mZ);
       float reflectance=std::min(1.f,(brdfVal.max()*cosTheta)/pdf);
-      if(wig % frame.mZ < 0)
-        std::cout<<"";
       if(_sampler->next_sample().x <= reflectance){
         throughput*=((brdfVal*cosTheta)/(reflectance*pdf));
         
         ray.origin=intersection.point;
         ray.direction=wig;
-        ray.t_min=RAY_EPSILON;
         intersection.t = std::numeric_limits<float>::max();
       }
       else{ // absorb
