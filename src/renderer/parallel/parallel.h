@@ -4,7 +4,6 @@
 #include "renderer/settings.h"
 #include "image/image.h"
 #include "renderer/parallel/task_dispatcher.h"
-#include "geom/rect.h"
 #include "world/world.h"
 #include "engine/engine.h"
 #include "renderer/renderer.h"

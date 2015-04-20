@@ -4,7 +4,7 @@
 //#include "geom/ray.h"
 //#include "geom/intersection.h"
 //#include "material/material.h"
-//#include "node/aabb.h"
+//#include "geom/aabb.h"
 
 #include <memory>
 #include <list>

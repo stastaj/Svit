@@ -10,13 +10,27 @@
 
 namespace Svit
 {
+  /**
+   * @brief The Image class represents 2D image in RGB. 
+   */
 	class Image
 	{
 		private:
+      /**
+       * @brief data stores accumulated radiance information, in row-major order,
+       * from multiple iterations. After light transport simulation every pixel
+       * needs to be divided by the number of the iterations.
+       */
 			std::vector<Vector3> data;
 
 		public:
+      /**
+       * @brief Number of iterations from which the radiance was accumulated. 
+       */
       int iterations;
+      /**
+       * @brief size of the image. 
+       */
 			Vector2i size;
 
       explicit Image (Vector2i& _size);
@@ -36,12 +50,27 @@ namespace Svit
       void
       add_image(Image& _img);
 
+      /**
+       * @brief scales the whole image by the parameter scale - every pixel 
+       * value is multiplied by the _scale parameter.
+       * @param _scale Every pixel is multiplied by this parameter value.
+       */
       void
       scale(float _scale);
-
+      
+      /**
+       * @brief write_png Saves png image to the disc with given filename.
+       * @param filename
+       * @return 
+       */
 			int 
       write_png (std::string filename);
       
+      /**
+       * @brief write_hdr Saves hdr image to the disc with given filename.
+       * @param filename
+       * @return 
+       */
       int 
       write_hdr(std::string filename);
 	};

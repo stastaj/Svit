@@ -130,5 +130,24 @@ namespace Svit
                    1.f - 2.f * samples.y);
   }
   
+  Vector3 sample_uniform_hemisphere_w(const Vector2& samples,float* pdf)
+  {
+      const float term1 = 2.f * PI_F * samples.x;
+      const float term2 = 2.f * std::sqrt(samples.y - samples.y * samples.y);
+  
+      const Vector3 ret(
+          std::cos(term1) * term2,
+          std::sin(term1) * term2,
+          std::abs(1.f - 2.f * samples.y));
+  
+      if(pdf)
+      {
+          //*oPdfSA = 1.f / (4.f * PI_F);
+          *pdf = INV_PI_F * 0.5f;
+      }
+  
+      return ret;
+  }
+  
 }
 

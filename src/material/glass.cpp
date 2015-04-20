@@ -51,13 +51,13 @@ Glass::ideal_specular(Vector3 &_brdf, Vector3 &_globDir, const Vector3 &_wol,
 void
 Glass::sample_brdf(const Point3& _point, const Frame& _frame, float* _pdf,
                   Vector3& _sampled_dir_global, Vector3& _brdf,
-                  const Vector3& _wol,Vector2& _samples,reflection_type& _type,
-                   float& _ior) const
+                  const Vector3& _wol, Vector2& _samples, reflection_type& _type,
+                   bool& inside_glass) const
 {
   (void)_point;
   *_pdf = 1.f;
   float n12,n1,n2;
-  if(std::abs(_ior-ior)<0.00001f){ // ray leaving glass
+  if(inside_glass){ // ray leaving glass
     n1 = ior;
     n2 = 1.0f;
   }
@@ -67,6 +67,7 @@ Glass::sample_brdf(const Point3& _point, const Frame& _frame, float* _pdf,
   }
   n12 = n1/n2;
   float cosTheta_i = std::abs(_wol.z);
+  assert(cosTheta_i >= 0);
   float f =  1.f - n12*n12 * (1.f - cosTheta_i*cosTheta_i );
   if (f <= 0){ // total reflection
     _type=reflection;
@@ -83,16 +84,12 @@ Glass::sample_brdf(const Point3& _point, const Frame& _frame, float* _pdf,
     return;
   }  
   // zalomeny paprsek
-  if(std::abs(_ior-ior)<0.00001f){ // ray leaving glass
-    _ior=1.f;
-  }
-  else{ // ray entering glass
-    _ior=ior;
-  }
+  inside_glass=!inside_glass;
   Vector3 wol2(_wol);
   wol2.z=std::abs(_wol.z);
   Vector3 light=_frame.to_world(!wol2);	
-  _sampled_dir_global = ~((n12 * light) + (n12*cosTheta_i - cosTheta_t)*(_frame.mZ));
+  _sampled_dir_global = (n12 * light) + (n12*cosTheta_i - cosTheta_t)*(_frame.mZ);
+  _sampled_dir_global.normalize();
   if(cosTheta_t <= EPS_DIVISION){
     _brdf=Vector3(0,0,0);
   }else{

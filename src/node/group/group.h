@@ -13,7 +13,7 @@ namespace Svit
 			add (Node* _node) = 0;
       
       virtual void
-			build_kdtree () = 0;
+			finish () = 0;
 	};
 }
 

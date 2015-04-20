@@ -1,5 +1,5 @@
-#ifndef SVIT_GLASS_MATERIAL
-#define SVIT_GLASS_MATERIAL
+#ifndef SVIT_MIRROR_MATERIAL
+#define SVIT_MIRROR_MATERIAL
              
 #include "geom/point.h"                 // for Point3
 #include "material/material.h"
@@ -11,13 +11,10 @@ namespace Svit
 {
   class Frame;
   
-  class Glass : public Material
+  class Mirror : public Material
 	{
-		private:
-      float ior;
-      float ior_inv;
 		public:
-      Glass (float _ior=1.55f):ior(_ior),ior_inv(1.f/_ior)
+      Mirror ()
       {}
 
       Vector3

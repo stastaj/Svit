@@ -26,15 +26,12 @@ namespace Svit
       get_direct_illumination(const Frame& frame, const int matID,
                               const Point3& surfpt, const Vector3& wol,
                               Vector2& samples_brdf, Vector2& samples_light,
-                              const World& _world, float _ior) const;
+                              const World& _world, bool inside_glass) const;
             
       inline float 
       computeMISWeight(float pdf1,float pdf2) const {
         return pdf1/(pdf1+pdf2);
       }
-      
-      inline bool
-      chooseSampling(int i) const { return (i+1) % 2; }
       
 	};
 }

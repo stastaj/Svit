@@ -139,13 +139,13 @@ namespace Svit
     v0 = _mm_add_ps(v0, v1);
     v1 = _mm_shuffle_ps(v0, v0, _MM_SHUFFLE(0, 1, 2, 3));
     v0 = _mm_add_ps(v0, v1);
-    
+    /*
     v1 = _mm_rsqrt_ps(v0);
     
     v0 = _mm_mul_ps( _mm_mul_ps( v0, v1 ), v1 ); 
-    return _mm_mul_ps(v.v, _mm_mul_ps( _mm_mul_ps( half, v1 ), _mm_sub_ps( three, v0 ) )); 
+    return _mm_mul_ps(v.v, _mm_mul_ps( _mm_mul_ps( half, v1 ), _mm_sub_ps( three, v0 ) )); */
     
-    //return Vector<float> (_mm_div_ps(v.v, _mm_sqrt_ps(v0))); 
+    return Vector<float> (_mm_div_ps(v.v, _mm_sqrt_ps(v0))); 
     
 	}
   

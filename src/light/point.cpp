@@ -1,7 +1,7 @@
 #include "light/point.h"
 #include "math/frame.h"                 // for Frame
 
-#include <cmath>                        // for signbit, sqrt
+#include <cmath>                        // for sqrt
 
 namespace Svit
 {	
@@ -17,7 +17,7 @@ namespace Svit
     _light_dist = std::sqrt(distance_sqr);
     _wig.normalize();
     float cos_theta = _frame.mZ % _wig;
-    if(std::signbit(cos_theta)) // cos_theta is negative
+    if(cos_theta<0) 
       return Vector3();
     return intensity * cos_theta  / distance_sqr;
 	}

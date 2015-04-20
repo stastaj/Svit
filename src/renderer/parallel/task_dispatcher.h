@@ -2,7 +2,6 @@
 #define SVIT_TASK_DISPATCHER
 
 #include "renderer/settings.h"
-#include "geom/rect.h"
 
 #include <vector>
 #include <boost/optional.hpp>

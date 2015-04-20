@@ -48,9 +48,9 @@ void
 Phong::sample_brdf(const Point3& _point, const Frame& _frame, float* _pdf,
                   Vector3& _sampled_dir_global, Vector3& _brdf,
                   const Vector3& _wol, Vector2& _samples, reflection_type& _type,
-                   float& _ior) const
+                   bool& _inside_glass) const
 {
-  (void)_ior;
+  (void)_inside_glass;
   Vector3 diffuseColor=texture->get_color(_point);
   float pd=diffuseColor.max();
   float ps=gloss_reflectance.max();

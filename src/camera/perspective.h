@@ -4,8 +4,6 @@
 #include "camera/camera.h"
 #include "geom/vector.h"
 #include "geom/point.h"
-#include "geom/rect.h"
-
 
 namespace Svit
 {

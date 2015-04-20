@@ -33,7 +33,8 @@ namespace Svit
     if( t_min > _ray.t_min &&  t_min < _intersection.t){
       _intersection.t = t_min;
       _intersection.point=_ray(t_min);
-      _intersection.normal=~(_intersection.point - center);;
+      _intersection.normal=_intersection.point - center;
+      _intersection.normal.normalize();
       _intersection.solid = (Solid*)this;
       return true;      
     }

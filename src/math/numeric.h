@@ -37,6 +37,8 @@ namespace Svit
   
   Vector3 
   sample_uniform_sphere_w(const Vector2& samples,float* pdf);
+  
+  Vector3 sample_uniform_hemisphere_w(const Vector2& samples,float* pdf);
 
 }
 

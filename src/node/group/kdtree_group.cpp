@@ -12,7 +12,7 @@ namespace Svit
         return;
       }
     }
-    bb.update_to_contain(_bb);
+    bb.extend(_bb);
 		nodes.push_back(_node);
 	}
 	
@@ -36,7 +36,7 @@ namespace Svit
   }
   
   void
-  KdTreeGroup::build_kdtree(){
+  KdTreeGroup::finish(){
     kdtree.root=kdtree.build(nodes,bb.min,bb.max,0);
     assert( kdtree.check_tree(kdtree.root) );
   }

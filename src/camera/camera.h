@@ -2,7 +2,6 @@
 #define SVIT_CAMERA
 
 #include "geom/point.h"
-#include "geom/rect.h"
 #include "geom/ray.h"
 
 namespace Svit

@@ -37,7 +37,7 @@ namespace Svit
       sample_brdf(const Point3& _point, const Frame& _frame, float* _pdf,
                   Vector3& _sampled_dir_global, Vector3& _brdf,
                   const Vector3& _wol, Vector2& _samples, reflection_type& _type,
-                  float& _ior)
+                  bool& _inside_glass)
       const override;
 
       float

@@ -30,7 +30,7 @@ namespace Svit
       surface_area()const ;
       
       void 
-      update_to_contain(AABB& _bb);
+      extend(AABB& _bb);
 
 	};
 

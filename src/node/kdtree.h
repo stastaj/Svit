@@ -1,8 +1,9 @@
 #ifndef SVIT_KDTREE
 #define SVIT_KDTREE
 
+#include "node/axis.h"
 #include "geom/vector.h"
-#include "node/aabb.h"
+#include "geom/aabb.h"
 #include "boost/thread.hpp"
 
 #include <vector>
@@ -11,7 +12,7 @@
 
 namespace Svit
 {
-  enum Axis{X,Y,Z,Leaf};
+  
   
   class KdTreeNode{
     public:

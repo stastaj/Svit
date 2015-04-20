@@ -2,7 +2,7 @@
 #define SVIT_SIMPLE_GROUP
 
 #include "node/group/group.h"
-#include "node/aabb.h"
+#include "geom/aabb.h"
 #include "geom/ray.h"
 
 #include <vector>
@@ -25,7 +25,7 @@ namespace Svit
 			add (Node* _node) override;
 
 			void
-      build_kdtree () override { }
+      finish () override { }
 	};
 }
 

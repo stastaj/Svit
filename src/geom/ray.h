@@ -13,7 +13,7 @@ namespace Svit
 		public:
 			Point3 origin;
 			Vector3 direction;
-      float t_min;
+      float t_min;     
       
 			Ray (Point3 const& _origin, Vector3 const& _direction, const float _f=RAY_EPSILON)
 				: origin(_origin), direction(_direction), t_min(_f)

@@ -1,5 +1,4 @@
 #include "camera/perspective.h"
-#include "geom/rect.h"
 #include "geom/vector.h"
 #include "geom/point.h"
 #include "engine/engine.h"
@@ -19,6 +18,8 @@
 #include "material/material.h"
 #include "material/phong.h"
 #include "material/glass.h"
+#include "material/mirror.h"
+#include "material/cook_torrance.h"
 #include "texture/constant.h"
 #include "texture/checkerboard.h"
 #include "texture/perlin_noise.h"
@@ -77,7 +78,7 @@ get_wood_world (World& world,Vector2i& resolution)
 void
 get_cornell_box_world(World& _world, Vector2i& _resolution, bool point_light, 
                       bool area_light, bool environment_light, bool diffuse, 
-                      bool glass){
+                      bool glass, bool cook_torrance){
   _world.camera=new PerspectiveCamera(
               Vector3(-0.0439815f,  0.222539f, -4.12529f),
               Vector3( 0.00688625f,-0.0542161f, 0.998505f),
@@ -127,6 +128,10 @@ get_cornell_box_world(World& _world, Vector2i& _resolution, bool point_light,
   int blue=_world.add_material(std::move(mat5));
   std::unique_ptr<Material> mat6(new Glass());
   int glass_mat=_world.add_material(std::move(mat6));
+  std::unique_ptr<Texture> tex7(new ConstantTexture( col5 ));
+  std::unique_ptr<Material> mat7(new CookTorrance(std::move(tex7),  glossy7));
+  int blue_cook=_world.add_material(std::move(mat7));
+  
   
   Vector3 cb[8] = {
               Vector3(-1.27029f, -1.28002f,  1.30455f),
@@ -178,7 +183,10 @@ get_cornell_box_world(World& _world, Vector2i& _resolution, bool point_light,
     _world.scene->add(new Sphere(leftBallCenter,  smallRadius, yellow));
   else
     _world.scene->add(new Sphere(leftBallCenter,  smallRadius, glass_mat));
-  _world.scene->add(new Sphere(rightBallCenter, smallRadius, blue));
+  if(cook_torrance)
+    _world.scene->add(new Sphere(rightBallCenter, smallRadius, blue_cook));
+  else
+    _world.scene->add(new Sphere(rightBallCenter, smallRadius, blue));
   
   
   // Lights
@@ -282,28 +290,28 @@ void parse_params(std::vector<std::string>& _args, Settings& _settings,
       unsigned int value;
       reader >> value;
       if(value==0){
-        get_cornell_box_world(_world,_settings.resolution,true,false,false,true,false);
+        get_cornell_box_world(_world,_settings.resolution,true,false,false,true,false,false);
         _filename="0_";
       }
       else if(value==1)
       {
-        get_cornell_box_world(_world,_settings.resolution,true,false,false,false,false);
+        get_cornell_box_world(_world,_settings.resolution,true,false,false,false,false,false);
         _filename="1_";
       }
       else if(value==2){
-        get_cornell_box_world(_world,_settings.resolution,false,true,false,true,false);
+        get_cornell_box_world(_world,_settings.resolution,false,true,false,true,false,false);
         _filename="2_";
       }
       else if(value==3){
-        get_cornell_box_world(_world,_settings.resolution,false,true,false,false,false);
+        get_cornell_box_world(_world,_settings.resolution,false,true,false,false,false,false);
         _filename="3_";
       }
       else if(value==4){
-        get_cornell_box_world(_world,_settings.resolution,false,false,true,true,false);
+        get_cornell_box_world(_world,_settings.resolution,false,false,true,true,false,false);
         _filename="4_";
       }
       else if(value==5){
-        get_cornell_box_world(_world,_settings.resolution,false,false,true,false,false);
+        get_cornell_box_world(_world,_settings.resolution,false,false,true,false,false,false);
         _filename="5_";
       }
       else if(value==6){
@@ -311,8 +319,12 @@ void parse_params(std::vector<std::string>& _args, Settings& _settings,
         _filename="wood_";
       }
       else if(value==7){
-        get_cornell_box_world(_world,_settings.resolution,false,true,false,false,true);
+        get_cornell_box_world(_world,_settings.resolution,false,true,false,false,true,false);
         _filename="6_";
+      }
+      else if(value==8){
+        get_cornell_box_world(_world,_settings.resolution,false,true,false,false,true,true);
+        _filename="7_";
       }
       else{
         std::cout<<"Unknown scene number. "<<std::endl;
@@ -397,11 +409,11 @@ main (int argc, char** argv)
   parse_params(arguments,settings,world,filename);
 
   auto t1 = std::chrono::high_resolution_clock::now();
-  world.scene->build_kdtree();
+  world.scene->finish();
   auto t2 = std::chrono::high_resolution_clock::now();
     int elapsed_millisecs = std::chrono::duration_cast
                        <std::chrono::milliseconds>(t2 - t1).count();
-  std::cout<< "Building of kdtree took "<< elapsed_millisecs<< "ms." <<std::endl;
+  //std::cout<< "Building of kdtree took "<< elapsed_millisecs<< "ms." <<std::endl;
   
   PathTracing engine;
   //SerialRenderer renderer;

@@ -1,4 +1,4 @@
-#include "node/aabb.h"
+#include "geom/aabb.h"
 #include "math/constants.h"
 
 #include <limits>
@@ -21,7 +21,7 @@ namespace Svit
       t_max=tmax.min();
       if(t_min>t_max)
         return false;    
-      if(std::signbit(t_max)) // t_max is negative
+      if(t_max<0)
         return false;
       return true;
     }
@@ -33,7 +33,7 @@ namespace Svit
     }
     
     void 
-    AABB::update_to_contain(AABB& _bb){
+    AABB::extend(AABB& _bb){
       for(int i=0;i<3;++i){
         min[i]=std::min(min[i],_bb.min[i]);
         max[i]=std::max(max[i],_bb.max[i]);
