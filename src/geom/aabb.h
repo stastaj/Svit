@@ -9,7 +9,7 @@
 namespace Svit
 {
   /**
-   * @brief Axis Aligned Bounding Box.
+   * @brief Axis Aligned Bounding Box. 
    */
   class AABB
 	{

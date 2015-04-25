@@ -29,7 +29,7 @@ namespace Svit
      * 
 		 * Physically based BRDF should satisfy following properties: 
 		 * 			Positivity: eval_brdf(_point,_wil,_wol) >= 0, for each wil, wol, point.
-		 * 			Helmolzs Reciprocity: eval_brdf(_point,_wil,_wol) == eval_brdf(_point,_wol,_wil).
+		 * 			Helmholtz Reciprocity: eval_brdf(_point,_wil,_wol) == eval_brdf(_point,_wol,_wil).
 		 *			Conserving energy: \forall \omega_{\text{r}},\, \int_\Omega f_{\text{r}}(\omega_{\text{i}},\, \omega_{\text{r}})\,\cos{\theta_{\text{i}}} d\omega_{\text{i}} \le 1
      * @param _point 3D Coordinates of the intersected point.
      * @param _wil (omega_incoming_local) Direction to the light in local coordinates with

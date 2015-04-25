@@ -14,7 +14,7 @@ namespace Svit
 		public:
 			void
       render (World& _world, Settings& _settings, Engine& _engine,
-              SuperSampling* _super_sampling, Image& _final_image);
+              SuperSampling* _super_sampling, Image& _final_image) override;
 	};
 }
 

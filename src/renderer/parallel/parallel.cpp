@@ -35,7 +35,7 @@ namespace Svit
 	Image
   ParallelRenderer::worker (TaskDispatcher& _task_dispatcher, World& _world,
       Settings& _settings, Engine& _engine, SuperSampling* _super_sampling,
-                     volatile sig_atomic_t& interrupted) const
+                     volatile sig_atomic_t& interrupted, int _worker_number)
 	{
 		Image result(_settings.resolution);
     while (!interrupted)
@@ -44,8 +44,8 @@ namespace Svit
 			if (!optional_task)
 				break;
 			Task task = optional_task.get(); // use iteration number??
-			render_iteration(_world, _settings, _engine,
-                                 _super_sampling, result, task);
+			render_iteration(_world, _settings, _engine,_super_sampling, result, 
+                       task, ray_ids[_worker_number]);
       ++result.iterations;
 		}
 
@@ -64,20 +64,21 @@ namespace Svit
     memset(&action, 0, sizeof(struct sigaction));
     action.sa_sigaction = sig_handler;
     action.sa_flags     = SA_SIGINFO;
-    sigaction(SIGINT, &action, NULL);
-
+    sigaction(SIGINT, &action, NULL);   
+    
     for (unsigned i = 0; i < _settings.max_thread_count; i++)
 		{
+      ray_ids.push_back(0u);
       samplers.push_back(_super_sampling->copy(i));
       SuperSampling* sampler=samplers[i];
 			// TODO can this be done better? it must be possible
       futures.push_back(
             std::async(std::launch::async,
-         [this, &task_dispatcher,&_world, &_settings, &_engine, sampler]
+         [this, &task_dispatcher,&_world, &_settings, &_engine, sampler,i]
          ()
           {
            return worker(task_dispatcher, _world, _settings, _engine, sampler,
-                         interrupted);
+                         interrupted,i);
           }));
 		}
     
@@ -118,16 +119,16 @@ namespace Svit
   void
   ParallelRenderer::render_iteration (World& _world, Settings& _settings,
       Engine& _engine, SuperSampling* _super_sampling, Image& _result, 
-                                      const int _iteration) const
+                                      const int _iteration, unsigned int& ray_id) const
   {
     for (int x = 0; x < _settings.resolution.x; x++)
     {
       for (int y = 0; y < _settings.resolution.y; y++)
       {
         Vector2 samples=_super_sampling->next_sample();
-        const Ray ray = _world.camera->get_ray(x, y, samples);
+        const Ray ray = _world.camera->get_ray(x, y, samples, ray_id);
         const Vector3 illum=_engine.get_color(ray, _world,_super_sampling, 
-                                              _iteration);
+                                              _iteration, ray_id);
         _result.add_to_pixel(x, y, illum);
       }
     }

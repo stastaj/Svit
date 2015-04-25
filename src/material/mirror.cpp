@@ -34,8 +34,8 @@ Mirror::ideal_specular(Vector3 &_brdf, Vector3 &_globDir, const Vector3 &_wol,
                       const Frame& _frame) const
 {
    Vector3 wog=_frame.to_world(_wol);
-   float cosTheta=std::abs(wog % _frame.mZ);
-   Vector3 refl=2.f*(cosTheta)*_frame.mZ;
+   float cosTheta=std::abs(wog % _frame.normal);
+   Vector3 refl=2.f*(cosTheta)*_frame.normal;
    refl-=wog;
    //assert( abs(refl % refl - 1) < 0.001f );
    _globDir=~(refl);

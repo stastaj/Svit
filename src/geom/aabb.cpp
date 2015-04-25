@@ -4,6 +4,9 @@
 #include <limits>
 #include <cmath>
 
+using std::min;
+using std::max;
+
 namespace Svit
 {      
     bool
@@ -14,8 +17,19 @@ namespace Svit
       e_minus_h*=f_inv;
       e_plus_h*=f_inv;
       
+#if defined(USE_SSE) && defined(__SSE__)
       Vector3 tmin(_mm_min_ps(e_minus_h.v,e_plus_h.v));
       Vector3 tmax(_mm_max_ps(e_minus_h.v,e_plus_h.v));
+#else
+      Vector3 tmin(min(e_minus_h.x,e_plus_h.x),
+                   min(e_minus_h.y,e_plus_h.y),
+                   min(e_minus_h.z,e_plus_h.z),
+                   min(e_minus_h.w,e_plus_h.w));
+      Vector3 tmax(max(e_minus_h.x,e_plus_h.x),
+                   max(e_minus_h.y,e_plus_h.y),
+                   max(e_minus_h.z,e_plus_h.z),
+                   max(e_minus_h.w,e_plus_h.w));
+#endif
       
       t_min=tmin.max();
       t_max=tmax.min();

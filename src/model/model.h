@@ -9,6 +9,9 @@ namespace Svit
   class Group; 
   class Solid; 
   
+  /**
+   * @brief The Model class is used for scene serialization and deserialization. 
+   */
 	class Model
 	{
 		public:

@@ -24,16 +24,17 @@ namespace Svit
 	{
 		private:
       static volatile sig_atomic_t interrupted;
-
+      std::vector<unsigned int> ray_ids;
+      
 			Image
       worker (TaskDispatcher& _task_dispatcher, World& _world, Settings&
           _settings, Engine& _engine, SuperSampling* _super_sampling,
-              volatile sig_atomic_t& interrupted) const;
+              volatile sig_atomic_t& interrupted, int _worker_number);
 
       void
       render_iteration(World& _world, Settings& _settings, Engine& _engine,
                        SuperSampling* _super_sampling, Image& _result, 
-                       const int _iteration) const;
+                       const int _iteration, unsigned int& ray_id) const;
 
       static void
       sig_handler(int sig, siginfo_t *siginfo, void *context);

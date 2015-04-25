@@ -13,10 +13,12 @@ namespace Svit
 		public:
 			Point3 origin;
 			Vector3 direction;
-      float t_min;     
+      float t_min; 
+      unsigned int id;
       
-			Ray (Point3 const& _origin, Vector3 const& _direction, const float _f=RAY_EPSILON)
-				: origin(_origin), direction(_direction), t_min(_f)
+			Ray (Point3 const& _origin, Vector3 const& _direction, unsigned int& _id,
+           const float _f=RAY_EPSILON)
+				: origin(_origin), direction(_direction), t_min(_f), id(++_id)
 			{ }
 
       Ray (const Ray& _ray):origin(_ray.origin),direction(_ray.direction),

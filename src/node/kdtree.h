@@ -11,9 +11,7 @@
 
 
 namespace Svit
-{
-  
-  
+{  
   class KdTreeNode{
     public:
       KdTreeNode():axis(Leaf) {}

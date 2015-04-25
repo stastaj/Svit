@@ -16,7 +16,7 @@ namespace Svit
     float distance_sqr = _wig % _wig;
     _light_dist = std::sqrt(distance_sqr);
     _wig.normalize();
-    float cos_theta = _frame.mZ % _wig;
+    float cos_theta = _frame.normal % _wig;
     if(cos_theta<0) 
       return Vector3();
     return intensity * cos_theta  / distance_sqr;

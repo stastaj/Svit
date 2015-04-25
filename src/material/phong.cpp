@@ -35,11 +35,11 @@ Phong::get_pdf(const Point3& _point,const Frame& _frame,const Vector3& _wog,
   float sum_inv=1.f/(pd+ps);
   pd*=sum_inv;
   ps*=sum_inv;
-  Vector3 refl=2*(_wog % _frame.mZ)*_frame.mZ;
+  Vector3 refl=2*(_wog % _frame.normal)*_frame.normal;
   refl-=_wog;
 
   float spec=power_cos_hemisphere_pdf_w(refl,_wig, exponent);
-  float diff=cos_hemisphere_pdf_w(_frame.mZ,_wig);
+  float diff=cos_hemisphere_pdf_w(_frame.normal,_wig);
 
   return pd*diff+ps*spec;
 }
@@ -70,7 +70,7 @@ Phong::sample_brdf(const Point3& _point, const Frame& _frame, float* _pdf,
     _sampled_dir_global=_frame.to_world(local);
     _sampled_dir_global.normalize_fast();
     
-    assert( _frame.mZ % _sampled_dir_global > 0 );
+    assert( _frame.normal % _sampled_dir_global > 0 );
     
     _brdf=diffuseColor * INV_PI_F;
     *_pdf*=pd;
@@ -80,14 +80,14 @@ Phong::sample_brdf(const Point3& _point, const Frame& _frame, float* _pdf,
     _samples.x=(_samples.x-pd)*(1.f/(ps)); // sample reuse
 
     Vector3 wog=_frame.to_world(_wol);
-    Vector3 refl=2.0f*(wog % _frame.mZ)*_frame.mZ;
+    Vector3 refl=2.0f*(wog % _frame.normal)*_frame.normal;
     refl=refl-wog;
     Frame local(refl);
 
     Vector3 local_dir=sample_power_cos_hemisphere_w(_samples,exponent,_pdf);
     _sampled_dir_global=local.to_world(local_dir);
     _sampled_dir_global.normalize();
-    float cosThetaIn = _frame.mZ % _sampled_dir_global;
+    float cosThetaIn = _frame.normal % _sampled_dir_global;
     if(cosThetaIn <= 0){
       _brdf=Vector3(0,0,0,0);
     }

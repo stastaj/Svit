@@ -13,7 +13,7 @@ namespace Svit
     _wig = light_pos - _surface_point;
     _light_dist = _wig % _wig;
     _wig.normalize_fast();
-    float cos_thetaX=_frame.mZ % _wig;
+    float cos_thetaX=_frame.normal % _wig;
     if(!_wig % normal < 0 || cos_thetaX < 0){
       return Vector3();
     }

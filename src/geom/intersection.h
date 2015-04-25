@@ -8,16 +8,37 @@ namespace Svit
 {   
   class Solid;
   
+  /**
+   * @brief The Intersection class stores all necessary info about an 
+   * intersection.
+   */
   class Intersection
 	{      
     public:
+      /**
+       * @brief solid pointer to intersected solid. 
+       */
       Solid *solid;	
-      float t; // distance to the closest intersection - serves as t_max
+      /**
+       * @brief t time parameter, when the ray intersected the solid. Also 
+       * distance to the closest intersection. Also serves as maximal distance
+       * for finding an intersection.
+       */
+      float t; 
+      /**
+       * @brief normal vector at the intersected point. 
+       */
       Vector3 normal;
-      Point3 point; // intersection point coordinates
+      /**
+       * @brief point 3d coordinates of the intersection. 
+       */
+      Point3 point; 
       
-      explicit Intersection(const float _t_max):t(_t_max),normal(Vector3()),
-        point(Vector3()),solid(0) 
+      explicit Intersection(const float _t_max):
+        t(_t_max),
+        normal(Vector3()),
+        point(Vector3()),
+        solid(0) 
       {}
       
       Intersection(const Intersection& _i):t(_i.t),solid(_i.solid)
