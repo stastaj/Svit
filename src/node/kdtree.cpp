@@ -207,7 +207,7 @@ namespace Svit
   }
   
   bool
-  check_tree(KdTreeNode* node){
+  KdTree::check_tree(KdTreeNode* node){
     switch(node->axis){
       case X:
       case Y:
