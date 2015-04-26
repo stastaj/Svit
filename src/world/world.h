@@ -14,9 +14,9 @@ namespace Svit
 	{
 		Group *scene;
 		Camera *camera;
+    float lights_count_inv;
 		std::vector<std::unique_ptr<Light>> lights;
     std::vector<std::unique_ptr<Material>> materials;
-    float lights_count_inv;
     
 		void
 		add_light (std::unique_ptr<Light> _light)

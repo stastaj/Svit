@@ -1,9 +1,12 @@
 #include "node/kdtree.h"
 
+
+
 namespace Svit
 { 
   
   thread_local std::vector<StackEntry> KdTree::stack(MAX_STACK_SIZE);
+  thread_local std::vector<hash_table_entry> KdTree::hash_table(HASH_TABLE_SIZE);
   
   bool 
   KdTree::traverse(const AABB& bb, const Ray& _ray, 
@@ -86,14 +89,26 @@ namespace Svit
       
       bool intersection_found=false;
       _intersection.t=std::min(t_max,stack[exPt].t+RAY_EPSILON);
-      for(Node* n: currNode->primitives){
-        if(n->intersect(_ray,_intersection)){
+      for(Solid* solid: *currNode->primitives){
+        if(solid->intersect(_ray,_intersection))
           intersection_found=true;
-        }
+        
       }
-      if ( intersection_found ){
+      if (intersection_found){
         return true;
       }
+      
+      /*
+      for(Solid* solid: currNode->primitives){
+        if( ! AlreadyIntersected(solid->ID,_ray.id)){
+          solid->intersect(_ray,_intersection);
+          MarkIntersection(solid->ID,_ray.id);
+        }
+        //intersection_found=true;
+      }
+      if ( _intersection.t <=  std::min(t_max,stack[exPt].t+RAY_EPSILON)){
+        return true;
+      }*/
       if(t_max<stack[exPt].t+RAY_EPSILON){
         return false;
       }
@@ -104,22 +119,26 @@ namespace Svit
     }
     return false;
   }
-  
-  KdTreeNode* 
-  KdTree::build(std::vector<Node*>& _primitives,Vector3 _min, 
+    
+  KdTreeNode*
+  KdTree::build(std::vector<Solid*>& _primitives, Vector3 _min, 
                             Vector3 _max, int _depth) 
   {
     KdTreeNode* node=new KdTreeNode();      
     if (terminate( _depth, _primitives)) { 
-      node->primitives=_primitives;
+      node->primitives=new std::vector<Solid*>;
+      node->primitives->resize(_primitives.size());
+      for(unsigned int i=0;i<_primitives.size();++i){
+        (*node->primitives)[i]=_primitives[i];
+      }
       node->axis=Leaf;
       node->right=nullptr;
       node->left=nullptr;
       return node;
     }
     find_plane(_min,_max,node->split,node->axis);
-    std::vector<Node*> left;
-    std::vector<Node*> right;
+    std::vector<Solid*> left;
+    std::vector<Solid*> right;
     split_primitives(_primitives, node->split, node->axis, left, right);
     switch (node->axis) { 
       case X:
@@ -141,22 +160,23 @@ namespace Svit
   }
   
   void
-  KdTree::split_primitives(std::vector<Node*>& _primitives, float _split,
-                           Axis _axis, std::vector<Node*>& _left, 
-                           std::vector<Node*>& _right){
-    for(Node* node:_primitives){
+  KdTree::split_primitives(std::vector<Solid*>& _primitives, float _split,
+                           Axis _axis, std::vector<Solid*>& _left, 
+                           std::vector<Solid*>& _right){
+    for(Solid* solid:_primitives){
+      Node* node=(Node*)solid;
       AABB bb = node->get_aabb();
       if(bb.max[_axis]>_split){
-        _right.push_back(node);
+        _right.push_back(solid);
       }
       if(bb.min[_axis]<=_split){
-        _left.push_back(node);
-      } 
+        _left.push_back(solid);
+      }
     }
   }
   
   bool
-  KdTree::terminate(int depth, std::vector<Node*>& _primitives){
+  KdTree::terminate(int depth, std::vector<Solid*>& _primitives){
     return _primitives.size() <= MAX_PRIMITIVES_IN_LEAF || 
         depth >= MAX_TREE_DEPTH;
   }
@@ -184,6 +204,31 @@ namespace Svit
         _split = (_min.z + _max.z) * 0.5f;
       }
     }
+  }
+  
+  bool
+  check_tree(KdTreeNode* node){
+    switch(node->axis){
+      case X:
+      case Y:
+      case Z:
+        if(node->left==nullptr || node->right==nullptr)
+          return false;
+        return check_tree(node->left) && check_tree(node->right);
+        break;
+      case Leaf:
+        if(node->right != nullptr || node->left != nullptr){
+          return false;
+        }         
+        for(Solid* s: *node->primitives){
+          if(s==nullptr)
+            return false;
+        }
+        break;
+      default:
+        return false;
+    }
+    return true;
   }
 }
 

@@ -13,11 +13,11 @@ namespace Svit
 	class KdTreeGroup : public Group
 	{
 		private:
-      std::vector<Node*> nodes;
-      std::vector<Node*> infinite_nodes;
+      std::vector<Solid*> nodes;
+      std::vector<Solid*> infinite_nodes;
       AABB bb;
       KdTree kdtree;
-      
+      unsigned int solid_IDs;
 		public:
       
       KdTreeGroup():bb(Vector3(std::numeric_limits<float>::max(),
@@ -26,7 +26,9 @@ namespace Svit
                        Vector3(-std::numeric_limits<float>::max(),
                                -std::numeric_limits<float>::max(),
                                -std::numeric_limits<float>::max()
-                               )){}
+                               )),
+                    solid_IDs(0)
+      {}
       
 			bool
       intersect (const Ray& _ray, Intersection& _best) const override;

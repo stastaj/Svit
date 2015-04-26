@@ -20,7 +20,8 @@ namespace Svit
 {
 	Vector3
   PathTracing::get_color (const Ray& _ray, const World& _world, 
-                          SuperSampling* _sampler, const int _iteration, unsigned int& _ray_id) const
+                          SuperSampling* _sampler, const int _iteration, 
+                          unsigned int& _ray_id) const
 	{    
     Vector3 throughput(1.f,1.f,1.f);
     Vector3 accum(0.f,0.f,0.f);
@@ -82,7 +83,7 @@ namespace Svit
         
         ray.origin=intersection.point;
         ray.direction=wig;
-        ray.id++;
+        ray.id=++_ray_id;
         intersection.t = std::numeric_limits<float>::max();
       }
       else{ // absorb

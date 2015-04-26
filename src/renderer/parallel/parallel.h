@@ -23,7 +23,18 @@ namespace Svit
 	class ParallelRenderer : public Renderer
 	{
 		private:
+      /**
+       * @brief interrupted variable is used for early canceling the render,
+       * each worker after every pass checks this variable - if it is true, 
+       * the worker ends. It is also used when catching SIGINT signal to stop 
+       * the render. 
+       */
       static volatile sig_atomic_t interrupted;
+      /**
+       * @brief ray_ids Each ray has its own ray_id, which is unique for across
+       * one worker - id is simple ray count. so every worker counts how many
+       * rays where cast.
+       */
       std::vector<unsigned int> ray_ids;
       
 			Image

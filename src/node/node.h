@@ -20,14 +20,21 @@ namespace Svit
 	{
 		public:
       /**
-       * @brief intersect 
-       * @param _ray
+       * @brief intersect given _ray with the scene and store the intersection
+       * to the _intersection object. 
+       * @param _ray 
        * @param _intersection
-       * @return 
+       * @return If the scene was hit by the ray and the distance of the 
+       * intersection was larger than _ray.t_min and lesser than 
+       * _intersection.t. 
        */
 			virtual bool
       intersect (const Ray& _ray, Intersection& _intersection) const = 0;
-
+      
+      /**
+       * @brief get_aabb
+       * @return Axis aligned bounding box of this scene node. 
+       */
       virtual AABB
       get_aabb() const =0;
 	};

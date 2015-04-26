@@ -5,15 +5,17 @@ namespace Svit
 	void 
 	KdTreeGroup::add (Node *_node)
 	{
+    Solid* solid=(Solid*) _node;
+    solid->ID=solid_IDs++;
     AABB _bb=_node->get_aabb();
     for(int i=0;i<3;++i){
       if( std::isinf(_bb.min[i]) || std::isinf(_bb.max[i]) ){
-        infinite_nodes.push_back(_node);
+        infinite_nodes.push_back(solid);
         return;
       }
     }
     bb.extend(_bb);
-		nodes.push_back(_node);
+		nodes.push_back(solid);
 	}
 	
 	bool KdTreeGroup::intersect(const Ray& _ray, Intersection& _best) const
@@ -37,7 +39,9 @@ namespace Svit
   
   void
   KdTreeGroup::finish(){
-    kdtree.root=kdtree.build(nodes,bb.min,bb.max,0);
+    //kdtree.root=new KdTreeNode();
+    kdtree.root = kdtree.build(nodes,bb.min,bb.max,0);
+    nodes.clear();
     assert( kdtree.check_tree(kdtree.root) );
   }
 }

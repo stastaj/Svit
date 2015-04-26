@@ -37,7 +37,7 @@ namespace Svit
 
 			Ray
       get_ray (const int _x, const int _y, const Vector2& _samples, 
-               unsigned int _id) const override;
+               unsigned int& _id) const override;
 
 			void
       look_at (Point3 _dest) override;

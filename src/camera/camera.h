@@ -23,7 +23,7 @@ namespace Svit
        */
 			virtual Ray 
       get_ray (const int _x, const int _y, const Vector2& _samples, 
-               unsigned int _id) const = 0;
+               unsigned int& _id) const = 0;
 
 			virtual void
 			look_at (Point3 _dest) = 0;

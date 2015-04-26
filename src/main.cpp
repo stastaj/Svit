@@ -114,7 +114,7 @@ get_cornell_box_world(World& _world, Vector2i& _resolution, bool point_light,
   std::unique_ptr<Texture> tex2(new ConstantTexture( col2));
   std::unique_ptr<Material> mat2(new Phong(std::move(tex2),90.0f,  glossy5));
   int green=_world.add_material(std::move(mat2));
-  //red right wall
+  //red left+1 wall
   std::unique_ptr<Texture> tex3(new ConstantTexture( col3));
   std::unique_ptr<Material> mat3(new Phong(std::move(tex3),90.0f,  glossy5));
   int red=_world.add_material(std::move(mat3));

@@ -21,8 +21,11 @@ namespace Svit
 				: origin(_origin), direction(_direction), t_min(_f), id(++_id)
 			{ }
 
-      Ray (const Ray& _ray):origin(_ray.origin),direction(_ray.direction),
-        t_min(_ray.t_min)
+      Ray (const Ray& _ray):
+        origin(_ray.origin),
+        direction(_ray.direction),
+        t_min(_ray.t_min),
+        id(_ray.id)
       {}
       
 			Point3 

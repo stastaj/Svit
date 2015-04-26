@@ -11,11 +11,16 @@
 
 namespace Svit
 {
+  /**
+   * @brief The Solid class represents a single intersectable primitive with 
+   * material ID and light ID. 
+   */
 	class Solid : public Node
 	{
 		public:
 		  const int material;
       const int light;
+      unsigned int ID;
       
       Solid(int _mat,int _light):material(_mat),light(_light)
       {}
