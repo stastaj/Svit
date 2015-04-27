@@ -343,7 +343,7 @@ void parse_params(std::vector<std::string>& _args, Settings& _settings,
     }
   }
 }
-
+/*
 void SSE_test_normalization(SuperSampling* s){
   int N=500000;
   
@@ -392,7 +392,7 @@ void SSE_test_normalization(SuperSampling* s){
                      <std::chrono::milliseconds>(t2 - t1).count();
   std::cout<<"Normalization operator took "<<elapsed_millisecs<<"ms."<<std::endl;
 }
-
+*/
 
 
 int 

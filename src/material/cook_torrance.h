@@ -15,9 +15,9 @@ namespace Svit
   class CookTorrance : public Material
 	{
 		private:
-			float ka = 1.f;
+			/*float ka = 1.f;
 			float ks = 0.8f;
-			float kd = 0.2f;
+			float kd = 0.2f;*/
 			float ior = 1.3f;
 			float roughness = 0.2f;
 			Vector3 specular;//( 1.f, 1.f, 1.f );
@@ -28,7 +28,7 @@ namespace Svit
                      Vector3 _specular=Vector3(1.f,1.f,1.f),
                     float _roughness=0.2f, float _ior=1.3f, float _kd=0.2f, 
                     float _ks=0.8f, float _ka=1.f, float _gauss=100.f )
-        :  ka(_ka),ks(_ks),kd(_kd),ior(_ior),roughness(_roughness),    
+        :  /*ka(_ka),ks(_ks),kd(_kd),*/ior(_ior),roughness(_roughness),    
           specular(_specular), texture(std::move(_texture)),gauss_constant(_gauss) 
       {}
 

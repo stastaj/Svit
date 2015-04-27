@@ -15,9 +15,9 @@ namespace Svit
 	{
 		private:
       float ior;
-      float ior_inv;
+      //float ior_inv;
 		public:
-      Glass (float _ior=1.55f):ior(_ior),ior_inv(1.f/_ior)
+      Glass (float _ior=1.55f):ior(_ior)//,ior_inv(1.f/_ior)
       {}
 
       Vector3

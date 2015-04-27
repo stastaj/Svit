@@ -42,7 +42,7 @@ namespace Svit
       if(scene_hit && intersection.solid->light>=0 && (pathLength==1 || refl_type==reflection || refl_type==refraction)){
         const int lightID=intersection.solid->light;
         Vector3 illum=throughput * _world.lights[lightID]->get_radiance(ray.direction);
-        if(illum.max()>0);
+        if(illum.max()>0)
           accum += illum;
         break;
       }
@@ -130,7 +130,7 @@ namespace Svit
     brdfVal=_world.materials[matID]->eval_brdf(surfpt,frame.to_local(wig),wol);
     if(_world.lights[light_ID]->type==Point){
       if(! is_occluded(_world,surfpt,lightDist,wig,_ray_id)){
-        if(illum.max()>=0 && brdfVal.max()>=0);
+        if(illum.max()>=0 && brdfVal.max()>=0)
           return illum * brdfVal;
       }
     }
