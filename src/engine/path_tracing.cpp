@@ -117,7 +117,7 @@ namespace Svit
     
     // RANDOM LIGHT SAMPLING
     int light_count=_world.lights.size();
-    int light_ID=(int) samples_light.x*light_count;
+    unsigned int light_ID=(unsigned int) samples_light.x*light_count;
     if(light_ID == _world.lights.size())
       --light_ID;
     assert(light_ID < _world.lights.size());
@@ -155,7 +155,7 @@ namespace Svit
     }
     else // secondary ray doesnt intersect the scene
     {
-      for(int i=0; i<_world.lights.size(); ++i){
+      for(unsigned int i=0; i<_world.lights.size(); ++i){
         if(_world.lights[i]->type==Background){
           Vector3 illum = _world.lights[i]->get_radiance(wig)*(frame.normal % wig);
           pdfLight=_world.lights[i]->get_pdf(wig,lightDist)*_world.lights_count_inv;
@@ -196,7 +196,7 @@ namespace Svit
     }
     else // secondary ray doesnt intersect the scene
     {
-      for(int i=0; i<_world.lights.size(); ++i){
+      for(unsigned int i=0; i<_world.lights.size(); ++i){
         if(_world.lights[i]->type==Background){
           Vector3 illum = _world.lights[i]->get_radiance(wig)*(frame.normal % wig);
           float pdfLight=_world.lights[i]->get_pdf(wig,lightDist)*_world.lights_count_inv;

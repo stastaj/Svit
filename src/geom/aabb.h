@@ -19,8 +19,8 @@ namespace Svit
       Vector3 min;
       Vector3 max;
       
-      AABB(Vector3 _min, Vector3 _max) : min(_min),max(_max),
-        center(min+(max-min)*0.5f)
+      AABB(Vector3 _min, Vector3 _max) : 
+			center(_min+(_max-_min)*0.5f), min(_min), max(_max)
       {}
       
       bool

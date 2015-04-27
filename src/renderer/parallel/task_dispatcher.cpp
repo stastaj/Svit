@@ -7,7 +7,7 @@ namespace Svit
 {
 	TaskDispatcher::TaskDispatcher (Settings& _settings)
 	{
-    for (int i = 0; i < _settings.iterations; ++i)
+    for (unsigned int i = 0; i < _settings.iterations; ++i)
 
 		{
       Task task=i;

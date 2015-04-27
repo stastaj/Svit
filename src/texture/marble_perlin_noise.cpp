@@ -9,7 +9,7 @@ namespace Svit
 	MarblePerlinNoiseTexture::get_color (const Point3& _point) const
 	{
 		float sum = 0.0;
-		float discard;
+		//float discard;
 		for (unsigned int i = 0; i < octave_count; i++)
 			sum += fabs(noise_3D(_point * frequencies[i])) * amplitudes[i];
 

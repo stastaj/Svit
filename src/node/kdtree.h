@@ -70,7 +70,7 @@ namespace Svit
                Intersection& _intersection) const;
       
       KdTreeNode* build(std::vector<Solid*>& _primitives, Vector3 _min, Vector3 _max,
-            int _depth); 
+            unsigned int _depth); 
       
       bool
       check_tree(KdTreeNode* node);
@@ -81,7 +81,7 @@ namespace Svit
                        std::vector<Solid*>& _left, std::vector<Solid*>& _right);
       
       bool
-      terminate(int depth,std::vector<Solid*>& _objects);
+      terminate(unsigned int depth,std::vector<Solid*>& _objects);
       
       void
       find_plane(Vector3& _min,Vector3& _max,float& _split,Axis& _axis);
@@ -102,8 +102,8 @@ namespace Svit
       
       
       static const unsigned int MAX_STACK_SIZE=40;
-      const int MAX_PRIMITIVES_IN_LEAF=6;
-      const int MAX_TREE_DEPTH=5;
+      const unsigned int MAX_PRIMITIVES_IN_LEAF=6;
+      const unsigned int MAX_TREE_DEPTH=5;
       
       static const unsigned int HASH_TABLE_SIZE=64;
       static const unsigned int HASH_TABLE_MASK=HASH_TABLE_SIZE-1;

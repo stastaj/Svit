@@ -11,15 +11,14 @@ namespace Svit
 	{
 		private:
 			Vector3 radiance;
-      Vector3 power;
       Point3 p0;
       Vector3 e1,e2;
       Vector3 normal;
       float area_inv;
-      
+      Vector3 power;
 		public:
       RectangleLight(Point3 _p0, Point3 _p1, Point3 _p2,Vector3 _radiance):
-        Light(Area), p0(_p0),radiance(_radiance),e1(_p1 - _p0), e2(_p2 - _p0),
+        Light(Area), radiance(_radiance),p0(_p0),e1(_p1 - _p0), e2(_p2 - _p0),
         normal(~(e1 & e2))
       {
         float area = std::sqrt((e2 & e1) % (e2 & e1));

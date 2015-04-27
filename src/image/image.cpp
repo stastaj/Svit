@@ -7,7 +7,7 @@
 
 namespace Svit
 {  
-  Image::Image(Vector2i& _size):size(_size),iterations(0){
+  Image::Image(Vector2i& _size):iterations(0),size(_size){
     data.resize(_size.x*_size.y,Vector3(0.0f,0.0f,0.0f));
   }      
   
@@ -67,9 +67,9 @@ namespace Svit
 		size_t row_size = size.x * 3;
 		png_bytep row = (png_bytep)malloc(row_size * sizeof(png_byte));
 
-		for (unsigned y = 0; y < size.y; y++)
+		for (int y = 0; y < size.y; y++)
 		{
-			for (unsigned x = 0; x < size.x; x++)
+			for (int x = 0; x < size.x; x++)
 			{
         const Vector3& rgb = (*this)(x, y);
 				row[x*3 + 0] = (png_byte)((rgb.x > 1.0 ? 1.0 : rgb.x) * 255.0); 
@@ -122,6 +122,7 @@ namespace Svit
               hdr.write((char*)&rgbe[0], 4);
           }
       }
+      return 0;
   }
 }
 

@@ -35,13 +35,13 @@ namespace Svit
       Point3 point; 
       
       explicit Intersection(const float _t_max):
+		solid(0),
         t(_t_max),
         normal(Vector3()),
-        point(Vector3()),
-        solid(0) 
+        point(Vector3())
       {}
       
-      Intersection(const Intersection& _i):t(_i.t),solid(_i.solid)
+      Intersection(const Intersection& _i):solid(_i.solid),t(_i.t)
       {}
       
 	};

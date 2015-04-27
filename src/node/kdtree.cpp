@@ -122,7 +122,7 @@ namespace Svit
     
   KdTreeNode*
   KdTree::build(std::vector<Solid*>& _primitives, Vector3 _min, 
-                            Vector3 _max, int _depth) 
+                            Vector3 _max, unsigned int _depth) 
   {
     KdTreeNode* node=new KdTreeNode();      
     if (terminate( _depth, _primitives)) { 
@@ -176,7 +176,7 @@ namespace Svit
   }
   
   bool
-  KdTree::terminate(int depth, std::vector<Solid*>& _primitives){
+  KdTree::terminate(unsigned int depth, std::vector<Solid*>& _primitives){
     return _primitives.size() <= MAX_PRIMITIVES_IN_LEAF || 
         depth >= MAX_TREE_DEPTH;
   }

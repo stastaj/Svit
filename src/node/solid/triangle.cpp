@@ -16,7 +16,7 @@ namespace Svit
 		Vector3 P = _ray.direction & e2;
 		float det = e1 % P;
 		if (std::abs(det) <= EPS_DIVISION ) 
-			false;
+			return false;
 		float inv_det = 1.0f / det;
 
 		Vector3 T = _ray.origin - p1;
