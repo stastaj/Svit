@@ -40,7 +40,7 @@ namespace Svit
   void
   KdTreeGroup::finish(){
     //kdtree.root=new KdTreeNode();
-    kdtree.root = kdtree.build(nodes,bb.min,bb.max,0);
+    kdtree.root = kdtree.build(nodes,bb.min,bb.max,0u);
     nodes.clear();
     assert( kdtree.check_tree(kdtree.root) );
   }
