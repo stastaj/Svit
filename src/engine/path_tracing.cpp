@@ -130,8 +130,8 @@ namespace Svit
     brdfVal=_world.materials[matID]->eval_brdf(surfpt,frame.to_local(wig),wol);
     if(_world.lights[light_ID]->type==Point){
       if(! is_occluded(_world,surfpt,lightDist,wig,_ray_id)){
-        assert(illum.max()>=0 && brdfVal.max()>=0);
-        return illum * brdfVal;
+        if(illum.max()>=0 && brdfVal.max()>=0);
+          return illum * brdfVal;
       }
     }
     Ray ray_sec_light(surfpt,wig,_ray_id);
