@@ -63,7 +63,7 @@ namespace Svit
        * @param filename
        * @return 
        */
-			int 
+			/*int 
       write_png (std::string filename);
       
       /**

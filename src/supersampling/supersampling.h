@@ -13,6 +13,9 @@ namespace Svit
 			next_sample3 () = 0;
       
 			virtual Vector2
+			next_sample2 () = 0;
+      
+      virtual float
 			next_sample () = 0;
 
 			virtual ~SuperSampling() { }

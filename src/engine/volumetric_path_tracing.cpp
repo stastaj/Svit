@@ -1,4 +1,4 @@
-#include "engine/path_tracing.h"
+#include "engine/volumetric_path_tracing.h"
 
 #include "geom/intersection.h"          // for Intersection
 #include "geom/ray.h"                   // for Ray
@@ -6,6 +6,7 @@
 #include "material/material.h"          // for Material
 #include "material/glass.h"
 #include "math/frame.h"                 // for Frame
+#include "math/numeric.h"
 #include "node/group/group.h"           // for Group
 #include "node/solid/solid.h"           // for Solid
 #include "supersampling/supersampling.h"  // for SuperSampling
@@ -19,7 +20,7 @@
 namespace Svit
 {
 	Vector3
-  PathTracing::get_color (const Ray& _ray, const World& _world, 
+  VolumetricPathTracing::get_color (const Ray& _ray, const World& _world, 
                           SuperSampling* _sampler, const int _iteration, 
                           unsigned int& _ray_id) const
 	{    
@@ -35,66 +36,108 @@ namespace Svit
     while(true){
       ++pathLength;
       
+      //if(pathLength>1)
+      //  break;
+      
       if( throughput.max() <=0 )
         break;
       
       bool scene_hit=_world.scene->intersect(ray,intersection);
-      if(scene_hit && intersection.solid->light>=0 && (pathLength==1 || refl_type==reflection || refl_type==refraction)){
-        const int lightID=intersection.solid->light;
-        Vector3 illum=throughput * _world.lights[lightID]->get_radiance(ray.direction);
-        if(illum.max()>0)
-          accum += illum;
-        break;
-      }
-      else if( (! scene_hit) || intersection.solid->light >= 0 ){ // no scene intersection
-        break;
-      }
-      
-      if(inside_glass){
-        intersection.normal =! intersection.normal;
-      }
-      const Frame frame(intersection.normal);
-      const int matID = intersection.solid->material ;
-      if(inside_glass){
-        Glass* glass = dynamic_cast<Glass*>(_world.materials[matID].get());
-        if(glass==0)
-          break;
-      }
-      const Vector3 wol=frame.to_local(! ray.direction);
-      Vector2 samples_light=_sampler->next_sample2();
-      Vector2 samples_brdf=_sampler->next_sample2();
-      
-      Vector3 illum=get_direct_illumination(frame,matID,intersection.point,wol,
-                                       samples_brdf,samples_light,_world,inside_glass,_ray_id);
-      if((throughput*illum).max()>0)
-        accum+=(throughput*illum);
-      
-      // mame dalsi prusecik v ceste
-      Vector3 wig;
-      Vector2 samples=_sampler->next_sample2();
-      _world.materials[matID]->sample_brdf(intersection.point,frame,&pdf,wig,
-                                           brdfVal,wol,samples,refl_type,
-                                           inside_glass);
-      
-      float cosTheta=std::abs(wig % frame.normal);
-      float reflectance=std::min(1.f,(brdfVal.max()*cosTheta)/pdf);
-      if(_sampler->next_sample() <= reflectance){
-        throughput*=((brdfVal*cosTheta)/(reflectance*pdf));
+      float scatter_dist=select_distance(_sampler->next_sample());
+      if(scatter_dist < intersection.t)
+      {
+        //break;
         
-        ray.origin=intersection.point;
-        ray.direction=wig;
-        ray.id=++_ray_id;
-        intersection.t = std::numeric_limits<float>::max();
+        Vector2 samples_light=_sampler->next_sample2();        
+        int light_count=_world.lights.size();
+        unsigned int light_ID=(unsigned int) samples_light.x*light_count;
+        if(light_ID == _world.lights.size())
+          --light_ID;
+        assert(light_ID < _world.lights.size());
+        samples_light.x=(samples_light.x-(_world.lights_count_inv)*light_ID)*light_count;
+        assert( samples_light.x>= 0.f && samples_light.x <=1.f );
+        float pdfLight;
+        float lightDist;
+        Vector3 wig;
+        const Point3 scatterPt=ray(scatter_dist);
+        Vector3 illum=_world.lights[light_ID]->sample_light_scattered(scatterPt,samples_light,
+                                                    wig,lightDist,pdfLight);
+        if(! is_occluded(_world,scatterPt,std::sqrt(lightDist),wig,_ray_id))
+        {
+          float attenuation=std::pow(E_F,-sigma_t*(std::sqrt(lightDist)));
+          pdfLight=_world.lights[light_ID]->get_pdf(wig,lightDist)
+                 *_world.lights_count_inv;
+          illum*=sigma_s/sigma_t*0.25f*INV_PI_F*attenuation/(pdfLight);
+          if((throughput*illum).max()>0)
+            accum+=(throughput*illum);
+        }
+        
+        if(_sampler->next_sample() <= albedo){          
+          ray.origin=scatterPt;
+          Vector2 samples=_sampler->next_sample2();
+          ray.direction=sample_uniform_sphere_w(samples,0);
+          ray.id=++_ray_id;
+          intersection.t = std::numeric_limits<float>::max();
+        }
+        else{ // absorb
+          break;
+        }
+        
       }
-      else{ // absorb
-        break;
+      else
+      {
+        if(scene_hit && intersection.solid->light>=0 && (pathLength==1 || refl_type==reflection || refl_type==refraction)){
+          const int lightID=intersection.solid->light;
+          Vector3 illum= throughput * _world.lights[lightID]->get_radiance(ray.direction);
+          if(illum.max()>0)
+            accum += illum;
+          break;
+        }
+        else if( (! scene_hit) || intersection.solid->light >= 0 ){ // no scene intersection
+          break;
+        }
+        
+        const Frame frame(intersection.normal);
+        const int matID = intersection.solid->material ;
+        const Vector3 wol=frame.to_local(! ray.direction);
+        Vector2 samples_light=_sampler->next_sample2();
+        Vector2 samples_brdf=_sampler->next_sample2();
+        
+        Vector3 illum=get_direct_illumination(frame,matID,intersection.point,wol,
+                                              samples_brdf,samples_light,_world,inside_glass,_ray_id);
+        
+        //float attenuation=std::pow(E_F,-sigma_a*intersection.t);
+        //throughput*=attenuation;
+        if((throughput*illum).max()>0)
+          accum+=(throughput*illum);
+        
+        // mame dalsi prusecik v ceste
+        Vector3 wig;
+        Vector2 samples=_sampler->next_sample2();
+        _world.materials[matID]->sample_brdf(intersection.point,frame,&pdf,wig,
+                                             brdfVal,wol,samples,refl_type,
+                                             inside_glass);
+        
+        float cosTheta=std::abs(wig % frame.normal);
+        float reflectance=std::min(1.f,(brdfVal.max()*cosTheta)/pdf);
+        if(_sampler->next_sample() <= reflectance){
+          throughput*=((brdfVal*cosTheta)/(reflectance*pdf));
+          
+          ray.origin=intersection.point;
+          ray.direction=wig;
+          ray.id=++_ray_id;
+          intersection.t = std::numeric_limits<float>::max();
+        }
+        else{ // absorb
+          break;
+        }
       }
     }
     return accum;    
 	}
   
   Vector3
-  PathTracing::get_direct_illumination(const Frame& frame, const int matID,
+  VolumetricPathTracing::get_direct_illumination(const Frame& frame, const int matID,
                           const Point3& surfpt, const Vector3& wol,
                           Vector2& samples_brdf, Vector2& samples_light,
                           const World& _world, bool inside_glass, 
@@ -126,12 +169,14 @@ namespace Svit
     //sample light
     float pdfLight;
     illum=_world.lights[light_ID]->sample_light(surfpt,frame,samples_light,
-                                                wig,lightDist,pdfLight);	
+                                                wig,lightDist,pdfLight);
     brdfVal=_world.materials[matID]->eval_brdf(surfpt,frame.to_local(wig),wol);
     if(_world.lights[light_ID]->type==Point){
       if(! is_occluded(_world,surfpt,lightDist,wig,_ray_id)){
-        if(illum.max()>=0 && brdfVal.max()>=0)
-          return illum * brdfVal;
+        if(illum.max()>=0 && brdfVal.max()>=0){
+          float attenuation=std::pow(E_F,-sigma_t*(std::sqrt(lightDist)));
+          return illum * brdfVal * attenuation;
+        }
       }
     }
     Ray ray_sec_light(surfpt,wig,_ray_id);
@@ -146,11 +191,13 @@ namespace Svit
         pdfLight=_world.lights[light_ID]->get_pdf(wig,lightDist)
                  *_world.lights_count_inv;
         
-        //pdfBrdf=0.f; // //// ////////////////////////////////////////
+        pdfBrdf=0.f; // //// ////////////////////////////////////////
         
         //assert();// && (pdfLight+pdfBrdf)>0);
-        if(illum.max()>=0 && brdfVal.max()>=0)
-          LoDirect += (illum * brdfVal  / (pdfLight + pdfBrdf));
+        if(illum.max()>=0 && brdfVal.max()>=0){
+          float attenuation=std::pow(E_F,-sigma_t*(std::sqrt(lightDist)));
+          LoDirect += ( illum * brdfVal * attenuation / (pdfLight + pdfBrdf));
+        }
       }
     }
     else // secondary ray doesnt intersect the scene
@@ -162,12 +209,13 @@ namespace Svit
           float pdfBrdf=_world.materials[matID]->get_pdf(surfpt,frame,
                                                    frame.to_world(wol),wig);
           assert(brdfVal.max()>=0 && (pdfLight+pdfBrdf)>0);
-          if(illum.max()>0)
+          if(illum.max()>0){
             LoDirect += (illum * brdfVal / (pdfBrdf + pdfLight));    
+          }
         }
       }
     }
-     
+     /*
     // BRDF SAMPLING
     _world.materials[matID]->sample_brdf(surfpt, frame, &pdfSampled,wig,brdfVal,
                                          wol,samples_brdf, refl_type, inside_glass);
@@ -189,9 +237,11 @@ namespace Svit
         float pdfBrdf=_world.materials[matID]->get_pdf(surfpt,frame,
                                                  frame.to_world(wol),wig);
         float weight=computeMISWeight(pdfBrdf,pdfLight);
-        //assert(  && weight>=0 && pdfSampled >0 );
-        if( illum.max()>=0 && brdfVal.max()>=0 )
-          LoDirect += (illum * brdfVal * weight / pdfSampled);     
+        //assert( brdfVal.max()>=0 && weight>=0 && pdfSampled >0 );
+        if( illum.max()>=0 && brdfVal.max()>=0){
+          float attenuation=std::pow(E_F,-sigma_a*(std::sqrt(lightDist)));
+          LoDirect += (illum * brdfVal * weight * attenuation / pdfSampled);     
+        }
       }
     }
     else // secondary ray doesnt intersect the scene
@@ -208,7 +258,7 @@ namespace Svit
             LoDirect += (illum * brdfVal  * weight / pdfSampled);
         }
       }
-    }
+    }*/
     return LoDirect;
   }
 }

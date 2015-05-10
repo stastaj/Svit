@@ -16,9 +16,12 @@ namespace Svit
 		public:
       RandomSuperSampling (unsigned int _seed=1234):generator(_seed)
       {}
-
-			Vector2
+      
+      float
 			next_sample () override;
+      
+			Vector2
+			next_sample2 () override;
 
       Vector3
 			next_sample3 () override;

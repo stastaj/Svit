@@ -40,7 +40,7 @@ namespace Svit
         *it *= _scale;
   }
 
-	int 
+	/*int 
   Image::write_png (std::string filename)
 	{
 		FILE *file = fopen(filename.c_str(), "wb");
@@ -87,7 +87,7 @@ namespace Svit
 		free(row);
 
 		return 0;
-	}
+	}*/
   
   int 
   Image::write_hdr(std::string filename)

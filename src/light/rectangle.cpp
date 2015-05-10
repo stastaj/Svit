@@ -19,6 +19,21 @@ namespace Svit
     }
     return (cos_thetaX*radiance);
 	}
+  
+  Vector3
+  RectangleLight::sample_light_scattered(const Point3& _surface_point, const Vector2& _samples,
+                         Vector3& _wig, float& _light_dist, float& _pdf) 
+  {
+    _pdf=area_inv;
+    Vector3 light_pos=p0+ (e1*_samples.x) + (e2*_samples.y); 
+    _wig = light_pos - _surface_point;
+    _light_dist = _wig % _wig;
+    _wig.normalize_fast();
+    if(!_wig % normal < 0 ){
+      return Vector3();
+    }
+    return radiance;
+  }
 
   Vector3 
   RectangleLight::get_radiance (const Vector3& _wig ) const 

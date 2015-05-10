@@ -36,6 +36,10 @@ namespace Svit
       
       float 
       get_pdf (const Vector3& _wig,float& _light_dist_sqr) const override;
+      
+      Vector3
+      sample_light_scattered(const Point3& surfPt, const Vector2& _samples,
+                             Vector3& _wig, float& _light_dist, float& _pdf) override;
 	};
 }
 

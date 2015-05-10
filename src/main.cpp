@@ -3,6 +3,7 @@
 #include "geom/point.h"
 #include "engine/engine.h"
 #include "engine/path_tracing.h"
+#include "engine/volumetric_path_tracing.h"
 #include "image/image.h"
 #include "node/group/kdtree_group.h"
 #include "node/group/simple_group.h"
@@ -78,7 +79,7 @@ get_wood_world (World& world,Vector2i& resolution)
 void
 get_cornell_box_world(World& _world, Vector2i& _resolution, bool point_light, 
                       bool area_light, bool environment_light, bool diffuse, 
-                      bool glass, bool cook_torrance){
+                      bool glass, bool cook_torrance, bool light_box){
   _world.camera=new PerspectiveCamera(
               Vector3(-0.0439815f,  0.222539f, -4.12529f),
               Vector3( 0.00688625f,-0.0542161f, 0.998505f),
@@ -172,6 +173,41 @@ get_cornell_box_world(World& _world, Vector2i& _resolution, bool point_light,
     _world.scene->add(new Triangle(cb[2], cb[6], cb[7], white));
     _world.scene->add(new Triangle(cb[7], cb[3], cb[2], white));
   }
+  if(light_box){
+    Vector3 lb[8] = {
+                Vector3(-0.25f, 1.26002f,  0.25f),
+                Vector3( 0.25f, 1.26002f,  0.25f),
+                Vector3( 0.25f, 1.28002f,  0.25f),
+                Vector3(-0.25f, 1.28002f,  0.25f),
+                Vector3(-0.25f, 1.26002f, -0.25f),
+                Vector3( 0.25f, 1.26002f, -0.25f),
+                Vector3( 0.25f, 1.28002f, -0.25f),
+                Vector3(-0.25f, 1.28002f, -0.25f)
+            };
+    
+    // Back wall
+    _world.scene->add(new Triangle(lb[0], lb[2], lb[1], white));
+    _world.scene->add(new Triangle(lb[2], lb[0], lb[3], white));
+    // Left wall
+    _world.scene->add(new Triangle(lb[3], lb[4], lb[7], white));
+    _world.scene->add(new Triangle(lb[4], lb[3], lb[0], white));
+    // Right wall
+    _world.scene->add(new Triangle(lb[1], lb[6], lb[5], white));
+    _world.scene->add(new Triangle(lb[6], lb[1], lb[2], white));
+    // Front wall
+    _world.scene->add(new Triangle(lb[4], lb[5], lb[6], white));
+    _world.scene->add(new Triangle(lb[6], lb[7], lb[4], white));
+    
+    
+    std::unique_ptr<Light> rectangle(new RectangleLight(lb[4], lb[5], lb[0], 
+                                 Vector3(31.831f,31.831f,31.831f))); // 50 Watts
+    _world.add_light( std::move(rectangle) );
+    
+    // Floor
+    _world.scene->add(new Triangle(lb[0], lb[5], lb[4], white, 0));
+    _world.scene->add(new Triangle(lb[5], lb[0], lb[1], white, 0));
+  }
+  
   float smallRadius = 0.5f;
   Vector3 leftWallCenter  = (cb[0] + cb[4]) * (1.f / 2.f) + Vector3(0, smallRadius, 0);
   Vector3 rightWallCenter = (cb[1] + cb[5]) * (1.f / 2.f) + Vector3(0, smallRadius, 0);
@@ -258,7 +294,7 @@ void parse_params(std::vector<std::string>& _args, Settings& _settings,
 {
   //get_wood_world(_world,_settings.resolution);
   _settings.max_thread_count = std::thread::hardware_concurrency();
-  _settings.iterations= 2;
+  _settings.iterations= 300;
   _settings.time=0;
   for (auto it = ++ begin (_args); it != end (_args); ++it) {
     if(*it=="-i"){
@@ -290,41 +326,49 @@ void parse_params(std::vector<std::string>& _args, Settings& _settings,
       unsigned int value;
       reader >> value;
       if(value==0){
-        get_cornell_box_world(_world,_settings.resolution,true,false,false,true,false,false);
+        get_cornell_box_world(_world,_settings.resolution,true,false,false,true,false,false,false);
         _filename="0_";
       }
       else if(value==1)
       {
-        get_cornell_box_world(_world,_settings.resolution,true,false,false,false,false,false);
+        get_cornell_box_world(_world,_settings.resolution,true,false,false,false,false,false,false);
         _filename="1_";
       }
       else if(value==2){
-        get_cornell_box_world(_world,_settings.resolution,false,true,false,true,false,false);
+        get_cornell_box_world(_world,_settings.resolution,false,true,false,true,false,false,false);
         _filename="2_";
       }
       else if(value==3){
-        get_cornell_box_world(_world,_settings.resolution,false,true,false,false,false,false);
+        get_cornell_box_world(_world,_settings.resolution,false,true,false,false,false,false,false);
         _filename="3_";
       }
       else if(value==4){
-        get_cornell_box_world(_world,_settings.resolution,false,false,true,true,false,false);
+        get_cornell_box_world(_world,_settings.resolution,false,false,false,true,false,false,true);
         _filename="4_";
       }
       else if(value==5){
-        get_cornell_box_world(_world,_settings.resolution,false,false,true,false,false,false);
+        get_cornell_box_world(_world,_settings.resolution,false,false,false,false,false,false,true);
         _filename="5_";
       }
       else if(value==6){
+        get_cornell_box_world(_world,_settings.resolution,false,false,true,true,false,false,false);
+        _filename="6_";
+      }
+      else if(value==7){
+        get_cornell_box_world(_world,_settings.resolution,false,false,true,false,false,false,false);
+        _filename="7_";
+      }
+      else if(value==8){
         get_wood_world(_world,_settings.resolution);
         _filename="wood_";
       }
-      else if(value==7){
-        get_cornell_box_world(_world,_settings.resolution,false,true,false,false,true,false);
-        _filename="6_";
+      else if(value==9){
+        get_cornell_box_world(_world,_settings.resolution,false,true,false,false,true,false,false);
+        _filename="8_";
       }
-      else if(value==8){
-        get_cornell_box_world(_world,_settings.resolution,false,true,false,false,true,true);
-        _filename="7_";
+      else if(value==10){
+        get_cornell_box_world(_world,_settings.resolution,false,true,false,false,true,true,false);
+        _filename="9_";
       }
       else{
         std::cout<<"Unknown scene number. "<<std::endl;
@@ -403,7 +447,7 @@ main (int argc, char** argv)
   
   std::vector<std::string> arguments(argv,argv+argc);
 	Settings settings;
-  settings.resolution = Vector2i(512, 512);
+  settings.resolution = Vector2i(300, 300);
   World world;
   std::string filename;
   parse_params(arguments,settings,world,filename);
@@ -415,7 +459,7 @@ main (int argc, char** argv)
                        <std::chrono::milliseconds>(t2 - t1).count();
   //std::cout<< "Building of kdtree took "<< elapsed_millisecs<< "ms." <<std::endl;
   
-  PathTracing engine;
+  VolumetricPathTracing engine(0.20, 0.1);
   //SerialRenderer renderer;
   ParallelRenderer renderer;
   

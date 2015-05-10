@@ -2,7 +2,12 @@
 
 namespace Svit
 {
-  Vector2 RandomSuperSampling::next_sample()
+  float RandomSuperSampling::next_sample()
+	{
+    return distribution(generator);
+	}
+  
+  Vector2 RandomSuperSampling::next_sample2()
 	{
     return Vector3(distribution(generator),
                    distribution(generator));

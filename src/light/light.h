@@ -59,6 +59,13 @@ namespace Svit
        */
       virtual float 
       get_pdf(const Vector3& _wig,float& _light_dist_sqr) const = 0;
+      
+      virtual Vector3
+      sample_light_scattered(const Point3& surfPt, const Vector2& samples,
+                             Vector3& wig, float& light_dist, float& pdf)
+      {
+        return Vector3();
+      }
 	};
 }
 

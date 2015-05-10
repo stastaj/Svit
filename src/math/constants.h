@@ -12,6 +12,8 @@ namespace Svit
   const float PI_F=3.1415926535897932384626433832795028841971f;
   const float INV_PI_F=(1.0f / PI_F);
   
+  const float E_F=2.71828182845904523536f;
+  
   const double PI_D=3.1415926535897932384626433832795028841971;
   const double INV_PI_D=(1.0 / PI_D);
 
